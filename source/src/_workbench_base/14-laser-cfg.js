@@ -1,24 +1,22 @@
       // ---- Laser configuration (read only): shared by the Jog and the Work table ----
-      // 0:/sys/workshop/config/laser.json = { watts, correccion: {x, y, fecha}, foco }. The Jog position card
-      // uses the laser <-> pointer correction; the saving of these values lives in _workbench_cut/15-cutarea.js.
-      var TJ_LASER_CFG_FILE = "0:/sys/workshop/config/laser.json";
+      // The "laser" settings store (workshopSettings of src/_shared/02-settings.js, service settings.get) = { watts, correction: {x, y, date}, focus }.
+      // It is the ONE source of the laser <-> pointer correction of the machine (written by Machine > Offsets); the Jog position card and the
+      // Workbench read it here, the zone files p<N>.g never stand in for it. The saving of the watts lives in _workbench_cut/15-cutarea.js.
       var tjLaserWatts = 20;
-      // The whole JSON (watts + laser<->pointer correction of the MACHINE, see
-      // 37-calibrate.js): saving one does not erase the other.
+      // The whole value of the store (watts + correction + focus): saving one key does not erase the others (15-cutarea.js tjLaserCfgSave).
       var tjLaserCfgAll = {};
       var tjLaserCfgListeners = [];
       function tjLoadLaserCfg() {
-        return fetch("/machine/file/" + TJ_LASER_CFG_FILE, { cache: "no-store" })
+        return workshopSettings
+          .load("laser")
           .then(function (r) {
-            return r.ok ? r.json() : null;
-          })
-          .then(function (c) {
+            var c = r && r.value;
             if (c && typeof c === "object") tjLaserCfgAll = c;
             if (c && c.watts > 0) tjLaserWatts = Number(c.watts);
             tjLaserCfgListeners.forEach(function (fn) { fn(); });
           })
           .catch(function () {
-            /*  without a file: 20 W by default */
+            /*  without the service: 20 W by default and no correction */
           });
       }
       function tjLaserCorrection() {

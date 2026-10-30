@@ -1,5 +1,9 @@
 # WorkshopJog -- historial de versiones
 
+## 3.13.33 -- 2026-10-30
+
+- The laser correction comes from the settings store
+
 ## 3.13.32 -- 2026-10-30
 
 - Manifest: sbcRequired true (needs WorkshopService); side bar keeps the group names
