@@ -1,0 +1,3 @@
+# Base compartida con la Mesa de trabajo (WorkshopWorkbench): archivos, ayuda (?) y la lectura
+# de laser.json. Lo demas de la mesa (area de corte, posiciones, macros) ya no viaja en el Jog
+_workbench_base

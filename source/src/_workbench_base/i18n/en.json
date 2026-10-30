@@ -1,0 +1,9 @@
+{
+	"files": {
+		"could_not_write_http": "Could not write {p} (HTTP {status})",
+		"could_not_delete_http": "Could not delete {p} (HTTP {status})"
+	},
+	"workbenchTips": {
+		"help_with_this_on_tap_any": "Help: with this on, tap any button to see what it does (it does not run it). STOP and E-STOP work the same. It turns off by itself after 20 s."
+	}
+}

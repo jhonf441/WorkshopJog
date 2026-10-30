@@ -1,0 +1,20 @@
+{
+  "id": "WorkshopJog",
+  "name": "Jog",
+  "author": "jhonf441",
+  "version": "3.13.31",
+  "license": "GPL-3.0-or-later",
+  "homepage": "https://github.com/jhonf441/WorkshopJog",
+  "tags": [
+    "jog",
+    "cnc",
+    "laser",
+    "fff"
+  ],
+  "dwcVersion": "3.6",
+  "dwcDependencies": [
+    "WorkshopService"
+  ],
+  "sbcRequired": false,
+  "data": {}
+}

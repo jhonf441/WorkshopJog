@@ -1,0 +1,9 @@
+{
+	"files": {
+		"could_not_write_http": "No se pudo escribir {p} (HTTP {status})",
+		"could_not_delete_http": "No se pudo borrar {p} (HTTP {status})"
+	},
+	"workbenchTips": {
+		"help_with_this_on_tap_any": "Ayuda: con esto activo, toca cualquier botón para ver qué hace (no lo acciona). STOP y E-STOP funcionan igual. Se apaga solo a los 20 s."
+	}
+}
