@@ -2,7 +2,7 @@
   "id": "WorkshopJog",
   "name": "Jog",
   "author": "jhonf441",
-  "version": "3.13.31",
+  "version": "3.13.32",
   "license": "GPL-3.0-or-later",
   "homepage": "https://github.com/jhonf441/WorkshopJog",
   "tags": [
@@ -15,6 +15,17 @@
   "dwcDependencies": [
     "WorkshopService"
   ],
-  "sbcRequired": false,
-  "data": {}
+  "sbcRequired": true,
+  "sbcDsfVersion": "3.6",
+  "data": {},
+  "sdFiles": [
+    "sys/workshop/macros/jogFreeFailsafe.g",
+    "sys/workshop/macros/jogFreeSet.g",
+    "sys/workshop/macros/language.g",
+    "sys/workshop/macros/workzeroaxis.g"
+  ],
+  "dwcFiles": [
+    "js/WorkshopJog.598db932.js",
+    "js/WorkshopJog.598db932.js.gz"
+  ]
 }

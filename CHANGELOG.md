@@ -1,5 +1,9 @@
 # WorkshopJog -- historial de versiones
 
+## 3.13.32 -- 2026-10-30
+
+- Manifest: sbcRequired true (needs WorkshopService); side bar keeps the group names
+
 ## 3.13.31 -- 2026-10-29
 
 - Phone layout fixes (44 px touch targets, no overflow), Workbench full-screen section picker, clamps hint, interrupted jobs off the table, Machine scale label

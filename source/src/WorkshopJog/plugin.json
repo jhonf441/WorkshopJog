@@ -2,7 +2,7 @@
   "id": "WorkshopJog",
   "name": "Jog",
   "author": "jhonf441",
-  "version": "3.13.31",
+  "version": "3.13.32",
   "license": "GPL-3.0-or-later",
   "homepage": "https://github.com/jhonf441/WorkshopJog",
   "tags": [
@@ -15,6 +15,7 @@
   "dwcDependencies": [
     "WorkshopService"
   ],
-  "sbcRequired": false,
+  "sbcRequired": true,
+  "sbcDsfVersion": "3",
   "data": {}
 }
