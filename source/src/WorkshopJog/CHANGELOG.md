@@ -1,5 +1,17 @@
 # WorkshopJog -- historial de versiones
 
+## 3.13.36 -- 2026-10-31
+
+- Lot 2: one relay client, camera client folder, single gallery, one presence helper, shared resources released at the last plugin, flash for the operator
+
+## 3.13.35 -- 2026-10-31
+
+- Hides what names a plugin that is absent; a plugin is active only by the machine list
+
+## 3.13.34 -- 2026-10-31
+
+- Merged work: config write path, exchange standard, review fixes
+
 ## 3.13.33 -- 2026-10-30
 
 - The laser correction comes from the settings store

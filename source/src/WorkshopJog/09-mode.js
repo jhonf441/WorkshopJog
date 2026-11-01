@@ -17,7 +17,7 @@
         return jogModeKnown(mode) === "Laser" ? " S0" : "";
       }
 
-      // The pointer / laser choice (and the laser correction of laser.json) exists only in Laser mode.
+      // The pointer / laser choice (and the laser correction of the "laser" settings store) exists only in Laser mode.
       function jogHasPoints(mode) {
         return jogModeKnown(mode) === "Laser";
       }

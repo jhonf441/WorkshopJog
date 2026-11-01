@@ -319,6 +319,7 @@
 	},
 	"settings": {
 		"macro_buttons_what": "Aquí creas los botones del jog: elige un botón que ya exista en la barra, una macro de la máquina (carpeta macros) o escribe un G-code. Se guardan en la máquina: se ven igual en todas las pantallas y celulares. Con < > los ordenas y Borrar (doble toque) los quita.",
+		"macro_buttons_what_no_bar": "Aquí creas los botones del jog: elige una macro de la máquina (carpeta macros) o escribe un G-code. Se guardan en la máquina: se ven igual en todas las pantallas y celulares. Con < > los ordenas y Borrar (doble toque) los quita.",
 		"macro_buttons_not_ready": "El jog todavía no está listo: ábrelo una vez y vuelve a esta hoja.",
 		"factory_values_of_this_design_loaded": "Valores de fábrica de este diseño cargados (falta Guardar).",
 		"restore_this_design": "Restablecer este diseño",

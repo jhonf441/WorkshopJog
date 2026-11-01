@@ -319,6 +319,7 @@
 	},
 	"settings": {
 		"macro_buttons_what": "Here you make the buttons of the jog: pick a button that already exists in the bar, a macro of the machine (macros folder) or type a G-code. They are saved on the machine, so every screen and phone shows the same ones. < > order them and Delete (double tap) removes them.",
+		"macro_buttons_what_no_bar": "Here you make the buttons of the jog: pick a macro of the machine (macros folder) or type a G-code. They are saved on the machine, so every screen and phone shows the same ones. < > order them and Delete (double tap) removes them.",
 		"macro_buttons_not_ready": "The jog is not ready yet: open it once and come back to this sheet.",
 		"factory_values_of_this_design_loaded": "Factory values of this design loaded (Save is still needed).",
 		"restore_this_design": "Restore this design",

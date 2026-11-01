@@ -74,6 +74,8 @@
       // el(tag, css, text) is the small element maker of the caller.
       function jogMotorsLinkMake(el) {
         if (!jogRoleNow().motorsLink) return null;
+        // the plugin decides whether to show it (DWC 3.6 keeps the route of a stopped plugin); the route is only the place to go to
+        if (!workshopPluginActive("motors")) return null;
         var path = jogMotorsPath(workshopPathExists);
         if (!path) return null;
         var row = el("div", "display:flex;align-items:center;gap:8px;margin:6px 0;flex-wrap:wrap;");

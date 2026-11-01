@@ -6,7 +6,6 @@
       var JOG_TOUCH_STOP_PX = 44; // STOP / E-STOP height on a touch screen
       var JOG_TOUCH_MIN_PX = 32; // nothing else that is touched is lower (DESIGN.md, section 4)
       var JOG_TOUCH_STYLE_ID = "emergency-fab-jog-touch-css";
-      var JOG_NARROW_PX = 768;
       var JOG_PHONE_PX = 600; // under this width (a phone) the panel starts folded and its buttons are 44 px
 
       // A touch screen (phone, tablet, kiosk): the main pointer is coarse. No user-agent sniffing.
@@ -16,11 +15,6 @@
         } catch (e) {
           return false;
         }
-      }
-
-      // A narrow window (a phone). The kiosk screens (800x480, 1024x600) are wider than this.
-      function jogIsNarrow() {
-        return window.innerWidth <= JOG_NARROW_PX;
       }
 
       // A phone-width window: the floating panel must not stay open over the page.
@@ -139,13 +133,7 @@
         stopRow.appendChild(eStopBtn);
       }
 
-      // Narrow screen (phone): the jog and the control bar do not fit side by side, so opening the jog closes the bar.
-      // The bar listens for this event (WorkshopControlBar/13-narrow.js); if it is not installed nothing happens.
+      // Narrow screen (phone): the jog and the control bar do not fit side by side, so opening the jog closes the bar (_shared/40-launcher.js).
       function jogCloseSidebarIfNarrow() {
-        if (!jogIsNarrow()) return;
-        try {
-          window.dispatchEvent(new CustomEvent("workshop-panel-opened", { detail: { id: "jog" } }));
-        } catch (e) {
-          /* not critical */
-        }
+        workshopAnnouncePanelOpened("jog");
       }

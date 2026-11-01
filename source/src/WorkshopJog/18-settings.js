@@ -722,7 +722,7 @@
         // machine, so every screen and phone shows the same ones.
         function drawMacros() {
           h(bodyThe, i18nT('jog.macro_buttons'));
-          hint(bodyThe, i18nT('settings.macro_buttons_what'));
+          hint(bodyThe, workshopPluginActive("bar") ? i18nT('settings.macro_buttons_what') : i18nT('settings.macro_buttons_what_no_bar'));
           if (jogMacroAdmin) jogMacroAdmin.mount(bodyThe);
           else hint(bodyThe, i18nT('settings.macro_buttons_not_ready'));
         }

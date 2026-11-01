@@ -10,7 +10,7 @@
       // moving after release" kept happening because the real cause
       // was never the code of THIS file: it was the kiosk's own Chromium
       // (unreliable pointer capture on Wayland+touch, the main
-      // thread shared with the camera stream added the same day,
+      // thread shared with a video stream added the same day,
       // kiosk relaunches, cache). A dedicated Python thread does not
       // depend on any of that.
       //
@@ -293,9 +293,9 @@
       var jogFsBtn = null;
 
       // A phone: touch screen and narrow window (16-touch.js). Not the user-agent: the kiosk is a touch screen too, but its
-      // window is wider than JOG_NARROW_PX, so it does not get the full screen button.
+      // window is wider than WORKSHOP_NARROW_PX, so it does not get the full screen button.
       function isMobileViewport() {
-        return jogIsTouch() && jogIsNarrow();
+        return jogIsTouch() && workshopIsNarrow();
       }
 
       // 2026-10-08, second round: v1 only scaled the panel with a
@@ -367,28 +367,24 @@
         // always fits within the space already reserved under the header.
       }
 
-      // Reported live 2026-10-08: in the jog's full screen, the
-      // camera's floating button appeared ON TOP (visible,
-      // interactive) while the camera panel (if it was
-      // open) stayed BEHIND -- inconsistent stacking order.
+      // Reported live 2026-10-08: in the jog's full screen, another
+      // floating widget appeared ON TOP (visible, interactive) while the
+      // one that was open stayed BEHIND -- inconsistent stacking order.
       // Cause: Element.requestFullscreen() promotes the jog panel to
       // the browser's special "top layer" (by spec, above
       // the WHOLE normal document regardless of z-index) -- but that
       // top layer is exclusive to ONE element (the one that is
-      // fullscreen); other floating widgets of THIS SAME plugin
-      // (camera, shutdown button) live OUTSIDE that layer, in the normal
+      // fullscreen); the other floating widgets live OUTSIDE that layer, in the normal
       // document, and their exact stacking behaviour against a top layer
       // varies between browsers -- there is no reliable way to guarantee
       // they stay hidden with z-index alone. Simpler and 100% reliable:
-      // hide them explicitly while the jog is in full screen (it makes sense
-      // anyway -- it is a "focus mode" for the jog, not for using the camera at
-      // the same time) and return them to their previous state on exit.
-      // It saves in the dataset WHICH ones it hid (so as not to reappear something
-      // that the camera's own logic had already hidden before entering).
+      // hide them explicitly while the jog is in full screen (it is a
+      // "focus mode" for the jog) and return them to their previous state on exit.
+      // Every floating widget of the family says so itself with the attribute data-workshop-float (the Jog does not
+      // know their ids). It saves in the dataset WHICH ones it hid (so as not to reappear something
+      // that the widget's own logic had already hidden before entering).
       function jogHideOtherWidgetsForFullscreen(hide) {
-        ["emergency-fab-cam-panel", "emergency-fab-sidebar"].forEach(function (id) {
-          var el = document.getElementById(id);
-          if (!el) return;
+        Array.prototype.forEach.call(document.querySelectorAll("[data-workshop-float]"), function (el) {
           if (hide) {
             if (el.style.display !== "none") {
               el.dataset.jogFsHidden = "1";
@@ -484,7 +480,7 @@
           jogApplyScale(jogScale);
         }
         // Plain ASCII text, not unicode symbols -- the same reason
-        // documented for the camera icons: it is not worth
+        // documented for the other icons: it is not worth
         // risking a broken glyph in some odd mobile browser for a
         // simple button.
         if (jogFsBtn) jogFsBtn.textContent = on ? i18nT('jog.exit') : "FS";
@@ -1136,8 +1132,8 @@
           })
           .catch(function () {
             // Tolerate a SINGLE network/server failure without cutting the jog --
-            // this poll competes for CPU/network with the camera stream
-            // (added by another session the same day) and an isolated
+            // this poll competes for CPU/network with the video streams
+            // of the page and an isolated
             // /machine/status timeout does not mean that the backend's
             // real connection to the jog (which no longer even goes through this browser)
             // is failing too. Only at the SECOND consecutive failure is the
@@ -1389,7 +1385,7 @@
         // closing the jog turns off the no-limits mode (nobody is watching it)
         if (!silent && jogFreeActive()) postJogCommand("jog.free", { on: false });
         // Reported live 2026-10-08: closing the panel while in
-        // full screen left the camera/the bar hidden
+        // full screen left the other floating widgets hidden
         // forever -- full screen has to be exited for real (and the
         // intention remembered for when it is opened again).
         jogWasFullscreenBeforeCollapse = jogIsFullscreen;
@@ -1404,7 +1400,7 @@
 
         function finish() {
           if (token !== jogCloseToken) return; // se reabrio mientras tanto
-          // The same fix as cameraCollapse() -- take the focus out of the
+          // The same fix as in the other floating panels -- take the focus out of the
           // panel BEFORE hiding it (otherwise the browser reassigns the
           // focus and may trigger the on-screen keyboard).
           if (jogPanelEl && document.activeElement && jogPanelEl.contains(document.activeElement)) {
@@ -2249,7 +2245,7 @@
 
         // Plain text, not emoji -- the kiosk's font does not have those
         // glyphs and they look like a "broken image" icon (the same reason
-        // documented above for the camera buttons).
+        // documented above for the icons).
         var speedIconSlow = document.createElement("span");
         speedIconSlow.textContent = "MIN";
         speedIconSlow.style.cssText = "font-size:10px;color:rgba(255,255,255,0.45);flex:0 0 auto;";
@@ -2991,12 +2987,10 @@
           "width:100%;height:26px;font-size:10px;border-radius:4px;border:1px solid rgba(255,255,255,0.3);background:#1e272c;color:#fff;padding:0 2px;box-sizing:border-box;";
         var macroSrcSel = document.createElement("select");
         macroSrcSel.style.cssText = macroSelCss;
-        [["existing", i18nT('jog.use_a_button_that_already_exists')], ["macro", i18nT('jog.macro_choose_from_the_list')], ["gcode", i18nT('jog.g_code_type_it')]].forEach(function (o) {
-          var op = document.createElement("option");
-          op.value = o[0];
-          op.textContent = o[1];
-          macroSrcSel.appendChild(op);
-        });
+        // "existing" names the bar: it is offered only while the control bar is there, and follows it (09-macro-sources.js)
+        var macroSrcState = { bar: null };
+        jogMacroSourcesFill(macroSrcSel, macroSrcState);
+        jogMacroSourcesFollow(macroSrcSel, macroSrcState, function () { jogFillMacroPick(); jogStateBoxVer(); });
         macroAddForm.insertBefore(macroSrcSel, macroLabelInput);
 
         var macroPickSel = document.createElement("select"); // existente o macro
@@ -3315,7 +3309,7 @@
             wrap.style.cssText = "display:flex;align-items:center;gap:2px;";
             macroList.appendChild(wrap);
             // the bar owns the macro buttons: a copy of one of its buttons is not drawn a second time (it stays in the list of Settings)
-            if (jogMacroIsBarDuplicate(macro, jogBarButtons, workshopPluginLoaded("bar"))) wrap.style.display = "none";
+            if (jogMacroIsBarDuplicate(macro, jogBarButtons, workshopPluginActive("bar"))) wrap.style.display = "none";
 
             // The same look as in the sidebar (request 2026-10-09: "the
             // macro buttons are not copied the same, nor do they have a button shape").
