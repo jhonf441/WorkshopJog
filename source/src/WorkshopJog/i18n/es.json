@@ -27,7 +27,6 @@
 		"tap_again": "Toca otra vez",
 		"cancel": "Cancelar",
 		"the_system_sends_the_jog_to": "El sistema manda el jog a la Duet por DSF: la placa en modo SBC, unida al sistema. Sin modo SBC, o sin el servicio del sistema (plugin WorkshopService) corriendo, no hay canal por donde mandarlo. El servicio se instala y se inicia en Ajustes > Complementos; por qué canal va cada cosa se elige en Servicio del sistema.",
-		"jog_size_this_screen_only": "Tamaño del jog: {v}% (solo esta pantalla)",
 		"exit": "Salir",
 		"to_move_anyway_confirm_with_a_2": "{reason}. Para mover igual, confirma con doble toque.",
 		"jog_blocked_2": "Jog bloqueado: {reason}",
@@ -134,11 +133,10 @@
 		"probe_help": "Mide con la sonda de Z la altura de la superficie bajo el cabezal (G30 S-1): baja Z hasta que toca y dice a qué altura. No cambia ningún cero. Doble toque.",
 		"probe_result": "La sonda tocó a Z {z} mm (no se cambió ningún cero).",
 		"probe_no_answer": "La sonda no dio una altura.",
-		"zoom_smaller": "Más pequeño",
-		"zoom_bigger": "Más grande",
 		"role_view_only": "Solo lectura: tu rol no mueve la máquina aquí. El PARO siempre está disponible.",
 		"sign_in_needed": "No has iniciado sesión. Inicia sesión con tu nombre y PIN para mover la máquina.",
-		"sign_in_button": "Iniciar sesión"
+		"sign_in_button": "Iniciar sesión",
+		"resize_handle": "Arrastra para cambiar el tamaño del panel (se recuerda en esta pantalla). Doble toque: tamaño original."
 	},
 	"avConsole": {
 		"title": "Consola",
@@ -383,8 +381,6 @@
 		"this_screen_only_the_distances_of": "Solo en esta pantalla. Las distancias de la pestaña Paso (mm), separadas por coma. Hasta 12.",
 		"step_chosen_on_opening": "Paso elegido al abrir:",
 		"type_at_least_one_number_e": "Escribí al menos un número (ej. 0.1, 1, 10).",
-		"size": "Tamaño",
-		"same_as_a_a_applied_at": "Lo mismo que A- / A+ (se aplica al instante).",
 		"tab_colour": "Color de las pestañas",
 		"border_colour": "Color del borde",
 		"on_page_load": "Al cargar la página",
@@ -393,8 +389,7 @@
 		"always_minimized": "Siempre minimizado",
 		"the_double_tap_confirmations_of_the": "Las confirmaciones de doble toque de los botones que MUEVEN la máquina no se pueden apagar (seguridad).",
 		"release_the_knob_z_first": "Solta la perilla / Z primero.",
-		"the_machine_part_was_not_saved": "No se guardó la parte de la máquina: {err}",
-		"zoom_in_bar": "Mostrar el zoom (A- / A+) en la barra, junto al engranaje"
+		"the_machine_part_was_not_saved": "No se guardó la parte de la máquina: {err}"
 	},
 	"main": {
 		"opens_the_floating_jog_panel_when": "Abre el panel flotante de jog. Al cerrarlo (aquí o con el \"-\" del panel), si había un movimiento sostenido (perilla, Z o teclado) primero se detiene y recién después se cierra; el control por teclado también se apaga. No detiene ningún proceso global ni afecta a otras pantallas.",

@@ -64,7 +64,7 @@
       var jogIdentityOff = workshopOnIdentity(jogRoleSyncSafe); // the panel is rebuilt for the new role (17-role.js)
 
       // the <style> elements only the Jog uses leave the page when it stops (the shared ones go with the last plugin: workshopRemoveLeftovers)
-      var JOG_OWN_STYLES = ["workshop-jog-free-css", "workshop-jog-scroll-css", JOG_TOUCH_STYLE_ID];
+      var JOG_OWN_STYLES = ["workshop-jog-free-css", "workshop-jog-scroll-css", JOG_SIZE_STYLE_ID, JOG_TOUCH_STYLE_ID];
       workshopOwnStyles(JOG_OWN_STYLES);
 
       workshopOnStop(function () {

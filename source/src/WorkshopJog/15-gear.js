@@ -21,50 +21,7 @@
         return b;
       }
 
-      // Optional A- / A+ buttons in the bar, next to the gear (2026-10-21). Off by default; the switch is in Settings > Look and belongs to
-      // THIS screen (localStorage). The slider in the settings keeps working either way.
-      var JOG_ZOOM_BAR_KEY = "workshopJogZoomInBar";
-      var jogZoomBarEl = null;
-      function jogZoomBarOn() {
-        try {
-          return localStorage.getItem(JOG_ZOOM_BAR_KEY) === "1";
-        } catch (e) {
-          return false;
-        }
-      }
-      function jogZoomBarSet(on) {
-        try {
-          localStorage.setItem(JOG_ZOOM_BAR_KEY, on ? "1" : "0");
-        } catch (e) {
-          /* not critical */
-        }
-        if (jogZoomBarEl) jogZoomBarEl.style.display = on ? "inline-flex" : "none";
-      }
-      function jogZoomBarMake() {
-        var wrap = document.createElement("span");
-        wrap.style.cssText = "display:" + (jogZoomBarOn() ? "inline-flex" : "none") + ";gap:2px;margin-right:4px;";
-        [["A-", -JOG_SCALE_STEP, "jog.zoom_smaller"], ["A+", JOG_SCALE_STEP, "jog.zoom_bigger"]].forEach(function (d) {
-          var b = document.createElement("button");
-          b.type = "button";
-          b.textContent = d[0];
-          b.title = i18nT(d[2]);
-          b.style.cssText = "min-width:24px;height:20px;border-radius:4px;border:none;background:rgba(255,255,255,0.15);color:#fff;padding:0 3px;cursor:pointer;touch-action:none;font-size:11px;font-weight:bold;line-height:18px;";
-          b.addEventListener("pointerdown", function (ev) {
-            ev.stopPropagation();
-            ev.preventDefault();
-          });
-          b.addEventListener("pointerup", function (ev) {
-            ev.stopPropagation();
-            jogApplyScale(jogScale + d[1]);
-          });
-          wrap.appendChild(b);
-        });
-        jogZoomBarEl = wrap;
-        return wrap;
-      }
-
-      // The gear goes right after the first element of the header, the optional zoom right after the gear.
+      // The gear goes right after the first element of the header. The size of the panel is not a setting: it is the corner handle (15-size-handle.js).
       function jogGearMount(header) {
         header.insertBefore(jogAjMakeGearBtn(), header.firstChild.nextSibling);
-        header.insertBefore(jogZoomBarMake(), header.firstChild.nextSibling.nextSibling);
       }

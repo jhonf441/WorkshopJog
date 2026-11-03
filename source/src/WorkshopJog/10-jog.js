@@ -210,46 +210,7 @@
       var jogStepAxisFn = null; // (axis, sign): one step of the chosen distance (Step tab)
 
       var JOG_PANEL_ID = "emergency-fab-jog-panel";
-      var JOG_PANEL_W = 208;
-
-      // Panel size (request 2026-10-08: "the jog should be able to adjust
-      // its size a little, in Chrome or on the phone it stays the same"): buttons
-      // A- / A+ in the title bar, from JOG_SCALE_MIN to JOG_SCALE_MAX.
-      // It belongs to THIS screen (localStorage). It is applied with CSS zoom on
-      // header and body (not on the panel: so the drag's left/top stay
-      // in screen px) and the panel's width is multiplied by hand. The
-      // controls that read getBoundingClientRect (knob, Z, Straight) keep
-      // giving correct values (they are proportions); only the drawing of their
-      // "thumb" is divided by jogScale (see jogScale in those places).
-      var JOG_SCALE_KEY = "workshopJogScale";
-      var JOG_SCALE_MIN = 0.8;
-      var JOG_SCALE_MAX = 1.8;
-      var JOG_SCALE_STEP = 0.1;
-      var jogScale = 1;
-      try {
-        jogScale = parseFloat(localStorage.getItem(JOG_SCALE_KEY)) || 1;
-      } catch (e) {
-        jogScale = 1;
-      }
-      jogScale = Math.min(JOG_SCALE_MAX, Math.max(JOG_SCALE_MIN, jogScale));
-
-      function jogApplyScale(z) {
-        jogScale = Math.round(Math.min(JOG_SCALE_MAX, Math.max(JOG_SCALE_MIN, z)) * 10) / 10;
-        try {
-          localStorage.setItem(JOG_SCALE_KEY, String(jogScale));
-        } catch (e) {
-          /* no critico */
-        }
-        if (!jogPanelEl || jogPanelEl.dataset.fsLock === "1") return; // pantalla completa se escala sola
-        if (jogHeaderEl) jogHeaderEl.style.zoom = String(jogScale);
-        if (jogBodyEl) jogBodyEl.style.zoom = String(jogScale);
-        if (jogStopDockEl) jogStopDockEl.style.zoom = String(jogScale);
-        jogPanelEl.style.width = Math.round(JOG_PANEL_W * jogScale) + "px";
-        jogHeightMaxBody();
-        if (jogScaleLabel) jogScaleLabel.title = i18nT('jog.jog_size_this_screen_only', { v: Math.round(jogScale * 100) });
-        jogReclampPanel();
-      }
-      var jogScaleLabel = null;
+      // Size of the panel: the constants, the zoom and the handle in the corner are in 09-size.js / 15-size.js / 15-size-handle.js
       // Below 372: the home/step rows are no longer always visible
       // at the same time (see tabs below), but the stop/e-stop row
       // and the tab bar are added -- it is still only an
@@ -477,7 +438,6 @@
           jogPanelEl.style.left = clamp(left, MARGIN, window.innerWidth - JOG_PANEL_W - MARGIN) + "px";
           jogPanelEl.style.top = clamp(top, MARGIN, window.innerHeight - JOG_PANEL_H_ESTIMATE - MARGIN) + "px";
           jogReclampPanel();
-          jogApplyScale(jogScale);
         }
         // Plain ASCII text, not unicode symbols -- the same reason
         // documented for the other icons: it is not worth
@@ -1234,7 +1194,7 @@
       function jogReclampPanel() {
         if (!jogPanelEl || jogPanelEl.dataset.fsLock === "1") return;
         if (jogPanelEl.style.display === "none") return;
-        jogHeightMaxBody();
+        jogSizeApply();
         var saved = loadPos("emergencyFabJogPanelPos");
         var baseLeft = saved ? saved.left : jogPanelEl.offsetLeft;
         var baseTop = saved ? saved.top : jogPanelEl.offsetTop;
@@ -1288,25 +1248,10 @@
         el.style.top = p.top + "px";
       }
 
-      // Maximum body height: the whole panel (title bar + body)
-      // fits on the screen. If on this screen the jog does not fit to the
-      // left of the emergency button (narrow phone or jog enlarged
-      // with A+), it may have to go BELOW DWC's bar: that height is
-      // subtracted so that it still fits whole. The limit is measured INSIDE the
-      // zoom: it is divided by jogScale.
-      function jogHeightMaxBody() {
-        if (!jogBodyEl || !jogPanelEl || jogPanelEl.dataset.fsLock === "1") return;
-        var reserve = 0;
-        var z = jogZoneEmergency();
-        if (z && z.left - MARGIN < Math.round(JOG_PANEL_W * jogScale)) reserve = Math.ceil(z.bottom);
-        var v = "calc((100vh - " + (Math.round((36 + JOG_STOP_DOCK_H + JOG_STATUS_BAR_H) * jogScale) + 4 + 2 * MARGIN + reserve) + "px) / " + jogScale + ")";
-        if (jogBodyEl.style.maxHeight !== v) jogBodyEl.style.maxHeight = v;
-      }
-
       // ---- Phantom touch (request 2026-10-12: "the jog header buttons
       // press what is behind") ----
       // Cause: the jog buttons act on pointerup (minimize hides the
-      // panel, A-/A+ shrink/enlarge it, the gear opens the settings sheet).
+      // panel, the gear opens the settings sheet).
       // On touch Chromium generates the "click" of the tap AFTER pointerup/
       // touchend and directs it to whatever is under the finger at that moment
       // (it looks the element up again). Since the panel already hid or changed
@@ -1593,9 +1538,8 @@
         minBtn.addEventListener("pointerup", minTouch);
         minBtn.addEventListener("touchend", minTouch, { passive: false });
         minBtn.addEventListener("click", minTouch);
-        // (A- / A+ left the header on 2026-10-16: the panel size is a slider in Ajustes > Apariencia)
         header.insertBefore(tjTipMakeHelpBtn(), jogFsBtn && jogFsBtn.parentNode === header ? jogFsBtn : null); // "?" modo ayuda (12-tips.js)
-        jogGearMount(header); // gear (settings) and the optional A- / A+ (15-gear.js)
+        jogGearMount(header); // gear (settings) (15-gear.js)
         jogStartupMount(header, minBtn); // start-up chip, then the minimize button (19-startup.js)
         panel.appendChild(header);
         jogHeaderEl = header;
@@ -1617,9 +1561,6 @@
         body.style.overflowX = "hidden"; jogScrollMount(body); jogBlockedWatch(body); // thin scrollbar (16-touch.js), explain a blocked touch (17-role.js)
         panel.appendChild(body);
         jogBodyEl = body;
-        setTimeout(function () {
-          jogApplyScale(jogScale); // after building everything (header + body already in the panel)
-        }, 0);
 
         var statusThe = document.createElement("div");
         statusThe.style.cssText = "font-size:11px;color:#b0bec5;max-height:32px;overflow-y:auto;";
@@ -1666,6 +1607,7 @@
         jogDock.style.cssText = "width:100%;box-sizing:border-box;flex:none;background:#263238;border-top:1px solid rgba(255,255,255,0.18);";
         panel.appendChild(jogDock);
         jogStopDockEl = jogDock;
+        jogSizeMount(panel); // the saved size and the strip with the resize handle under the dock (15-size.js)
         jogDock.style.touchAction = "none"; // dragging on the dock does not scroll the page behind
         // quick actions, always at hand (two taps: they move): Home (all), Home X / Y / Z, raise Z
         var jogQuick = document.createElement("div");
@@ -1727,7 +1669,7 @@
         }
         setTimeout(jogAdjustAll, 0);
         var stopRow = document.createElement("div");
-        stopRow.style.cssText = "display:flex;gap:4px;width:100%;box-sizing:border-box;padding:6px 8px 7px 8px;";
+        stopRow.style.cssText = "display:flex;gap:4px;width:100%;box-sizing:border-box;padding:6px 8px 3px 8px;"; // the strip of the resize handle comes right under it
         jogDock.appendChild(stopRow);
         jogFreeMount(body); // "Move without limits" + its notice, below STOP / E-STOP (11-free.js)
 

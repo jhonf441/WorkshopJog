@@ -1,5 +1,33 @@
 # WorkshopJog -- historial de versiones
 
+## 3.13.42 -- 2026-11-03
+
+- Jog: height never passes the content of the open tab at the current zoom (no blank band)
+
+## Unreleased
+
+- Jog: the panel is never taller than the content of the open tab (dragging the corner down left a blank band between the controls and STOP / E-STOP, seen with the knob-and-tabs design); the height follows the content at the zoom the corner sets, and only a window lower than the content scrolls the body inside
+
+## 3.13.41 -- 2026-11-01
+
+- WorkshopJog: nav scroll finds the new bar after a redraw
+
+## 3.13.40 -- 2026-11-01
+
+- WorkshopJog: nav scroll second try; camera preview late photo
+
+## 3.13.39 -- 2026-11-01
+
+- WorkshopJog: shared nav-scroll fix; job control stage 1 where applicable
+
+## 3.13.38 -- 2026-11-01
+
+- Jog: the resize keeps the controls in view (minimum height = the content of the open tab, zoom limited to what fits, measured again on tab change)
+
+## 3.13.37 -- 2026-11-01
+
+- the Jog resizes with a handle in the bottom-right corner (width as zoom, height as visible body, saved per screen, double tap resets); the gear no longer offers a size
+
 ## 3.13.36 -- 2026-10-31
 
 - Lot 2: one relay client, camera client folder, single gallery, one presence helper, shared resources released at the last plugin, flash for the operator

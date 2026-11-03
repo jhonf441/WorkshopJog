@@ -802,8 +802,6 @@
         function drawLook() {
           hint(bodyThe, i18nT('settings.only_on_this_screen'));
           // The design in use is chosen at the top of the sheet (every page edits it).
-          slider(bodyThe, i18nT('settings.size'), jogScale, JOG_SCALE_MIN, JOG_SCALE_MAX, JOG_SCALE_STEP, function (v) { return Math.round(v * 100) + " %"; }, function (v) { jogApplyScale(v); });
-          hint(bodyThe, i18nT('settings.same_as_a_a_applied_at')); check(bodyThe, i18nT('settings.zoom_in_bar'), jogZoomBarOn(), function (v) { jogZoomBarSet(v); });
           h(bodyThe, i18nT('settings.tab_colour'));
           var colTabs = el("div");
           bodyThe.appendChild(colTabs);
@@ -836,7 +834,7 @@
         // The only "default" button of the sheet: it takes THIS design (its layout,
         // controls and colours) and the shared screen settings (steps, starting
         // speed, how the panel opens) back to factory, plus the machine values of
-        // the Velocidad page. The size (A- / A+) is not touched. Nothing is
+        // the Velocidad page. The size of the panel (its corner handle) is not touched. Nothing is
         // applied until Guardar, so Cancelar undoes it.
         foot.appendChild(btn(i18nT('settings.restore_this_design'), false, function () {
           var est = a.style;

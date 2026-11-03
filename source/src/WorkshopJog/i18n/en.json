@@ -27,7 +27,6 @@
 		"tap_again": "Tap again",
 		"cancel": "Cancel",
 		"the_system_sends_the_jog_to": "The system sends the jog to the Duet through DSF: the board in SBC mode, attached to the system. Without SBC mode, or without the System service (WorkshopService plugin) running, there is no channel to send it through. The service is installed and started in Settings > Plugins; which channel each part uses is chosen in System service.",
-		"jog_size_this_screen_only": "Jog size: {v}% (this screen only)",
 		"exit": "Exit",
 		"to_move_anyway_confirm_with_a_2": "{reason}. To move anyway, confirm with a double tap.",
 		"jog_blocked_2": "Jog blocked: {reason}",
@@ -134,11 +133,10 @@
 		"probe_help": "Measures with the Z probe the height of the surface under the head (G30 S-1): it lowers Z until it touches and says the height. It changes no zero. Double tap.",
 		"probe_result": "The probe touched at Z {z} mm (no zero was changed).",
 		"probe_no_answer": "The probe gave no height.",
-		"zoom_smaller": "Smaller",
-		"zoom_bigger": "Bigger",
 		"role_view_only": "View only: your role does not move the machine here. STOP is always available.",
 		"sign_in_needed": "You are not signed in. Sign in with your name and PIN to move the machine.",
-		"sign_in_button": "Sign in"
+		"sign_in_button": "Sign in",
+		"resize_handle": "Drag to resize the panel (the size is remembered on this screen). Double tap: original size."
 	},
 	"avConsole": {
 		"title": "Console",
@@ -383,8 +381,6 @@
 		"this_screen_only_the_distances_of": "This screen only. The distances of the Step tab (mm), separated by commas. Up to 12.",
 		"step_chosen_on_opening": "Step chosen on opening:",
 		"type_at_least_one_number_e": "Type at least one number (e.g. 0.1, 1, 10).",
-		"size": "Size",
-		"same_as_a_a_applied_at": "Same as A- / A+ (applied at once).",
 		"tab_colour": "Tab colour",
 		"border_colour": "Border colour",
 		"on_page_load": "On page load",
@@ -393,8 +389,7 @@
 		"always_minimized": "Always minimized",
 		"the_double_tap_confirmations_of_the": "The double-tap confirmations of the buttons that MOVE the machine cannot be turned off (safety).",
 		"release_the_knob_z_first": "Release the knob / Z first.",
-		"the_machine_part_was_not_saved": "The machine part was not saved: {err}",
-		"zoom_in_bar": "Show the zoom (A- / A+) in the bar, next to the gear"
+		"the_machine_part_was_not_saved": "The machine part was not saved: {err}"
 	},
 	"main": {
 		"opens_the_floating_jog_panel_when": "Opens the floating jog panel. When closing it (here or with the \"-\" of the panel), if there was a held movement (knob, Z or keyboard) it stops first and only then closes; the keyboard control also turns off. It does not stop any global process nor affect other screens.",

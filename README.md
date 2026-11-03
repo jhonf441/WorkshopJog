@@ -30,6 +30,12 @@ Picture 1: the whole panel with the "Step" tab: title buttons, position, mode, k
 - How: 1. Open the Control bar. 2. Press "Jog". 3. Press "-" to close it.
 - Watch out: it only affects this screen.
 
+#### Resize the panel
+- What: the panel changes size by dragging the handle in its bottom right corner (a small triangle under the STOP / E-STOP row, never over them). The width sets how big everything is drawn (the knob, the sliders and the buttons keep their proportions, from 0.8 to 1.8 times); the height sets how much is seen before the body scrolls inside.
+- Where: bottom right corner of the panel. The gear has no size or zoom setting: the handle is the only way.
+- How: drag the corner; the size is remembered on this screen. Two quick taps on the corner give the original size back (as wide as drawn, as tall as its content).
+- Watch out: it never gets bigger than the window (on a phone a size saved on a wide screen is fitted, and comes back when the window is wide again) and it never grows under the Emergency stop button of DWC. Full screen (phones) has no handle.
+
 #### State line
 - What: the line under the title: "Ready - 2198 mm/min" when you can move, or an orange line with the reason when the jog is blocked: machine off, a job running, a service lock, no sign-in or a view-only role (for example "Locked: Machine off", "Blocked: live job running").
 - Where: just under the title bar (picture 1).
