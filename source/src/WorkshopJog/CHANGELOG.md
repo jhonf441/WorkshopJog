@@ -1,5 +1,17 @@
 # WorkshopJog -- historial de versiones
 
+## 3.13.46 -- 2026-11-03
+
+- Session: notice redesigned as a console card, permission messages marked
+
+## 3.13.45 -- 2026-11-03
+
+- Session: notice also when the token is expired (login_required)
+
+## 3.13.44 -- 2026-11-03
+
+- Jog: session notice standardised (shared 09-session-notice.js)
+
 ## 3.13.43 -- 2026-11-03
 
 - Jog: Z+ and Z- buttons are the same size as the X and Y ones in every layout
