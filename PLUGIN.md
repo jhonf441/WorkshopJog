@@ -2,7 +2,7 @@
 
 
 
-A floating panel on every DWC page to move the machine by hand: a free-direction knob, a Z slider, step buttons, go-to-zero, home, probe, STOP and E-STOP, an advanced tab (macro buttons, extra axes, console, current), the "move without limits" mode and a settings sheet. It is not a page: you open it from the Control bar (button "Jog" under "THIS SCREEN"). The motion goes through the System service (`dsf/jog_move.py`, own DSF connection), not through DWC.
+A floating panel on every DWC page to move the machine by hand: a free-direction knob, a Z slider, step buttons, go-to-zero, home, Z here, STOP and E-STOP, an advanced tab (macro buttons, extra axes, console, current), the "move without limits" mode and a settings sheet. It is not a page: you open it from the Control bar (button "Jog" under "THIS SCREEN"). The motion goes through the System service (`dsf/jog_move.py`, own DSF connection), not through DWC.
 
 Version documented: 3.13.x on DWC 3.6.3.
 
@@ -104,11 +104,11 @@ Picture 1: the whole panel with the "Step" tab: title buttons, position, mode, k
 - How: 1. Choose the axis. 2. Choose the step. 3. Tap "+" or "-".
 - Watch out: it moves the machine. With the keyboard option on, the arrows (X/Y) and PgUp / PgDn (Z) do the same (it turns off when you close the jog or leave the window).
 
-#### Home row: Home, X, Y, Z and Probe
-- What: "Home" homes all axes; "X", "Y", "Z" home one axis; "Probe" measures the surface height with the Z probe (G30 S-1): it lowers Z until it touches and changes no zero; it asks for a double tap.
+#### Home row: Home, X, Y, Z and Z here
+- What: "Home" homes all axes; "X", "Y", "Z" home one axis; "Z here" homes Z at the X and Y where the head is (G30): it lowers Z with the probe until it touches and sets the Z height there, without moving X or Y; it needs X and Y homed and asks for a double tap.
 - Where: row above STOP (red rectangle, picture 1).
-- How: press the button (double tap for Probe) and stay next to the machine.
-- Watch out: Home and Probe MOVE the machine.
+- How: press the button (double tap for Z here) and stay next to the machine.
+- Watch out: Home and Z here MOVE the machine.
 
 #### STOP and E-STOP
 - What: STOP (orange) stops sending moves and halts the active motion; E-STOP (red) is the emergency stop of the machine (M112). STOP is always available, even with a view-only role.

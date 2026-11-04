@@ -88,6 +88,20 @@
       }
 
       // tipo (optional, only the modal view uses it): "primario" = filled blue, "suave" = quiet outline, "texto" = link-like
+      // the buttons that create or change a file or open the guide that does: they need a session (the card itself can be read without one)
+      function workshopStartupLocked(text) {
+        if (typeof workshopSignedOut !== "function" || !workshopSignedOut()) return false;
+        var keys = ["assist", "assist_all", "edit", "create_help", "make", "preview", "save", "apply_save"];
+        for (var i = 0; i < keys.length; i++) if (text === i18nT("startup." + keys[i])) return true;
+        return false;
+      }
+
+      // the sentence that says why those buttons are off (null when the session is there)
+      function workshopStartupLockedNote() {
+        if (typeof workshopSignedOut !== "function" || !workshopSignedOut()) return null;
+        return workshopStartupEl("div", "font-size:12px;color:#ffcc80;border-left:3px solid #ff8f00;padding:4px 8px;background:rgba(255,143,0,0.10);border-radius:4px;", i18nT("startup.locked"));
+      }
+
       function workshopStartupButton(text, help, onClick, kind) {
         var b = document.createElement("button");
         b.type = "button";
@@ -103,8 +117,15 @@
           ev.stopPropagation();
           ev.preventDefault();
         });
+        if (workshopStartupLocked(text)) {
+          b.disabled = true;
+          b.title = i18nT("startup.locked");
+          b.style.opacity = "0.45";
+          b.style.cursor = "not-allowed";
+        }
         b.addEventListener("click", function (ev) {
           ev.stopPropagation();
+          if (b.disabled) return;
           onClick();
         });
         return b;
@@ -193,7 +214,8 @@
               state: last.list === null ? "missing" : "configured",
               label: "startup.service",
               help: "startup.service_tip",
-              texts: { missing: "startup.service_not_running" },
+              // signed out the service cannot be asked (it answers "sign in"), so it is not said to be off: the row says what is really missing, the session
+              texts: { missing: typeof workshopSignedOut === "function" && workshopSignedOut() ? "startup.service_sign_in" : "startup.service_not_running" },
             });
           }
           defs = defs.concat(last.defs || []);
@@ -250,6 +272,8 @@
           el.appendChild(cab);
           workshopStartupReport(plugin, res, last.list !== null, opts.onChange);
           if (!opens) return;
+          var lockedNote = workshopStartupLockedNote();
+          if (lockedNote) el.appendChild(lockedNote);
 
           if (asis) {
             pintarAsistente(rows);
@@ -361,6 +385,8 @@
 
         function paintModal(rows, visibles, res, nOcultas) {
           var steps = workshopStartupSteps(rows);
+          var lockedNoteM = workshopStartupLockedNote();
+          if (lockedNoteM) el.appendChild(lockedNoteM);
           // progress: how many of the shown rows are ready
           var lists = res.total - res.pending;
           var prog = workshopStartupEl("div", "display:flex;flex-direction:column;gap:8px;");

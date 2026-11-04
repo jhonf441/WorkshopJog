@@ -22,7 +22,7 @@
         jogRoleKey = view.key;
         if (view.move) return;
         jogRoleHideExcept(parts.body, parts.keep);
-        if (parts.quick) parts.quick.style.display = "none"; // Home / X / Y / Z / Probe in the dock: they move the machine
+        if (parts.quick) parts.quick.style.display = "none"; // Home / X / Y / Z / Z here in the dock: they move the machine
       }
 
       function jogRoleRebuild() {
@@ -95,7 +95,7 @@
         return !!(id && id.configured && typeof workshopAuthToken === "function" && !workshopAuthToken());
       }
 
-      // Guard of the quick buttons (Home, Probe...): true = blocked. A blocked tap never ends silent: it says why in the status line
+      // Guard of the quick buttons (Home, Z here...): true = blocked. A blocked tap never ends silent: it says why in the status line
       // (red for 5 s) and, when the reason is that nobody is signed in, opens the name + PIN sign.
       function jogBlockedExplain() {
         if (jogMachineFree()) return false;

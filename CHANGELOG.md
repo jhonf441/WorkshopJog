@@ -1,5 +1,21 @@
 # WorkshopJog -- historial de versiones
 
+## 3.14.1 -- 2026-11-04
+
+- Session: no fixed card (AWS style); start-up card off without a session with the reason; service row says sign in
+
+## 3.14.0 -- 2026-11-04
+
+- The Probe button is now Z here: it homes Z at the X and Y where the head is (G30), without moving X or Y
+
+## 3.13.48 -- 2026-11-04
+
+- Signed out: sign-in refusals stay visible and the notice blinks on tab clicks (shared session notice); Power says it needs a sign-in
+
+## 3.13.47 -- 2026-11-04
+
+- Session notice: also mark inline refusals (ctl-alert / alert / -error classes)
+
 ## 3.13.46 -- 2026-11-03
 
 - Session: notice redesigned as a console card, permission messages marked

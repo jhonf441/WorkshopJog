@@ -120,6 +120,8 @@
 		"service": "System service (WorkshopService)",
 		"service_tip": "It has to be running: it makes the examples and answers the buttons of this plugin.",
 		"service_not_running": "is not running (Settings > Plugins)",
+		"service_sign_in": "needs you to sign in to be checked",
+		"locked": "Not signed in: sign in to create or change files from here.",
 		"what_is": "What is this?",
 		"what_is_hide": "Hide the explanation",
 		"what_label": "What it is",

@@ -128,15 +128,14 @@
 		"g_code_type_it": "G-code (type it)",
 		"minimize": "Minimize",
 		"straight": "Straight",
-		"probe": "Probe",
-		"probe_2": "Probe?",
-		"probe_help": "Measures with the Z probe the height of the surface under the head (G30 S-1): it lowers Z until it touches and says the height. It changes no zero. Double tap.",
-		"probe_result": "The probe touched at Z {z} mm (no zero was changed).",
-		"probe_no_answer": "The probe gave no height.",
 		"role_view_only": "View only: your role does not move the machine here. STOP is always available.",
 		"sign_in_needed": "You are not signed in. Sign in with your name and PIN to move the machine.",
 		"sign_in_button": "Sign in",
-		"resize_handle": "Drag to resize the panel (the size is remembered on this screen). Double tap: original size."
+		"resize_handle": "Drag to resize the panel (the size is remembered on this screen). Double tap: original size.",
+		"z_here": "Z here",
+		"z_here_2": "Z here?",
+		"z_here_help": "Homes Z at the X and Y where the head is (G30): it lowers Z with the probe until it touches and sets the Z height there, without moving X or Y. It needs X and Y homed. Double tap.",
+		"z_here_done": "Z homed at this point (G30)."
 	},
 	"avConsole": {
 		"title": "Console",

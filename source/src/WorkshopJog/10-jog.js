@@ -1624,30 +1624,30 @@
           if (h[2]) jogQHomeButtons[h[2]] = qb;
           jogQuick.appendChild(qb);
         });
-        // Probe: measures the surface under the head with the Z probe (G30 S-1) and says the height.
-        // It changes no zero (it only reads). It moves Z down until the probe touches: two taps.
-        var jogQProbe = jogQH.buttonDouble(i18nT('jog.probe'), i18nT('jog.probe_2'), jogQCss, function () {
+        // Z here (2026-11-04, it replaced the Probe button): homes Z at the X and Y where the head is, with the Z probe (G30: it lowers Z until the probe
+        // touches and sets Z there, without moving X or Y; G28 Z would first go to the probe point of homez.g). X and Y have to be homed (the point
+        // means something), Z does not (this is what homes it). It moves Z down: two taps.
+        var jogQZHere = jogQH.buttonDouble(i18nT('jog.z_here'), i18nT('jog.z_here_2'), jogQCss, function () {
           if (jogBlockedExplain()) return;
           jogFetchStatus(600)
             .then(function (st) {
               var ax = (st && st.move && st.move.axes) || [];
-              var without = ["X", "Y", "Z"].filter(function (L) {
+              var without = ["X", "Y"].filter(function (L) {
                 var a = ax.filter(function (x) { return x && x.letter === L; })[0];
                 return !a || !a.homed;
               });
               if (without.length) return jogNotifyWithoutHoming(without);
-              return postCode("G30 S-1")
+              return postCode("G30")
                 .then(function (r) { return r && r.text ? r.text() : ""; })
                 .then(function (t) {
-                  var m = /(-?\d+(?:\.\d+)?)\s*mm/.exec(t || "");
-                  var ok = m && !/error|warning/i.test(t || "");
-                  jogShowNotice(ok ? i18nT('jog.probe_result', { z: m[1] }) : (String(t || "").trim().slice(0, 140) || i18nT('jog.probe_no_answer')), 8000);
+                  var text = String(t || "").trim();
+                  jogShowNotice(/error|warning/i.test(text) ? text.slice(0, 140) : i18nT('jog.z_here_done'), 8000);
                 });
             })
-            .catch(function (e) { console.error("[WorkshopJog] probe:", e); });
+            .catch(function (e) { console.error("[WorkshopJog] z here:", e); });
         });
-        jogQProbe.title = i18nT('jog.probe_help');
-        jogQuick.appendChild(jogQProbe);
+        jogQZHere.title = i18nT('jog.z_here_help');
+        jogQuick.appendChild(jogQZHere);
         // The labels of these buttons never show dots: the font gets smaller until the word fits, and it is fitted
         // again whenever the bar changes size (the panel zoom, a resize) or the label changes (the "?" of the second tap).
         function jogAdjustText(btn) {

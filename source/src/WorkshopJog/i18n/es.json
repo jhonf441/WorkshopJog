@@ -128,15 +128,14 @@
 		"g_code_type_it": "G-code (escribirlo)",
 		"minimize": "Minimizar",
 		"straight": "Recto",
-		"probe": "Sonda",
-		"probe_2": "Sonda?",
-		"probe_help": "Mide con la sonda de Z la altura de la superficie bajo el cabezal (G30 S-1): baja Z hasta que toca y dice a qué altura. No cambia ningún cero. Doble toque.",
-		"probe_result": "La sonda tocó a Z {z} mm (no se cambió ningún cero).",
-		"probe_no_answer": "La sonda no dio una altura.",
 		"role_view_only": "Solo lectura: tu rol no mueve la máquina aquí. El PARO siempre está disponible.",
 		"sign_in_needed": "No has iniciado sesión. Inicia sesión con tu nombre y PIN para mover la máquina.",
 		"sign_in_button": "Iniciar sesión",
-		"resize_handle": "Arrastra para cambiar el tamaño del panel (se recuerda en esta pantalla). Doble toque: tamaño original."
+		"resize_handle": "Arrastra para cambiar el tamaño del panel (se recuerda en esta pantalla). Doble toque: tamaño original.",
+		"z_here": "Z aquí",
+		"z_here_2": "Z aquí?",
+		"z_here_help": "Hace home de Z en el punto X e Y donde está el cabezal (G30): baja Z con la sonda hasta que toca y pone ahí la altura de Z, sin mover X ni Y. Pide X e Y con home hecho. Doble toque.",
+		"z_here_done": "Z hecho en este punto (G30)."
 	},
 	"avConsole": {
 		"title": "Consola",
