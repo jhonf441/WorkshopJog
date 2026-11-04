@@ -16,6 +16,16 @@
     "WorkshopService"
   ],
   "sbcRequired": true,
-  "sbcDsfVersion": "3",
-  "data": {}
+  "sbcDsfVersion": "3.6",
+  "data": {},
+  "sdFiles": [
+    "sys/workshop/macros/jogFreeFailsafe.g",
+    "sys/workshop/macros/jogFreeSet.g",
+    "sys/workshop/macros/language.g",
+    "sys/workshop/macros/workzeroaxis.g"
+  ],
+  "dwcFiles": [
+    "js/WorkshopJog.0765b4f2.js",
+    "js/WorkshopJog.0765b4f2.js.gz"
+  ]
 }
