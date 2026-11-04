@@ -3677,11 +3677,9 @@
         // proper size").
         function jogZBotonesEnFila(mv) {
           if (!mv || !mv.colZ) return false;
-          mv.colZ.style.display = "grid";
-          mv.colZ.style.gridTemplateRows = "repeat(2,minmax(0,1fr))";
-          mv.colZ.style.width = "64px";
-          mv.colZ.style.height = RING_SIZE + "px";
-          mv.colZ.style.flex = "0 0 auto";
+          // the same cell as an X / Y button (JOG2_CELL_H, 12-jog2.js), the pair centered beside the knob
+          mv.colZ.style.cssText = "display:grid;grid-template-rows:repeat(2," + JOG2_CELL_H + "px);gap:4px;width:" + JOG2_CELL_H + "px;align-self:center;flex:0 0 auto;";
+          mv.colZ.children[1].style.gridRow = "2";
           row.appendChild(mv.colZ);
           row.style.display = "flex";
           return true;

@@ -1,11 +1,16 @@
 # WorkshopJog -- historial de versiones
 
+## 3.13.43 -- 2026-11-03
+
+- Jog: Z+ and Z- buttons are the same size as the X and Y ones in every layout
+
 ## 3.13.42 -- 2026-11-03
 
 - Jog: height never passes the content of the open tab at the current zoom (no blank band)
 
 ## Unreleased
 
+- Jog: Z+ / Z- are the same size as the X / Y buttons (one cell each: same width and height; before they stretched to half the cross height and were taller), in the arrows layout and beside the knob or the sliders
 - Jog: the panel is never taller than the content of the open tab (dragging the corner down left a blank band between the controls and STOP / E-STOP, seen with the knob-and-tabs design); the height follows the content at the zoom the corner sets, and only a window lower than the content scrolls the body inside
 
 ## 3.13.41 -- 2026-11-01

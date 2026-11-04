@@ -18,6 +18,7 @@
       // Settings > Speed: the held button rises from 0.3 to 1 in ~0.7 s and the
       // curve smooths it (no jumps on start).
 
+      var JOG2_CELL_H = 46; // 4 equal cells a row (gap 4): the cross takes 3 (3 cells + 2 gaps = 75% - 1px), Z the 4th; Z+ / Z- = one cell of X / Y: height of one button of the cross; Z+ / Z- are one cell too (same width, same height)
       var JOG2_HOLD_MS = 250; // more than this held = continuous
       var JOG2_RAMP_MS = 700;
       var JOG2_TICK_MS = 100;
@@ -306,10 +307,10 @@
       function jog2Move(o, H, cfg) {
         if (!cfg.arrows && !cfg.zBot) return null;
         var C = H.C, el = H.el, boton = H.button, botonDoble = H.buttonDouble;
-        var move = el("div", "display:grid;grid-template-columns:minmax(0,3fr) minmax(0,1fr);gap:6px;align-items:stretch;");
-        var cross = el("div", "display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:46px;gap:4px;");
+        var move = el("div", "display:grid;grid-template-columns:minmax(0,calc(75% - 1px)) minmax(0,1fr);gap:4px;align-items:start;");
+        var cross = el("div", "display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:" + JOG2_CELL_H + "px;gap:4px;");
         move.appendChild(cross);
-        var colZ = el("div", "display:grid;grid-template-rows:repeat(2,minmax(0,1fr));gap:4px;");
+        var colZ = el("div", "display:grid;grid-template-rows:repeat(3," + JOG2_CELL_H + "px);gap:4px;");
         move.appendChild(colZ);
 
         var hold = null; // {nx, ny, nz, desde, timer}
@@ -424,8 +425,8 @@
         cross.appendChild(arrow("↙", -1, -1, 0, diag));
         cross.appendChild(arrow("Y-", 0, -1, 0));
         cross.appendChild(arrow("↘", 1, -1, 0, diag));
-        var zMore = arrow("Z+", 0, 0, 1);
-        var zMenos = arrow("Z-", 0, 0, -1);
+        var zMore = arrow("Z+", 0, 0, 1, "grid-row:1;");
+        var zMenos = arrow("Z-", 0, 0, -1, "grid-row:3;"); // aligned with Y+ / Y-
         colZ.appendChild(zMore);
         colZ.appendChild(zMenos);
         // the jog's STOP also cuts a hold of option 2
