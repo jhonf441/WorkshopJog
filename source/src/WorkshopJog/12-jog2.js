@@ -131,6 +131,11 @@
         // little keyboard (Settings > Controls to move > Keyboard, 2026-10-11): built
         // by 10-jog.js with its button to activate it; here it goes below the controls
         if (o.keyboard) root.appendChild(o.keyboard);
+        // the end of what always has to be in view (the position and the controls to move): the panel can be made as low as this, and what comes
+        // after (step, speed, go to, actions) stays in the scroll of the body (09-size.js, jogSizeEssentialAt)
+        // the last of what the person chose to move with, in the order of the panel: the knob or sliders, the arrows, the keyboard
+        var essential = o.keyboard || (mv && mv.move) || o.knobRow || o.posT.card;
+        if (essential && essential.setAttribute) essential.setAttribute("data-jog-essential", "");
 
         // paso y velocidad
         // Step: three groups (fine / medium / large) with the active value shown on the right, instead of one

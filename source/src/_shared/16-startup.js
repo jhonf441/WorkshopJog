@@ -175,7 +175,7 @@
         var abierto = null; // null = open while something is pending
         var abiertas = {}; // rows whose explanation is shown
         var asis = null; // the assistant: null = closed, else {est, vista, resp, errores, prev, plan, existente, msgs, escribiendo, fallo}
-        var last = { list: null, rows: [] };
+        var last = { list: null, rows: [], refusal: "" };
         var el = document.createElement("div");
         el.setAttribute("data-workshop-startup", plugin);
         el.style.cssText = M
@@ -215,7 +215,7 @@
               label: "startup.service",
               help: "startup.service_tip",
               // signed out the service cannot be asked (it answers "sign in"), so it is not said to be off: the row says what is really missing, the session
-              texts: { missing: typeof workshopSignedOut === "function" && workshopSignedOut() ? "startup.service_sign_in" : "startup.service_not_running" },
+              texts: { missing: workshopStartupServiceKey(last.refusal, typeof workshopSignedOut === "function" && workshopSignedOut()) },
             });
           }
           defs = defs.concat(last.defs || []);
@@ -241,7 +241,7 @@
           var opens = abierto === null ? !res.ready : abierto;
 
           if (M) {
-            workshopStartupReport(plugin, res, last.list !== null, opts.onChange);
+            workshopStartupReport(plugin, res, last.list !== null && (typeof opts.canReport !== "function" || !!opts.canReport()), opts.onChange);
             if (asis) pintarAsistente(rows);
             else paintModal(rows, visibles, res, nOcultas);
             return;
@@ -254,7 +254,7 @@
           point.style.cssText = "flex:none;width:8px;height:8px;border-radius:50%;background:" + (res.ready ? WORKSHOP_STARTUP_POINT.configured : WORKSHOP_STARTUP_POINT.example) + ";";
           var tit = document.createElement("span");
           tit.style.cssText = "flex:1 1 auto;min-width:0;font-weight:500;";
-          tit.textContent = i18nT("startup.title") + " - " + (res.ready ? i18nT("startup.summary_ready") : i18nT("startup.summary_pending", { n: res.pending }));
+          tit.textContent = i18nT("startup.title") + " - " + (res.ready ? i18nT("startup.summary_ready") : i18nT("startup.summary_pending", { n: res.pending, total: res.total }));
           var fl = document.createElement("span");
           fl.style.cssText = "flex:none;opacity:.7;";
           fl.textContent = opens ? "▴" : "▾";
@@ -270,7 +270,7 @@
             paint();
           });
           el.appendChild(cab);
-          workshopStartupReport(plugin, res, last.list !== null, opts.onChange);
+          workshopStartupReport(plugin, res, last.list !== null && (typeof opts.canReport !== "function" || !!opts.canReport()), opts.onChange);
           if (!opens) return;
           var lockedNote = workshopStartupLockedNote();
           if (lockedNote) el.appendChild(lockedNote);
@@ -392,7 +392,7 @@
           var prog = workshopStartupEl("div", "display:flex;flex-direction:column;gap:8px;");
           var line = workshopStartupEl("div", "display:flex;align-items:baseline;justify-content:space-between;gap:8px;");
           line.appendChild(workshopStartupEl("span", "font-weight:600;font-size:15px;", res.ready ? i18nT("startup.modal_all_ready") : i18nT("startup.modal_progress", { a: lists, b: res.total })));
-          line.appendChild(workshopStartupEl("span", "font-size:12px;color:" + (res.ready ? "#a5d6a7" : "#ffb74d") + ";", res.ready ? i18nT("startup.summary_ready") : i18nT("startup.summary_pending", { n: res.pending })));
+          line.appendChild(workshopStartupEl("span", "font-size:12px;color:" + (res.ready ? "#a5d6a7" : "#ffb74d") + ";", res.ready ? i18nT("startup.summary_ready") : i18nT("startup.summary_pending", { n: res.pending, total: res.total })));
           prog.appendChild(line);
           var pista = workshopStartupEl("div", "height:8px;border-radius:4px;background:rgba(255,255,255,0.10);overflow:hidden;");
           var pct = res.total ? Math.round((lists / res.total) * 100) : 100;
@@ -865,9 +865,12 @@
             .then(function () {
               return workshopApi("examples.list", { plugin: plugin }).then(
                 function (r) {
+                  last.refusal = "";
                   return r && Array.isArray(r.files) ? r.files : null;
                 },
-                function () {
+                function (e) {
+                  // a refusal (no session, role too low) is not the service being down: keep what it said so the row can say why
+                  last.refusal = e && (e.code === "forbidden" || e.code === "login_required") ? e.code : "";
                   return null;
                 }
               );
@@ -881,6 +884,8 @@
               paint();
             });
         }
+
+        workshopStartupFollowSession(el, refrescar);
 
         return {
           el: el,

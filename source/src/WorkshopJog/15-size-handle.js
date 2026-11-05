@@ -45,9 +45,18 @@
         var dy = ev.clientY - d.y;
         if (!d.moved && Math.hypot(dx, dy) <= JOG_SIZE_TAP_PX) return; // a tap that wobbles is still a tap
         d.moved = true;
-        js.size = jogSizeDrag(d, dx, dy, jogSizeLimits(jogSizeWin(), { left: jogPanelEl.offsetLeft, top: jogPanelEl.offsetTop }, jogSizeChrome()), jogSizeChrome());
-        jogSizeApply();
-        jogReclampPanel();
+        // a mouse sends moves faster than the panel can be redrawn: only the last position of each frame is applied
+        d.dx = dx;
+        d.dy = dy;
+        if (d.frame) return;
+        var run = function () {
+          d.frame = 0;
+          if (js.drag !== d) return;
+          js.size = jogSizeDrag(d, d.dx, d.dy, jogSizeLimits(jogSizeWin(), { left: jogPanelEl.offsetLeft, top: jogPanelEl.offsetTop }, jogSizeChrome()), jogSizeChrome());
+          jogSizeApply();
+          jogReclampPanel();
+        };
+        d.frame = typeof requestAnimationFrame === "function" ? requestAnimationFrame(run) : (run(), 0);
       }
 
       // Let go (or the system took the gesture): a drag is remembered; a tap is the first or the second of a double tap.
@@ -62,6 +71,12 @@
           /* already released */
         }
         if (d.moved) {
+          if (d.frame && typeof cancelAnimationFrame === "function") cancelAnimationFrame(d.frame);
+          // the last position, measured for real now that nothing moves any more
+          js.size = jogSizeDrag(d, d.dx, d.dy, jogSizeLimits(jogSizeWin(), { left: jogPanelEl.offsetLeft, top: jogPanelEl.offsetTop }, jogSizeChrome()), jogSizeChrome());
+          js.dirty = true;
+          jogSizeApply();
+          jogReclampPanel();
           jogSizeSave(js.size);
           return;
         }

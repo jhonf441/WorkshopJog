@@ -32,15 +32,26 @@ var jogSizeState = { size: null, handle: null, drag: null, tap: null, natural: n
         var sized = panel.getAttribute("data-jog-sized") !== null;
         var height = panel.style.height;
         var maxH = jogBodyEl.style.maxHeight;
+        // the body is shown whole for a moment: the browser clamps its scroll to 0 then, so the place the person had scrolled to is kept and put back
+        var scrolled = jogBodyEl.scrollTop;
         panel.removeAttribute("data-jog-sized");
         panel.style.height = "";
         jogBodyEl.style.maxHeight = "";
         var h = panel.offsetHeight;
+        // what has to stay in view at the least: from the top of the panel to the end of the position and the controls to move, and the dock
+        // (STOP / E-STOP); measured now, with the whole content shown, in the same px as h
+        var essEl = jogBodyEl.querySelector("[data-jog-essential]");
+        var ess = 0;
+        if (essEl) {
+          var top = panel.getBoundingClientRect().top;
+          ess = Math.ceil(essEl.getBoundingClientRect().bottom - top) + (jogStopDockEl ? Math.ceil(jogStopDockEl.getBoundingClientRect().height) : 0) + JOG_SIZE_ESS_GAP;
+        }
         panel.style.height = height;
         jogBodyEl.style.maxHeight = maxH;
         if (sized) panel.setAttribute("data-jog-sized", "");
+        if (scrolled) jogBodyEl.scrollTop = scrolled;
         if (!(h > 0)) return false;
-        js.natural = { h: h, scale: jogScale };
+        js.natural = { h: h, scale: jogScale, ess: ess };
         js.dirty = false;
         return true;
       }
@@ -54,7 +65,9 @@ var jogSizeState = { size: null, handle: null, drag: null, tap: null, natural: n
         for (var pass = 0; pass < 3; pass++) {
           jogSizeApplyOnce(panel);
           var js = jogSizeState;
-          if (!js.dirty && js.natural && js.natural.scale === jogScale) return;
+          // while the corner is being dragged the zoom changes at every move, and the content at another zoom is the same drawing (09-size.js
+          // jogSizeNaturalAt takes it linearly): it is not measured again then (two forced layouts per move froze the page); it is when the finger lets go
+          if (!js.dirty && js.natural && (js.drag || js.natural.scale === jogScale)) return;
           var before = js.natural;
           if (!jogSizeMeasure()) return;
           if (before && before.h === js.natural.h && before.scale === js.natural.scale) return;
@@ -88,9 +101,19 @@ var jogSizeState = { size: null, handle: null, drag: null, tap: null, natural: n
           var m = /display:s*([^;]*)/.exec(v || "");
           return m ? m[1].trim() : "";
         };
+        // Only text nodes written or replaced do not count: the live values (position, speeds, clock) are rewritten dozens of times a second
+        // (measured on the kiosk 2026-11-04: ~80 per second) and every re-measure forces a layout of the whole panel -- that alone was the biggest
+        // consumer of the kiosk page. A value that grows a line is seen by the ResizeObserver of the panel.
+        var onlyText = function (m) {
+          var nodes = Array.prototype.slice.call(m.addedNodes).concat(Array.prototype.slice.call(m.removedNodes));
+          return nodes.every(function (n) {
+            return n.nodeType === 3;
+          });
+        };
         js.watch = new MutationObserver(function (list) {
           var real = list.some(function (m) {
-            if (m.type !== "attributes") return true;
+            if (m.type === "characterData") return false;
+            if (m.type === "childList") return !onlyText(m);
             return m.target !== body && shown(m.oldValue) !== shown(m.target.getAttribute("style"));
           });
           if (!real || js.wait) return;

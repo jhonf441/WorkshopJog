@@ -130,6 +130,7 @@
 		"straight": "Recto",
 		"role_view_only": "Solo lectura: tu rol no mueve la máquina aquí. El PARO siempre está disponible.",
 		"sign_in_needed": "No has iniciado sesión. Inicia sesión con tu nombre y PIN para mover la máquina.",
+		"stop_failed": "El PARO no llegó a la máquina. Púlsalo otra vez o usa la parada de emergencia.",
 		"sign_in_button": "Iniciar sesión",
 		"resize_handle": "Arrastra para cambiar el tamaño del panel (se recuerda en esta pantalla). Doble toque: tamaño original.",
 		"z_here": "Z aquí",

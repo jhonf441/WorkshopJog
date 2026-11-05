@@ -1,5 +1,29 @@
 # WorkshopJog -- historial de versiones
 
+## 3.14.7 -- 2026-11-04
+
+- Position card writes only what changed (it rewrote ~100 equal values a second, a large part of the kiosk page load)
+
+## 3.14.6 -- 2026-11-04
+
+- Position card writes only what changed (it rewrote ~100 equal values a second, a large part of the kiosk page load)
+
+## 3.14.5 -- 2026-11-04
+
+- Position card writes only what changed (it rewrote ~100 equal values a second, a large part of the kiosk page load)
+
+## 3.14.4 -- 2026-11-04
+
+- Resize of the panel no longer freezes the page: one apply per frame, no re-measure while dragging
+
+## 3.14.3 -- 2026-11-04
+
+- Size: text written again (the live values, ~80 times a second) no longer re-measures the panel; that was the biggest consumer of the kiosk page
+
+## 3.14.2 -- 2026-11-04
+
+- Option 2 (by tasks): the panel can be made as low as the position and the controls to move; the rest (step, speed, go to, actions) scrolls inside the body, and the width can be changed even when the view is tall (the zoom no longer waits for the whole content to fit the window).
+
 ## 3.14.1 -- 2026-11-04
 
 - Session: no fixed card (AWS style); start-up card off without a session with the reason; service row says sign in

@@ -25,6 +25,7 @@
       var JOG_SIZE_MAX_W = Math.round(JOG_PANEL_W * JOG_SCALE_MAX) + JOG_SIZE_BORDER; // 378
       var JOG_SIZE_KEY = "workshopJogSize";
       var JOG_SIZE_FOOT_H = 20; // the strip under the dock that holds the handle: the handle never covers STOP / E-STOP
+      var JOG_SIZE_ESS_GAP = 10; // px under the controls (before the zoom is taken off) that stay with them
       var JOG_SIZE_BODY_MIN = 60; // px (before the zoom) of the body that always stay in view
       var JOG_SIZE_WATCH_MS = 120; // wait after the body changes before it is measured again
       var JOG_SIZE_TAP_MS = 400; // two taps on the handle this close in time and place give the original size back
@@ -51,6 +52,22 @@
         return Math.ceil(((natural.h - fixed) / natural.scale) * scale) + fixed;
       }
 
+      // The outer height that always keeps the essential part in view (header, position, controls to move, STOP / E-STOP) at `scale`; 0 when the
+      // open view marks no essential part (data-jog-essential) or nothing was measured. What is below that part scrolls inside the body.
+      function jogSizeEssentialAt(natural, scale) {
+        if (!natural || !(natural.ess > 0) || !(natural.scale > 0)) return 0;
+        var fixed = JOG_SIZE_FOOT_H + JOG_SIZE_BORDER;
+        var ess = Math.ceil((natural.ess / natural.scale) * scale) + fixed;
+        return ess < jogSizeNaturalAt(natural, scale) ? ess : 0; // nothing to gain when the content is that low already
+      }
+
+      // What has to fit in the window for the zoom to grow: the essential part when the view has one (the rest scrolls), else all the content.
+      function jogSizeBasis(natural) {
+        if (!natural || !(natural.ess > 0) || !(natural.scale > 0)) return natural;
+        var fixed = JOG_SIZE_FOOT_H + JOG_SIZE_BORDER;
+        return natural.ess + fixed < natural.h ? { h: natural.ess + fixed, scale: natural.scale } : natural;
+      }
+
       // The biggest zoom at which the whole content still fits in availH (the height of the window for the panel): never under JOG_SCALE_MIN
       // (a smaller panel is always possible) and never over JOG_SCALE_MAX. With no measure: JOG_SCALE_MAX.
       function jogSizeMaxScale(natural, availH) {
@@ -71,6 +88,7 @@
       function jogSizeMinHeight(scale, chrome, availH) {
         var nat = jogSizeNaturalAt(chrome.natural, scale);
         if (!nat) return jogSizeChromeH(scale, chrome) + Math.round(JOG_SIZE_BODY_MIN * scale);
+        nat = jogSizeEssentialAt(chrome.natural, scale) || nat; // a view with an essential part can be made as low as that part
         return availH > 0 ? Math.min(nat, availH) : nat;
       }
 
@@ -90,7 +108,7 @@
         var w = Math.round(clamp(size && size.w ? size.w : JOG_SIZE_DEFAULT_W, JOG_SIZE_MIN_W, maxW));
         var reserve = win.zone && win.zone.left - win.margin < w ? Math.ceil(win.zone.bottom) : 0;
         // the content has to fit in the window: a zoom that makes it taller does not grow (a smaller one does)
-        w = Math.max(JOG_SIZE_MIN_W, Math.min(w, jogSizeMaxWOfScale(jogSizeMaxScale(chrome.natural, win.vh - 2 * win.margin - reserve))));
+        w = Math.max(JOG_SIZE_MIN_W, Math.min(w, jogSizeMaxWOfScale(jogSizeMaxScale(jogSizeBasis(chrome.natural), win.vh - 2 * win.margin - reserve))));
         var scale = jogSizeScaleOf(w);
         reserve = win.zone && win.zone.left - win.margin < w ? Math.ceil(win.zone.bottom) : 0;
         var h = null;
@@ -108,7 +126,7 @@
         if (win.zone && at.top < win.zone.bottom) right = Math.min(right, win.zone.left);
         var maxW = Math.max(JOG_SIZE_MIN_W, Math.min(JOG_SIZE_MAX_W, right - at.left));
         // chrome.natural (optional): no zoom at which the content is taller than the window
-        if (chrome && chrome.natural) maxW = Math.max(JOG_SIZE_MIN_W, Math.min(maxW, jogSizeMaxWOfScale(jogSizeMaxScale(chrome.natural, win.vh - 2 * win.margin))));
+        if (chrome && chrome.natural) maxW = Math.max(JOG_SIZE_MIN_W, Math.min(maxW, jogSizeMaxWOfScale(jogSizeMaxScale(jogSizeBasis(chrome.natural), win.vh - 2 * win.margin))));
         return { minW: JOG_SIZE_MIN_W, maxW: maxW, maxH: win.vh - win.margin - at.top };
       }
 

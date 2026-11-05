@@ -507,7 +507,7 @@
         var bOk = document.createElement("button");
         bOk.type = "button";
         bOk.textContent = i18nT('jog.move_anyway');
-        bOk.style.cssText = "background:#e65100;color:#fff;border:0;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;";
+        bOk.style.cssText = "background:#bf360c;color:#fff;border:0;border-radius:6px;padding:5px 10px;font-size:11px;font-weight:600;cursor:pointer;";
         var bNo = document.createElement("button");
         bNo.type = "button";
         bNo.textContent = i18nT('jog.cancel');
@@ -567,11 +567,11 @@
         var request = { op: op, args: args || {} };
         return workshopApiCall(op, request.args)
           .then(function (body) {
-            if (JOG_OPS_MOVE[op]) jogCheckResponse(request, body);
+            jogHandlePostReply(op, request, body);
             return body;
           })
           .catch(function (e) {
-            console.error("[WorkshopJog] error sending:", e, op);
+            jogPostFailed(op, e);
           });
       }
 

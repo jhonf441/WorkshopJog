@@ -89,10 +89,50 @@
         return row;
       }
 
-      // Signed out: the service has users and this browser has no session (the role is then a viewer and nothing moves).
+      // Signed out: the service has users and this browser has no session or the token expired (the role is then a viewer and nothing moves).
       function jogSignedOut() {
-        var id = typeof workshopIdentity === "function" ? workshopIdentity() : null;
-        return !!(id && id.configured && typeof workshopAuthToken === "function" && !workshopAuthToken());
+        return typeof workshopSignedOut === "function" && workshopSignedOut();
+      }
+
+      // The sentence key for an answer the service refused: "jog.sign_in_needed" (no session), "jog.role_view_only" (role too low) or "" (not a refusal).
+      // A failed STOP is told apart ("jog.stop_failed"): it must never end silent. body is the answer of workshopApiCall (or null when the call failed).
+      function jogRefusalKey(op, body, signedOut) {
+        var isStop = /^jog\.stop_/.test(String(op));
+        var code = body && !body.ok && body.error ? body.error.code : "";
+        if (isStop) return body && body.ok ? "" : "jog.stop_failed";
+        if (code === "login_required") return "jog.sign_in_needed";
+        if (code === "forbidden") return signedOut ? "jog.sign_in_needed" : "jog.role_view_only";
+        return "";
+      }
+
+      // Shows the reason a move or a STOP was refused in the status line (red for 5 s); a refusal for lack of session opens the sign-in as a touch does.
+      function jogRefusalShow(key, signedOut) {
+        if (!key || !jogStatusEl) return;
+        jogStatusEl.textContent = i18nT(key);
+        jogStatusEl.style.color = "#ef9a9a";
+        clearTimeout(jogBlockedExplain.timer);
+        jogBlockedExplain.timer = setTimeout(jogUpdateStatusText, 5000);
+        if (key === "jog.sign_in_needed" && signedOut && typeof workshopLogin === "function") {
+          workshopLogin().then(function () {
+            jogUpdateStatusText();
+          });
+        }
+      }
+
+      // What to do with the answer of a jog order: a refusal says why (a refused move also frees the holds once: the heartbeat has nothing left to resend);
+      // an accepted move is checked (motion_denied, confirm_required).
+      function jogHandlePostReply(op, request, body) {
+        var refusal = jogRefusalKey(op, body, jogSignedOut());
+        if (refusal) {
+          if (JOG_OPS_MOVE[op]) jogReleaseAllHolds();
+          jogRefusalShow(refusal, jogSignedOut());
+        } else if (JOG_OPS_MOVE[op]) jogCheckResponse(request, body);
+      }
+
+      // A jog order that never got an answer (network): a failed STOP is told, it must never end silent.
+      function jogPostFailed(op, e) {
+        console.error("[WorkshopJog] error sending:", e, op);
+        if (/^jog\.stop_/.test(op)) jogRefusalShow("jog.stop_failed", false);
       }
 
       // Guard of the quick buttons (Home, Z here...): true = blocked. A blocked tap never ends silent: it says why in the status line

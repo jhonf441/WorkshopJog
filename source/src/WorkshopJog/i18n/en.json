@@ -130,6 +130,7 @@
 		"straight": "Straight",
 		"role_view_only": "View only: your role does not move the machine here. STOP is always available.",
 		"sign_in_needed": "You are not signed in. Sign in with your name and PIN to move the machine.",
+		"stop_failed": "STOP did not reach the machine. Press it again or use the emergency stop.",
 		"sign_in_button": "Sign in",
 		"resize_handle": "Drag to resize the panel (the size is remembered on this screen). Double tap: original size.",
 		"z_here": "Z here",

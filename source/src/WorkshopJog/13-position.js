@@ -109,6 +109,19 @@
           }, { threshold: [0, 0.01] }).observe(nums);
         }
 
+        // paint() runs on every poll (10 a second): it writes only what changed, because every write wakes the style / layout of the page and
+        // the observers of the panel (measured on the kiosk 2026-11-04: ~100 identical text writes a second were a good part of its load).
+        function setText(node, v) {
+          v = String(v);
+          if (node.textContent !== v) node.textContent = v;
+        }
+        // (the browser gives a colour back in another notation than it was written, so what was written is remembered)
+        function setStyle(node, prop, v) {
+          var done = node.__jogPosStyle || (node.__jogPosStyle = {});
+          if (done[prop] === v) return;
+          done[prop] = v;
+          node.style[prop] = v;
+        }
         function paint() {
           // the choice can also be made from another place (Advanced > axis control): read it again
           frame = jog2Get("workshopJog2Border", frame);
@@ -117,30 +130,30 @@
           var hayApunta = jogHasPoints(jogMachineMode);
           var apEf = jogPointsEffective(jogMachineMode, apunta);
           [[bZone, frame === "zone"], [bMachine, frame === "machine"], [bPunt, apEf === "pointer"], [bThe, apEf === "laser"]].forEach(function (x) {
-            x[0].style.background = x[1] ? C.prim : "transparent";
-            x[0].style.color = x[1] ? "#fff" : C.text;
+            setStyle(x[0], "background", x[1] ? C.prim : "transparent");
+            setStyle(x[0], "color", x[1] ? "#fff" : C.text);
           });
-          apRow.style.display = frame === "machine" && hayApunta ? "flex" : "none"; // en la zona manda su propio offset
+          setStyle(apRow, "display", frame === "machine" && hayApunta ? "flex" : "none"); // en la zona manda su propio offset
           var ax = last && last.ax;
           var correction = typeof tjLaserCorrection === "function" ? tjLaserCorrection() : null;
           ["X", "Y", "Z"].forEach(function (L) {
-            if (!ax || !ax[L]) { numThe[L].textContent = "--"; return; }
+            if (!ax || !ax[L]) { setText(numThe[L], "--"); return; }
             var v = frame === "machine" ? ax[L].machinePosition : ax[L].userPosition;
             if (frame === "machine" && apEf === "laser" && correction && L !== "Z") v -= L === "X" ? correction.x : correction.y;
-            numThe[L].textContent = Number(v).toFixed(2);
+            setText(numThe[L], Number(v).toFixed(2));
           });
-          zoneRow.style.display = frame === "zone" && last && last.zone ? "flex" : "none";
-          zoneTxt.textContent = last ? last.zone : "";
-          limThe.textContent = ax
+          setStyle(zoneRow, "display", frame === "zone" && last && last.zone ? "flex" : "none");
+          setText(zoneTxt, last ? last.zone : "");
+          setText(limThe, ax
             ? ["X", "Y", "Z"].filter(function (L) { return ax[L] && typeof ax[L].min === "number" && typeof ax[L].max === "number"; })
                 .map(function (L) { return L + " " + ax[L].min.toFixed(0) + ".." + ax[L].max.toFixed(0); }).join("  ") || "--"
-            : "--";
-          speedThe.textContent = speed ? speed.top.toFixed(1) + " / " + speed.requested.toFixed(1) + " mm/s" : "--";
-          ["X", "Y", "Z"].forEach(function (L) { miniNum[L].textContent = ax && numThe[L].textContent !== "--" ? numThe[L].textContent : "--"; });
-          miniFrame.textContent = frame === "machine" ? i18nT('position.machine') + (!hayApunta ? "" : apEf === "laser" ? " / " + i18nT('position.laser') : " / " + i18nT('position.pointer')) : i18nT('position.zone') + (last && last.zone ? " " + last.zone : "");
-          miniFrame.style.background = frame === "machine" ? "#6d4c41" : C.prim;
-          miniSp.V.textContent = speed ? speed.top.toFixed(1) + " mm/s" : "";
-          miniSp.V.style.opacity = speed && speed.top > 0.05 ? "1" : "0.45"; // dim when the head is still
+            : "--");
+          setText(speedThe, speed ? speed.top.toFixed(1) + " / " + speed.requested.toFixed(1) + " mm/s" : "--");
+          ["X", "Y", "Z"].forEach(function (L) { setText(miniNum[L], ax && numThe[L].textContent !== "--" ? numThe[L].textContent : "--"); });
+          setText(miniFrame, frame === "machine" ? i18nT('position.machine') + (!hayApunta ? "" : apEf === "laser" ? " / " + i18nT('position.laser') : " / " + i18nT('position.pointer')) : i18nT('position.zone') + (last && last.zone ? " " + last.zone : ""));
+          setStyle(miniFrame, "background", frame === "machine" ? "#6d4c41" : C.prim);
+          setText(miniSp.V, speed ? speed.top.toFixed(1) + " mm/s" : "");
+          setStyle(miniSp.V, "opacity", speed && speed.top > 0.05 ? "1" : "0.45"); // dim when the head is still
         }
         paint();
 
