@@ -1,5 +1,9 @@
 # WorkshopJog -- historial de versiones
 
+## 3.14.8 -- 2026-11-04
+
+- Sign out no longer reopens the PIN dialog
+
 ## 3.14.7 -- 2026-11-04
 
 - Position card writes only what changed (it rewrote ~100 equal values a second, a large part of the kiosk page load)
