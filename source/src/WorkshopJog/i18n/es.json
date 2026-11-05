@@ -128,8 +128,9 @@
 		"g_code_type_it": "G-code (escribirlo)",
 		"minimize": "Minimizar",
 		"straight": "Recto",
+		"mode_not_changed": "El modo no cambió: sigue en {mode}.",
 		"role_view_only": "Solo lectura: tu rol no mueve la máquina aquí. El PARO siempre está disponible.",
-		"sign_in_needed": "No has iniciado sesión. Inicia sesión con tu nombre y PIN para mover la máquina.",
+		"sign_in_needed": "Requiere iniciar sesión para mover la máquina.",
 		"stop_failed": "El PARO no llegó a la máquina. Púlsalo otra vez o usa la parada de emergencia.",
 		"sign_in_button": "Iniciar sesión",
 		"resize_handle": "Arrastra para cambiar el tamaño del panel (se recuerda en esta pantalla). Doble toque: tamaño original.",
@@ -415,5 +416,12 @@
 		"first_ready": "Todo listo. Vuelve aquí si cambias algo de la máquina.",
 		"first_button": "Abrir la puesta en marcha",
 		"first_review": "Revisar la puesta en marcha"
+	},
+	"helpTips": {
+		"jog_z_title": "Control de Z",
+		"jog_z_what": "Cómo se mueve el eje Z (arriba y abajo) en este panel: con un deslizador o con botones Z+ y Z-.",
+		"jog_z_why": "Z sube y baja la herramienta; conviene el control que mejor se maneje en tu pantalla.",
+		"jog_z_missing": "Si no eliges, el panel usa el deslizador, o los botones Z si las flechas están activadas.",
+		"jog_z_how": "Elige Deslizador o Botones Z. Con el teclado activado, Z se mueve con RePág y AvPág."
 	}
 }

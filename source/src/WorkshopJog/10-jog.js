@@ -829,13 +829,14 @@
 
       function jogUpdateStatusText() {
         if (!jogStatusEl) return;
+        jogReasonPaint(); // 17-role-reason.js: the cause of a jog that cannot move, under the status line
         if (jogWithoutService || !jogLastMachineStatus) {
           // without service or without a response from DSF: text + link to the explanation
           jogStatusEl.textContent = jogWithoutService ? i18nT('jog.blocked', { reason: jogWithoutService }) : i18nT('jog.no_connection_with_the_system_service');
           var a = document.createElement("a");
           a.href = "#";
           a.textContent = jogExplainsOpen ? i18nT('jog.hide') : i18nT('jog.how_it_works');
-          a.style.color = "#90caf9";
+          a.style.color = "var(--wf-n-session-text,#90caf9)";
           a.addEventListener("click", function (ev) {
             ev.preventDefault();
             jogExplainsOpen = !jogExplainsOpen;
@@ -848,34 +849,33 @@
             ex.style.cssText = "margin-top:4px;color:#b0bec5;line-height:1.35;";
             jogStatusEl.appendChild(ex);
           }
-          jogStatusEl.style.color = "#ffb74d";
+          jogStatusEl.style.color = "var(--wf-n-down-text,#ffb74d)";
           return;
         }
         if (!jogRoleNow().move) {
           // a role that cannot move the machine (a viewer, or an operator outside the modes it may run): position only
-          jogStatusEl.textContent = i18nT(jogSignedOut() ? 'jog.sign_in_needed' : 'jog.role_view_only');
-          jogStatusEl.style.color = "#b0bec5";
+          jogStatusEl.textContent = ""; // the reason is the one under it (17-role-reason.js), not a gray line twice
           return;
         }
         if (jogEnabled && jogWithoutHoming.length && !jogFreeActive()) {
           jogStatusEl.textContent = i18nT('jog.not_homed_they_do_not_move', { axes: jogWithoutHoming.join(", ") });
-          jogStatusEl.style.color = "#ffb74d";
+          jogStatusEl.style.color = "var(--wf-n-down-text,#ffb74d)";
         } else if (jogEnabled && jogBlock && jogBlock.confirm) {
           jogStatusEl.textContent = i18nT('jog.ready_but_it_needs_confirmation', { reason: jogBlock.reason });
-          jogStatusEl.style.color = "#ffb74d";
+          jogStatusEl.style.color = "var(--wf-n-down-text,#ffb74d)";
         } else if (jogEnabled) {
           jogStatusEl.textContent = i18nT('jog.ready_mm_min', { feed: jogMaxFeedXY().toFixed(0), v: jogLiveJob ? i18nT('jog.careful_live_job_open_paused', { v: jogNameLive() }) : "" });
-          jogStatusEl.style.color = jogLiveJob ? "#ffb74d" : "#b0bec5";
+          jogStatusEl.style.color = jogLiveJob ? "var(--wf-n-down-text,#ffb74d)" : "#b0bec5";
         } else if (jogBlockFirm()) {
           jogStatusEl.textContent = i18nT('jog.blocked_by_the_service_2', { reason: jogBlock.reason });
-          jogStatusEl.style.color = "#ffb74d";
+          jogStatusEl.style.color = "var(--wf-n-down-text,#ffb74d)";
         } else if (jogLiveJobBlocks()) {
           jogStatusEl.textContent = i18nT('jog.blocked_live_job_running', { v: jogNameLive() });
-          jogStatusEl.style.color = "#ffb74d";
+          jogStatusEl.style.color = "var(--wf-n-down-text,#ffb74d)";
         } else if (jogLastMachineStatus) {
           jogStatusEl.textContent =
             i18nT('jog.blocked_2', { v: JOG_BLOCK_REASONS[jogLastMachineStatus] || jogLastMachineStatus, v2: jogLastJobFile && jogLastMachineStatus !== "busy" ? " (" + jogLastJobFile + ")" : "" });
-          jogStatusEl.style.color = "#ffb74d";
+          jogStatusEl.style.color = "var(--wf-n-down-text,#ffb74d)";
         }
       }
 
@@ -1567,7 +1567,7 @@
         jogStatusBar.appendChild(statusThe);
         jogStatusEl = statusThe;
         jogNoticeEl = document.createElement("div");
-        jogNoticeEl.style.cssText = "display:none;position:absolute;left:0;top:100%;z-index:5;width:100%;box-sizing:border-box;padding:6px;border-radius:6px;background:rgba(255,152,0,0.18);border:1px solid #ffb74d;color:#ffe0b2;font-size:11px;font-weight:bold;line-height:1.35;text-align:center;";
+        jogNoticeEl.style.cssText = "display:none;position:absolute;left:0;top:100%;z-index:5;width:100%;box-sizing:border-box;padding:6px;border-radius:6px;background:rgba(255,152,0,0.18);border:1px solid var(--wf-n-down-text,#ffb74d);color:#ffe0b2;font-size:11px;font-weight:bold;line-height:1.35;text-align:center;";
         jogStatusBar.appendChild(jogNoticeEl);
         // Position: at the top, before the controls, the same in both options (13-position.js)
         var jogPosT = jogPosCard();
@@ -1729,7 +1729,7 @@
             "width:" + thumbSize + "px",
             "height:" + thumbSize + "px",
             "border-radius:50%",
-            "background:#90caf9",
+            "background:var(--wf-n-session-text,#90caf9)",
             "border:2px solid #fff",
             "box-shadow:0 1px 6px rgba(0,0,0,0.6)",
             "transform:translate(-50%,-50%)",
@@ -1958,7 +1958,7 @@
           "width:" + KNOB_SIZE + "px",
           "height:" + KNOB_SIZE + "px",
           "border-radius:50%",
-          "background:#90caf9",
+          "background:var(--wf-n-session-text,#90caf9)",
           "border:2px solid #fff",
           "box-shadow:0 1px 6px rgba(0,0,0,0.6)",
           "transform:translate(-50%,-50%)",
@@ -2122,7 +2122,7 @@
           "width:" + Z_THUMB_SIZE + "px",
           "height:" + Z_THUMB_SIZE + "px",
           "border-radius:50%",
-          "background:#90caf9",
+          "background:var(--wf-n-session-text,#90caf9)",
           "border:2px solid #fff",
           "box-shadow:0 1px 6px rgba(0,0,0,0.6)",
           "transform:translate(-50%,-50%)",
@@ -2497,7 +2497,7 @@
           kbCard.style.cssText = "width:100%;box-sizing:border-box;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:6px;display:flex;flex-direction:column;gap:6px;";
           // amber heartbeat of the held key (it moves the machine, DESIGN.md 2)
           var kbCss = document.createElement("style");
-          kbCss.textContent = "@keyframes workshopJogKbPulse{0%,100%{box-shadow:0 0 0 0 rgba(255,143,0,0.75)}50%{box-shadow:0 0 0 4px rgba(255,143,0,0)}}";
+          kbCss.textContent = "@keyframes workshopJogKbPulse{0%,100%{box-shadow:0 0 0 0 rgb(255 143 0 / 0.75)}50%{box-shadow:0 0 0 4px rgb(255 143 0 / 0)}}";
           kbCard.appendChild(kbCss);
           // arrows in an inverted T on the left; Page Up / Page Down on the right
           var kbGrid = document.createElement("div");
@@ -2559,7 +2559,7 @@
             var t = kbTeclas[id];
             var st = jogKeyboardActive ? state[id] || (kbDestello[id] > ahora ? "touch" : "") : "";
             t.style.opacity = jogKeyboardActive ? "1" : "0.45";
-            t.style.background = st === "follows" ? "#ff8f00" : st === "touch" ? "#1976d2" : jogKeyboardActive ? "#455a64" : "#37474f";
+            t.style.background = st === "follows" ? "var(--wf-armed,#ff8f00)" : st === "touch" ? "#1976d2" : jogKeyboardActive ? "#455a64" : "#37474f";
             t.style.transform = st ? "translateY(2px)" : "";
             t.style.borderBottomWidth = st ? "1px" : "3px";
             t.style.animation = st === "follows" ? "workshopJogKbPulse 0.8s ease-in-out infinite" : "";
@@ -3343,9 +3343,7 @@
                 var ap = String(macro.poweroff);
                 code = /\.g$/i.test(ap) ? 'M98 P"0:/macros/' + ap.replace(/^\/+/, "") + '"' : ap;
               }
-              postCode(code).catch(function (e) {
-                console.error("[WorkshopJog] error in macro '" + macro.label + "':", e);
-              });
+              jogPostMacro(code, macro.label, notify); // 09-mode-confirm.js: a mode macro answers ok before the machine changes: the model is awaited
             });
           });
           jogMacroPaintActive(jogStatusCache.status);

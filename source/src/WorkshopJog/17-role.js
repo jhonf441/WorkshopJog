@@ -105,13 +105,18 @@
         return "";
       }
 
-      // Shows the reason a move or a STOP was refused in the status line (red for 5 s); a refusal for lack of session opens the sign-in as a touch does.
+      // Shows the reason a move or a STOP was refused: a session or role cause is the persistent reason under the controls (calm, N3); only a failed STOP
+      // (a real failure) is the red line for 5 s. A refusal for lack of session opens the sign-in as a touch does.
       function jogRefusalShow(key, signedOut) {
         if (!key || !jogStatusEl) return;
-        jogStatusEl.textContent = i18nT(key);
-        jogStatusEl.style.color = "#ef9a9a";
-        clearTimeout(jogBlockedExplain.timer);
-        jogBlockedExplain.timer = setTimeout(jogUpdateStatusText, 5000);
+        if (key === "jog.sign_in_needed" || key === "jog.role_view_only") {
+          jogUpdateStatusText();
+        } else {
+          jogStatusEl.textContent = i18nT(key);
+          jogStatusEl.style.color = "#ef9a9a";
+          clearTimeout(jogBlockedExplain.timer);
+          jogBlockedExplain.timer = setTimeout(jogUpdateStatusText, 5000);
+        }
         if (key === "jog.sign_in_needed" && signedOut && typeof workshopLogin === "function") {
           workshopLogin().then(function () {
             jogUpdateStatusText();
@@ -142,12 +147,11 @@
         if (!jogStatusEl) return true;
         var signedOut = jogSignedOut();
         jogUpdateStatusText();
-        if (signedOut || !jogRoleNow().move) {
-          jogStatusEl.textContent = i18nT(signedOut ? "jog.sign_in_needed" : "jog.role_view_only");
+        if (!signedOut && jogRoleNow().move) {
+          jogStatusEl.style.color = "var(--wf-n-down-text,#ffb74d)"; // blocked by the machine (not by the person): the status line says why
+          clearTimeout(jogBlockedExplain.timer);
+          jogBlockedExplain.timer = setTimeout(jogUpdateStatusText, 5000);
         }
-        jogStatusEl.style.color = "#ef9a9a";
-        clearTimeout(jogBlockedExplain.timer);
-        jogBlockedExplain.timer = setTimeout(jogUpdateStatusText, 5000);
         if (signedOut && typeof workshopLogin === "function") {
           workshopLogin().then(function () {
             jogUpdateStatusText();

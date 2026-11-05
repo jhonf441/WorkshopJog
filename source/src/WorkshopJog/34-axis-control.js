@@ -325,7 +325,7 @@
         root.appendChild(bar);
         var items = jogCeEl("div", "display:flex;flex-direction:column;gap:4px;width:100%;");
         root.appendChild(items);
-        var note = jogCeEl("div", "font-size:11px;color:#ffb74d;");
+        var note = jogCeEl("div", "font-size:11px;color:var(--wf-n-down-text,#ffb74d);");
         root.appendChild(note);
         var signature = "", rows = {}, stepsSignature = "";
 
@@ -404,7 +404,7 @@
         root.appendChild(jogCeTitle(ctx.i18n("avAxis.heaters_title")));
         var items = jogCeEl("div", "display:flex;flex-direction:column;gap:4px;width:100%;");
         root.appendChild(items);
-        var note = jogCeEl("div", "font-size:11px;color:#ffb74d;");
+        var note = jogCeEl("div", "font-size:11px;color:var(--wf-n-down-text,#ffb74d);");
         root.appendChild(note);
         root.appendChild(jogCeTitle(ctx.i18n("avAxis.extruder_title")));
         var fe = jogCeRow();
@@ -418,7 +418,7 @@
         fe.appendChild(inSpeed);
         root.appendChild(fe);
         var fb = jogCeRow();
-        var noteE = jogCeEl("div", "font-size:11px;color:#ffb74d;");
+        var noteE = jogCeEl("div", "font-size:11px;color:var(--wf-n-down-text,#ffb74d);");
         function extruir(dir) {
           var r = jogCeCodeExtrude(ctx.state().status, dir, inMm.value, inSpeed.value);
           if (!r.ok) { noteE.textContent = jogCeReason(ctx, r.reason, { min: r.min, temp: r.temp }); return; }
@@ -516,7 +516,7 @@
         f1.appendChild(jogCeEl("span", "font-size:11px;color:#b0bec5;", "rpm"));
         f1.appendChild(inRpm);
         root.appendChild(f1);
-        var note = jogCeEl("div", "font-size:11px;color:#ffb74d;");
+        var note = jogCeEl("div", "font-size:11px;color:var(--wf-n-down-text,#ffb74d);");
         function chosen() {
           var l = jogCeSpindles(ctx.state().status);
           var i = Number(selSp.value);

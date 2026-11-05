@@ -103,16 +103,17 @@
         tjTipHelpListeners.forEach(function (fn) { fn(tjTipHelp); });
       }
 
-      // "?" button for the jog panel's header.
+      // "?" button for the jog panel's header: the standard "?" (19-help-dom.js workshopHelpTipEl) with the behavior of a mode switch (not a card):
+      // its listeners are dropped (cloneNode) and the help mode of this file is attached instead.
       function tjTipMakeHelpBtn() {
-        var b = document.createElement("button");
-        b.type = "button";
-        b.textContent = "?";
+        var b = workshopHelpTipEl({ title: i18nT('workbenchTips.help_with_this_on_tap_any') }).cloneNode(true);
         b.setAttribute("data-tip", i18nT('workbenchTips.help_with_this_on_tap_any'));
         b.setAttribute("data-tip-pass", "1");
-        b.style.cssText = "width:20px;height:20px;border-radius:4px;border:none;background:rgba(255,255,255,0.15);color:#fff;font-size:12px;font-weight:bold;line-height:18px;padding:0;cursor:pointer;touch-action:none;margin-right:4px;";
+        b.removeAttribute("title");
+        b.style.cssText = "touch-action:none;margin-right:4px;";
         function paint(on) {
-          b.style.background = on ? "#1565c0" : "rgba(255,255,255,0.15)";
+          b.setAttribute("aria-pressed", on ? "true" : "false");
+          b.style.color = on ? "var(--wf-n-session,#1e88e5)" : "";
         }
         tjTipHelpListeners.push(paint);
         b.addEventListener("pointerdown", function (ev) {

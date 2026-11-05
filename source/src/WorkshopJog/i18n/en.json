@@ -128,8 +128,9 @@
 		"g_code_type_it": "G-code (type it)",
 		"minimize": "Minimize",
 		"straight": "Straight",
+		"mode_not_changed": "The mode did not change: still in {mode}.",
 		"role_view_only": "View only: your role does not move the machine here. STOP is always available.",
-		"sign_in_needed": "You are not signed in. Sign in with your name and PIN to move the machine.",
+		"sign_in_needed": "Sign-in required to move the machine.",
 		"stop_failed": "STOP did not reach the machine. Press it again or use the emergency stop.",
 		"sign_in_button": "Sign in",
 		"resize_handle": "Drag to resize the panel (the size is remembered on this screen). Double tap: original size.",
@@ -415,5 +416,12 @@
 		"first_ready": "Everything is ready. Come back here if you change something on the machine.",
 		"first_button": "Open the start-up",
 		"first_review": "Review the start-up"
+	},
+	"helpTips": {
+		"jog_z_title": "Z control",
+		"jog_z_what": "How the Z axis (up and down) moves in this panel: with a slider or with Z+ and Z- buttons.",
+		"jog_z_why": "Z raises and lowers the tool; pick the control that is easiest to use on your screen.",
+		"jog_z_missing": "If you do not choose, the panel uses the slider, or the Z buttons when the arrows are on.",
+		"jog_z_how": "Choose Slider or Z buttons. With the keyboard on, Z moves with PgUp and PgDn."
 	}
 }

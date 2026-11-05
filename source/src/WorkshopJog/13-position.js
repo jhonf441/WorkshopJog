@@ -88,7 +88,7 @@
         // 2026-10-16: the pinned bar says WHICH position it shows (zone G55 / machine, and what aims in machine) and gives each axis
         // its own cell: a coloured letter and a big number of fixed width (it does not dance while moving). The speed goes to
         // the right and is dimmed when the head is still. One cell per datum: when the panel is narrow they wrap whole.
-        var AXIS_COL = { X: "#ef9a9a", Y: "#a5d6a7", Z: "#90caf9" };
+        var AXIS_COL = { X: "#ef9a9a", Y: "#a5d6a7", Z: "rgb(144,202,249)" };
         var miniFrame = el("span", "flex:none;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:10px;background:" + C.prim + ";color:#fff;white-space:nowrap;");
         mini.appendChild(miniFrame);
         var miniSp = {};

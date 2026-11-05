@@ -171,7 +171,7 @@
             inp.addEventListener(ev, function (e) { e.stopPropagation(); }); // arrows and letters are not jog shortcuts here
           });
           var stateThe = document.createElement("div");
-          stateThe.style.cssText = "font-size:10px;color:#ffb74d;min-height:12px;word-break:break-word;";
+          stateThe.style.cssText = "font-size:10px;color:var(--wf-n-down-text,#ffb74d);min-height:12px;word-break:break-word;";
           var output = document.createElement("div");
           output.style.cssText =
             "max-height:140px;overflow-y:auto;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;line-height:1.4;color:#b0bec5;word-break:break-word;";
@@ -184,7 +184,7 @@
             }
             resp.forEach(function (r) {
               var l = document.createElement("div");
-              l.style.color = r.level === "error" ? "#ef9a9a" : r.level === "notice" ? "#ffb74d" : r.level === "cmd" ? "#90caf9" : "#b0bec5";
+              l.style.color = r.level === "error" ? "#ef9a9a" : r.level === "notice" ? "var(--wf-n-down-text,#ffb74d)" : r.level === "cmd" ? "var(--wf-n-session-text,#90caf9)" : "var(--wf-n-role-text,#b0bec5)";
               l.textContent = r.text;
               output.appendChild(l);
             });
@@ -363,7 +363,7 @@
             }
             ver.forEach(function (e) {
               var l = document.createElement("div");
-              l.style.color = e.level === "error" ? "#ef9a9a" : e.level === "notice" ? "#ffb74d" : "#b0bec5";
+              l.style.color = e.level === "error" ? "#ef9a9a" : e.level === "notice" ? "var(--wf-n-down-text,#ffb74d)" : "var(--wf-n-role-text,#b0bec5)";
               l.textContent = jogAvHour(e.t) + "  " + e.text;
               items.appendChild(l);
             });

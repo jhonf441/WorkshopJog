@@ -10,7 +10,7 @@
         if (!jogStatusEl || !jogStatusEl.parentNode) return null;
         if (jogControlEl && jogControlEl.parentNode === jogStatusEl.parentNode) return jogControlEl;
         jogControlEl = document.createElement("div");
-        jogControlEl.style.cssText = "display:none;align-items:center;gap:6px;font-size:11px;color:#ffcc80;flex-wrap:wrap;";
+        jogControlEl.style.cssText = "display:none;align-items:center;gap:6px;font-size:11px;color:var(--wf-n-down-text,#ffcc80);flex-wrap:wrap;";
         jogStatusEl.parentNode.insertBefore(jogControlEl, jogStatusEl.nextSibling);
         jogControlKey = "";
         return jogControlEl;

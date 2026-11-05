@@ -79,7 +79,7 @@
         // a small padlock icon in the panel header, next to the gear (2026-10-16): the text chip ("Sin limites: no") was wider
         // than the header and pushed the title and the minimize button out of it. The text lives in the tooltip.
         jogFreeBtn.style.cssText =
-          "flex:none;width:22px;height:20px;box-sizing:border-box;border-radius:4px;border:1px solid #ffb74d;background:transparent;color:#ffb74d;display:inline-flex;align-items:center;justify-content:center;padding:0;margin-right:4px;cursor:pointer;touch-action:none;";
+          "flex:none;width:22px;height:20px;box-sizing:border-box;border-radius:4px;border:1px solid var(--wf-n-down-text,#ffb74d);background:transparent;color:var(--wf-n-down-text,#ffb74d);display:inline-flex;align-items:center;justify-content:center;padding:0;margin-right:4px;cursor:pointer;touch-action:none;";
         jogFreeBtn.setAttribute("data-tip-pass", "1");
         jogFreeBtn.addEventListener("pointerdown", function (ev) {
           ev.stopPropagation();
@@ -141,8 +141,8 @@
           '"/></svg>';
         jogFreeBtn.title = on ? i18nT('free.exit_no_limits_mode') : esperando ? i18nT('free.waiting_for_the_backend') : i18nT('free.move_without_limits');
         jogFreeBtn.style.background = on ? "#b71c1c" : "transparent";
-        jogFreeBtn.style.color = on ? "#fff" : "#ffb74d";
-        jogFreeBtn.style.border = on ? "2px solid #fff" : "1px solid #ffb74d";
+        jogFreeBtn.style.color = on ? "#fff" : "var(--wf-n-down-text,#ffb74d)";
+        jogFreeBtn.style.border = on ? "2px solid #fff" : "1px solid var(--wf-n-down-text,#ffb74d)";
         var blocked = !jogEnabled && !on; // the jog is blocked (job, no service...): the mode cannot be asked for
         jogFreeBtn.disabled = (!!esperando && !on) || blocked;
         jogFreeBtn.style.opacity = (esperando || blocked) && !on ? "0.4" : "1";
@@ -206,12 +206,12 @@
           lines.forEach(function (s) {
             var l = document.createElement("div");
             l.textContent = s;
-            if (naranja[s]) l.style.color = "#ffb74d";
+            if (naranja[s]) l.style.color = "var(--wf-n-down-text,#ffb74d)";
             box.appendChild(l);
           });
           if (d.notice) {
             var a = document.createElement("div");
-            a.style.cssText = "color:#ffb74d;margin-top:3px;";
+            a.style.cssText = "color:var(--wf-n-down-text,#ffb74d);margin-top:3px;";
             a.textContent = d.notice;
             box.appendChild(a);
           }
@@ -296,7 +296,7 @@
         box.appendChild(cuerpo);
         var pie = el("div", "display:flex;gap:6px;padding:10px 12px;border-top:1px solid rgba(255,255,255,0.12);align-items:center;flex-wrap:wrap;");
         box.appendChild(pie);
-        var msg = el("div", "font-size:12px;flex:1 1 100%;color:#ffb74d;");
+        var msg = el("div", "font-size:12px;flex:1 1 100%;color:var(--wf-n-down-text,#ffb74d);");
         pie.appendChild(msg);
 
         var notices = [

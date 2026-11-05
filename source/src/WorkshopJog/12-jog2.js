@@ -212,7 +212,7 @@
           l.appendChild(i);
           irRow.appendChild(l);
         });
-        var irMsg = el("div", "font-size:11px;color:#ffb74d;display:none;");
+        var irMsg = el("div", "font-size:11px;color:var(--wf-n-down-text,#ffb74d);display:none;");
         irCard.appendChild(botonDoble(i18nT('jog2.go'), i18nT('jog2.go_2'), "width:100%;", function () { irA(); }));
         irCard.appendChild(irMsg);
 

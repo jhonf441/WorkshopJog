@@ -62,6 +62,12 @@
       var jogHeartbeatTimer = setInterval(jogHeartbeat, JOG_HEARTBEAT_MS);
       var jogControlTimer = setInterval(jogControlTick, 1000); // who has the control (17-control.js)
       var jogIdentityOff = workshopOnIdentity(jogRoleSyncSafe); // the panel is rebuilt for the new role (17-role.js)
+      // the red line of a refusal (a failed STOP, a blocked tap) is not told again to the next person: signing in, out or another role clears it
+      var jogSessionErrorsOff = workshopOnSessionErrors(function () {
+        clearTimeout(jogBlockedExplain.timer);
+        if (jogStatusEl) jogStatusEl.style.color = "#b0bec5";
+        jogUpdateStatusText();
+      });
 
       // the <style> elements only the Jog uses leave the page when it stops (the shared ones go with the last plugin: workshopRemoveLeftovers)
       var JOG_OWN_STYLES = ["workshop-jog-free-css", "workshop-jog-scroll-css", JOG_SIZE_STYLE_ID, JOG_TOUCH_STYLE_ID];
@@ -72,6 +78,7 @@
         clearInterval(jogStatusPollTimer);
         clearInterval(jogControlTimer);
         jogIdentityOff();
+        jogSessionErrorsOff();
         // Nada sostenido despues de detener: stop explicito al backend.
         jogPointerId = null;
         jogSendStopXY();

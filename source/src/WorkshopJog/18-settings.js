@@ -366,7 +366,7 @@
         box.appendChild(dsg);
         var dsgRow = el("div", "display:flex;gap:4px;flex-wrap:wrap;align-items:center;");
         dsg.appendChild(dsgRow);
-        dsgRow.appendChild(el("span", "font-size:12px;color:#b0bec5;margin-right:4px;", i18nT('settings.design')));
+        dsgRow.appendChild(el("span", "font-size:12px;color:var(--wf-n-role-text,#b0bec5);margin-right:4px;", i18nT('settings.design')));
         var dsgBtns = {};
         [[1, i18nT('settings.option_1_knob_and_tabs')], [2, i18nT('settings.option_2_task_based')]].forEach(function (o) {
           var b = el("button", "", o[1]);
@@ -442,7 +442,7 @@
         // One single "Reset" lives in the footer (2026-10-13: "I only want a
         // default in a single place"): no per-item default buttons.
         function h(parent, text) {
-          parent.appendChild(el("div", "font-size:12px;font-weight:bold;color:#90caf9;margin:10px 0 4px 0;text-transform:uppercase;letter-spacing:0.5px;", text));
+          parent.appendChild(el("div", "font-size:12px;font-weight:bold;color:var(--wf-n-session-text,#90caf9);margin:10px 0 4px 0;text-transform:uppercase;letter-spacing:0.5px;", text));
         }
         function check(parent, label, val, fn) {
           var l = el("label", "display:flex;align-items:center;gap:6px;cursor:pointer;");
@@ -478,7 +478,7 @@
           s.step = String(step);
           s.value = String(val);
           s.style.cssText = "flex:1 1 120px;";
-          var v = el("span", "flex:0 0 80px;text-align:right;color:#ffe082;", fmt(val));
+          var v = el("span", "flex:0 0 80px;text-align:right;color:var(--wf-n-down-text,#ffe082);", fmt(val));
           s.addEventListener("input", function () {
             var x = parseFloat(s.value);
             v.textContent = fmt(x);
@@ -491,7 +491,7 @@
         function swatches(parent, list, val, fn) {
           var r = row(parent);
           list.forEach(function (c) {
-            var b = el("button", "width:28px;height:28px;border-radius:50%;cursor:pointer;background:" + c + ";border:" + (c === val ? "3px solid #ffe082" : "2px solid rgba(255,255,255,0.25)") + ";");
+            var b = el("button", "width:28px;height:28px;border-radius:50%;cursor:pointer;background:" + c + ";border:" + (c === val ? "3px solid var(--wf-n-down-text,#ffe082)" : "2px solid rgba(255,255,255,0.25)") + ";");
             b.type = "button";
             b.title = c;
             b.addEventListener("click", function () { fn(c); draw(); });
@@ -577,13 +577,14 @@
             rx.appendChild(l);
           });
           if (!hayTeclado)
-            bodyThe.appendChild(el("div", "font-size:11px;color:#ffb74d;margin:2px 0 6px 0;",
+            bodyThe.appendChild(el("div", "font-size:11px;color:var(--wf-n-down-text,#ffb74d);margin:2px 0 6px 0;",
               tecladoSinTeclado
                 ? i18nT('settings.keyboard_this_screen_is_a_touchscreen')
                 : i18nT('settings.keyboard_this_screen_is_a_touchscreen_2')));
           // Z: only one, like X/Y (2026-10-11); with Keyboard, Z is also the keyboard
           var rz = row(bodyThe);
           rz.appendChild(el("span", "min-width:40px;", "Z"));
+          rz.appendChild(workshopHelpTipOf("jog_z"));
           if (c.keyboard) {
             rz.appendChild(el("span", "color:#b0bec5;", i18nT('settings.with_the_keyboard_pgup_raises_pgdn')));
           } else {

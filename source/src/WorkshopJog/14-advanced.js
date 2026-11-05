@@ -328,7 +328,7 @@
             }
             jogAvLog.slice().reverse().forEach(function (e) {
               var l = document.createElement("div");
-              l.style.color = e.level === "error" ? "#ef9a9a" : e.level === "notice" ? "#ffb74d" : "#b0bec5";
+              l.style.color = e.level === "error" ? "#ef9a9a" : e.level === "notice" ? "var(--wf-n-down-text,#ffb74d)" : "var(--wf-n-role-text,#b0bec5)";
               l.textContent = jogAvHour(e.t) + "  " + e.text;
               items.appendChild(l);
             });
