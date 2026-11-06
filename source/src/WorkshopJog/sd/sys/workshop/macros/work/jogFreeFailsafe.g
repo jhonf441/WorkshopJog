@@ -1,6 +1,6 @@
 ; jogFreeFailsafe.g -- ON-BOARD failsafe of the "without limits" mode of the jog.
 ; Call it from sys/daemon.g (which RepRapFirmware runs by itself, all the time):
-;     M98 P"0:/sys/workshop/macros/jogFreeFailsafe.g"
+;     M98 P"0:/sys/workshop/macros/work/jogFreeFailsafe.g"
 ; If the mode was left active and the backend stopped sending its heartbeat for more
 ; than 10 s (Raspberry Pi hung, plugin down, network cut), it puts back the
 ; limits and the mandatory homing, the current at 100 % and turns the stall

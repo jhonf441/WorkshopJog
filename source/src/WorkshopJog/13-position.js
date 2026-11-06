@@ -45,7 +45,7 @@
           var idx = ["X", "Y", "Z"].indexOf(L);
           var ir = function () {
             if (jogBlockedExplain()) return;
-            postCode('M98 P"0:/sys/workshop/macros/workzeroaxis.g" A' + idx).catch(function (e) { console.error("[WorkshopJog] ir a cero:", e); });
+            postCode('M98 P"0:/sys/workshop/macros/work/workzeroaxis.g" A' + idx).catch(function (e) { console.error("[WorkshopJog] ir a cero:", e); });
           };
           var css = "min-height:24px;margin-top:3px;width:100%;box-sizing:border-box;font-size:10px;padding:0 2px;";
           // fixed strings per axis so the translation layer can match them

@@ -5,6 +5,16 @@
 
       var jogRoleKey = null; // key of the view the panel in the page was built for (null = no panel yet)
 
+      // A control the role cannot use: visible, dimmed, not clickable or focusable (AWS rule: nothing disappears without a word).
+      function jogRoleLockEl(el) {
+        el.style.opacity = "0.4";
+        el.style.pointerEvents = "none";
+        if (typeof el.setAttribute === "function") {
+          el.setAttribute("aria-disabled", "true");
+          el.setAttribute("inert", "");
+        }
+      }
+
       // Hides every child of `root` that is neither a kept element, nor one that contains a kept element, nor inside one. The kept ones
       // (the position card) may sit anywhere in the tree (in design 2 they are inside the block of controls).
       function jogRoleHideExcept(root, keep) {
@@ -13,7 +23,7 @@
           var isKept = keep.some(function (k) { return k === c || (k.contains && k.contains(c)); });
           if (isKept) return;
           if (inside) jogRoleHideExcept(c, keep);
-          else c.style.display = "none";
+          else jogRoleLockEl(c); // not hidden: it stays in its place, dimmed and dead, and ONE reason says why (17-role-reason.js)
         });
       }
 
@@ -22,7 +32,7 @@
         jogRoleKey = view.key;
         if (view.move) return;
         jogRoleHideExcept(parts.body, parts.keep);
-        if (parts.quick) parts.quick.style.display = "none"; // Home / X / Y / Z / Z here in the dock: they move the machine
+        if (parts.quick) jogRoleLockEl(parts.quick); // Home / X / Y / Z / Z here in the dock: they move the machine (locked, not hidden)
       }
 
       function jogRoleRebuild() {
@@ -38,14 +48,17 @@
       // The response of the machine (a file shared by every screen) and the maker of macro buttons (a second system next to the bar buttons)
       // are for technician and admin; the buttons themselves are pressed by everybody. pages = [[id, label], ...] of the settings sheet.
       function jogRolePages(pages) {
-        if (jogRoleNow().advanced) return pages;
-        return pages.filter(function (p) { return p[0] !== "speed" && p[0] !== "macros"; });
+        return pages; // all of them: the speed and macros pages stay in their place, locked below the technician (jogRolePageLock)
+      }
+
+      // the role that opens a page of the settings sheet, or "" when this view may
+      function jogRolePageLock(id) {
+        return (id === "speed" || id === "macros") && jogRoleLocked(jogRoleNow()) ? "technician" : "";
       }
 
       // The tab of the settings sheet to open: the saved one unless this role does not have it.
       function jogRoleTab(saved) {
-        if (!saved || (!jogRoleNow().advanced && (saved === "speed" || saved === "macros"))) return "see";
-        return saved;
+        return saved || "see";
       }
 
       function jogRoleSyncSafe() {

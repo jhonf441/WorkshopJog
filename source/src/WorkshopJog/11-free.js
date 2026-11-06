@@ -8,14 +8,14 @@
       //
       // Everything that protects lives in the backend (WorkshopService, jog_move.py:
       // margin, speed, current, crash by driver, automatic exit) and
-      // in the board (sys/workshop/macros/jogFreeFailsafe.g from daemon.g). This
+      // in the board (sys/workshop/macros/work/jogFreeFailsafe.g from daemon.g). This
       // file only asks to enter/exit, shows the state (plugin data
       // jogFree, read in jogCheckEnabled) and saves the settings in
       // 0:/sys/workshop/config/jog.json "free" (reread by the backend).
 
       var JOG_FREE_DEF = { mode: "withoutHoming", color: "#ff1744", timeoutS: 60, marginMm: 5, speedPct: 25, correctionXY: 50, correctionZ: 100, crash: true, crashSens: 8, crashSteps: 100 };
       var JOG_FREE_LIM = { timeoutS: [10, 600], marginMm: [0, 30], speedPct: [5, 100], correctionXY: [20, 100], correctionZ: [40, 100], crashSens: [-64, 63], crashSteps: [20, 400] };
-      var JOG_FREE_FAILSAFE_LINE = 'M98 P"0:/sys/workshop/macros/jogFreeFailsafe.g"   ; failsafe of the jog without limits (WorkshopJog)';
+      var JOG_FREE_FAILSAFE_LINE = 'M98 P"0:/sys/workshop/macros/work/jogFreeFailsafe.g"   ; failsafe of the jog without limits (WorkshopJog)';
       var jogFree = null; // ultimo plugins.WorkshopService.data.jogFree
       var jogFreeAt = 0; // when it arrived (for the countdown between readings)
       var jogFreeBox = null; // aviso dentro del panel

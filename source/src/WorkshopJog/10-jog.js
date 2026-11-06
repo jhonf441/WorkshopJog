@@ -2245,6 +2245,7 @@
         tabContent.style.cssText = "width:100%;";
         body.appendChild(tabContent);
         var jogActiveTabId = "step";
+        var jogAdvCover = null; // the cover of the Advanced tab for a role below technician
         function jogSelectTab(id) {
           jogActiveTabId = id;
           tabBar.style.setProperty("--wf-sec", jogAjAccent());
@@ -2253,6 +2254,15 @@
             // like the pages' tabs (DESIGN.md 3): the family marks the open one; the stripe takes the accent the person chose
             jogTabBtns[k].classList.toggle("on", k === id);
           });
+          // Advanced above the role: its content is not shown, ONE cover says why (and which role opens it)
+          var lockedAdv = id === "advanced" && jogRoleLocked(jogRoleNow()) && jogTabSections.advanced;
+          if (lockedAdv) jogTabSections.advanced.style.display = "none";
+          if (jogAdvCover && jogAdvCover.parentNode) jogAdvCover.parentNode.removeChild(jogAdvCover);
+          jogAdvCover = null;
+          if (lockedAdv) {
+            jogAdvCover = jogRoleCover("technician");
+            tabContent.appendChild(jogAdvCover);
+          }
           try {
             localStorage.setItem(JOG_TAB_KEY, id);
           } catch (e) {

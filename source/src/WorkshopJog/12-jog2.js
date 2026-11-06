@@ -421,7 +421,7 @@
         var center = el("div", "display:flex;align-items:center;justify-content:center;");
         var bZero = botonDoble("X0 Y0", i18nT('jog2.go_2'), "width:100%;height:100%;min-height:0;padding:0;font-size:11px;font-weight:600;border-color:" + C.prim + ";", function () {
           if (jogBlockedExplain()) return;
-          postCode('M98 P"0:/sys/workshop/macros/workzero.g"').catch(function (e) { console.error("[WorkshopJog] go to zero:", e); });
+          postCode('M98 P"0:/sys/workshop/macros/work/workzero.g"').catch(function (e) { console.error("[WorkshopJog] go to zero:", e); });
         });
         bZero.title = i18nT('jog2.go_to_zero_xy_help');
         center.appendChild(bZero);

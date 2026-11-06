@@ -255,8 +255,9 @@
         });
         var visible = 0;
         Object.keys(tabBtns).forEach(function (id) {
-          var on = a.tabs[id] !== false && (id !== "advanced" || jogRoleNow().advanced);
+          var on = a.tabs[id] !== false; // Advanced stays for an operator, locked
           tabBtns[id].style.display = on ? "" : "none";
+          if (id === "advanced" && jogRoleLocked(jogRoleNow())) jogRoleMarkTab(tabBtns[id], "technician");
           if (on) visible++;
         });
         // the first visible section of the Avanzado tab has no line of its own: the line of the
@@ -275,8 +276,8 @@
       // first visible one (null = none).
       function jogAjFirstTab(saved) {
         var t = jogAjGet().tabs;
-        if (saved && t[saved] !== false && (saved !== "advanced" || jogRoleNow().advanced)) return saved;
-        var ids = ["step", "advanced"].filter(function (id) { return t[id] !== false && (id !== "advanced" || jogRoleNow().advanced); });
+        if (saved && t[saved] !== false) return saved;
+        var ids = ["step", "advanced"].filter(function (id) { return t[id] !== false; });
         return ids.length ? ids[0] : null;
       }
 
@@ -422,6 +423,7 @@
           });
           tabs.appendChild(b);
           tabBtns[p[0]] = b;
+          if (jogRolePageLock(p[0])) jogRoleMarkTab(b, jogRolePageLock(p[0]));
         });
 
         function btn(label, primary, fn) {
@@ -513,7 +515,8 @@
             ? i18nT('settings.option_2_large_position_arrows_tap')
             : i18nT('settings.option_1_knob_z_and_home');
           bodyThe.innerHTML = "";
-          if (cur === "see") drawVer();
+          if (jogRolePageLock(cur)) bodyThe.appendChild(jogRoleCover(jogRolePageLock(cur)));
+          else if (cur === "see") drawVer();
           else if (cur === "speed") drawSpeed();
           else if (cur === "steps") drawSteps();
           else if (cur === "macros") drawMacros();

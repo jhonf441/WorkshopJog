@@ -24,6 +24,30 @@
         return { move: move, advanced: advanced, motorsLink: advanced, key: (move ? "m" : "-") + (advanced ? "a" : "-") };
       }
 
+      // What stays in the page but locked (AWS rule: nothing disappears without a word): the technician tabs and pages an operator cannot open.
+      // They keep their place with a lock and the role that opens them; opening one shows ONE cover that says why.
+      function jogRoleLocked(view) {
+        return !view.advanced; // the Advanced tab and the speed / macros pages need the technician (settings.set + motors.disable)
+      }
+
+      // adds the lock and the needed role to a tab button (once)
+      function jogRoleMarkTab(btn, need) {
+        if (!btn || btn.getAttribute("data-jog-locked")) return;
+        btn.setAttribute("data-jog-locked", "1");
+        btn.classList.add("st-locked");
+        var ic = document.createElement("span");
+        ic.className = "mdi mdi-lock-outline";
+        ic.setAttribute("aria-hidden", "true");
+        ic.style.cssText = "margin-right:4px;";
+        btn.insertBefore(ic, btn.firstChild);
+        btn.title = i18nT("notice.notice_role_needed", { needed: workshopNoticeRoleName(need) });
+      }
+
+      // the cover that replaces the content of a locked tab or page: no session blue, role too low gray, never a button (the chip has the sign-in)
+      function jogRoleCover(need) {
+        return workshopNoticeEl(typeof workshopSignedOut === "function" && workshopSignedOut() ? "session" : "role", "cover", { needed: need, action: "" });
+      }
+
       function jogRoleNow() {
         return jogRoleView(typeof workshopCan === "function" ? workshopCan : null, typeof jogMachineMode === "undefined" ? null : jogMachineMode);
       }

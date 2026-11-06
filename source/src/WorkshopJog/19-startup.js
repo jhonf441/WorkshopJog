@@ -6,7 +6,7 @@
       // green = ready, orange = only the example (everything commented) or the daemon line is still to be added, red = missing.
       // Nothing here moves the machine or writes over a file of the person.
 
-      var JOG_STARTUP_FAILSAFE = "0:/sys/workshop/macros/jogFreeFailsafe.g";
+      var JOG_STARTUP_FAILSAFE = "0:/sys/workshop/macros/work/jogFreeFailsafe.g";
 
       // Pure: state of the failsafe from the text of the macro (null = missing) and of daemon.g (null = missing).
       // The macro missing is red; present but not called from daemon.g is orange (the line is added the first time the mode is armed).

@@ -1,6 +1,6 @@
 ; workzeroaxis.g -- Go to the work zero on ONE axis only.
 ; Called by the floating jog (EmergencyFab.js, Advanced tab ->
-; "Work zones / Go to zero"). Sibling of sys/workshop/macros/workzero.g (the
+; "Work zones / Go to zero"). Sibling of sys/workshop/macros/work/workzero.g (the
 ; "Go To Zero" of DWC, which moves X and Y together).
 ;
 ; Param A: 0 = X, 1 = Y, 2 = Z   (axis index in move.axes)
@@ -13,7 +13,7 @@
 ; surface of the part/bed). It goes SLOWLY (zFeed) on purpose; the
 ; jog button asks for a double tap to confirm.
 
-var en = exists(global.workshopLanguage) ? (global.workshopLanguage == "en") : false   ; messages in English (DWC language, see sys/workshop/macros/language.g)
+var en = exists(global.workshopLanguage) ? (global.workshopLanguage == "en") : false   ; messages in English (DWC language, see sys/workshop/macros/system/language.g)
 var safeZ = 5        ; mm above the Z work zero
 var zFeed = 300      ; mm/min to go down to Z0
 

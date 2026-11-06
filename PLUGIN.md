@@ -1,5 +1,11 @@
 # WorkshopJog (Jog panel)
 
+<!-- notice:start -->
+> **Read before installing.** This plugin runs with real permissions on your machine. Read [SECURITY.md](SECURITY.md) and the section **Permissions and what it changes** below: they say what it can do, which files it writes, and what it sends outside your network (nothing, unless you turn a feature on).
+
+> **The Workshop users and roles do not protect DWC itself.** Anyone who can open DWC on your network can send G-code, move the machine, edit `config.g` and upload files, whatever the Workshop roles say: Duet has no roles of its own. Set a DWC password (`M551`) and keep the machine on a network you trust.
+<!-- notice:end -->
+
 
 
 A floating panel on every DWC page to move the machine by hand: a free-direction knob, a Z slider, step buttons, go-to-zero, home, Z here, STOP and E-STOP, an advanced tab (macro buttons, extra axes, console, current), the "move without limits" mode and a settings sheet. It is not a page: you open it from the Control bar (button "Jog" under "THIS SCREEN"). The motion goes through the System service (`dsf/jog_move.py`, own DSF connection), not through DWC.
