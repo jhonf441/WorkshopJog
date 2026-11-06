@@ -2,7 +2,7 @@
   "id": "WorkshopJog",
   "name": "Jog",
   "author": "jhonf441",
-  "version": "3.14.16",
+  "version": "3.14.17",
   "license": "GPL-3.0-or-later",
   "homepage": "https://github.com/jhonf441/WorkshopJog",
   "tags": [
@@ -25,7 +25,7 @@
     "sys/workshop/macros/work/workzeroaxis.g"
   ],
   "dwcFiles": [
-    "js/WorkshopJog.e1058cad.js",
-    "js/WorkshopJog.e1058cad.js.gz"
+    "js/WorkshopJog.50fdd8bd.js",
+    "js/WorkshopJog.50fdd8bd.js.gz"
   ]
 }
