@@ -1,5 +1,9 @@
 # WorkshopJog -- historial de versiones
 
+## 3.14.12 -- 2026-11-05
+
+- QA batch: factory buttons on a clean machine, shared real-mode rule
+
 ## 3.14.11 -- 2026-11-05
 
 - Session state, refusals and notices unified; errors kept as objects; 403 names the action

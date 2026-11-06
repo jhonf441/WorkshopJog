@@ -359,14 +359,7 @@
           });
           var rc = el("div", "display:flex;align-items:center;gap:8px;margin:6px 0;");
           rc.appendChild(el("span", "flex:1 1 170px;", i18nT('free.blink_color')));
-          var ci = document.createElement("input");
-          ci.type = "color";
-          ci.value = cfg.color;
-          ci.style.cssText = "width:60px;height:30px;padding:0;border:none;background:none;";
-          ci.addEventListener("input", function () {
-            cfg.color = ci.value;
-          });
-          rc.appendChild(ci);
+          rc.appendChild(workshopColorEl(cfg.color, function (v) { cfg.color = v; })); // the color input of the family (19-help-dom.js)
           fields.appendChild(rc);
           fields.appendChild(el("div", "font-size:12px;font-weight:bold;color:#ef9a9a;margin:10px 0 2px 0;", i18nT('free.safeguards_for_every_screen')));
           numero(i18nT('free.turns_itself_off_without_movement_s'), "timeoutS", i18nT('free.if_you_don_t_move_anything'));
