@@ -207,6 +207,11 @@
       var jogHomeButtons = []; // [Home, X, Y, Z] -- gate propio, mas estricto (idle a secas, ver jogSetHomeEnabled)
       var jogStepMinusBtn = null;
       var jogStepPlusBtn = null;
+      var jogStepApi = null; // the Step tab's axis, distance and move for design 3 (set where the tab is built)
+      var jogStepPendingN = 0; // steps sent to the queue and not finished yet
+      function jogStepPending() {
+        return jogStepPendingN;
+      }
       var jogStepAxisFn = null; // (axis, sign): one step of the chosen distance (Step tab)
 
       var JOG_PANEL_ID = "emergency-fab-jog-panel";
@@ -223,7 +228,8 @@
       // unreachable. 28px of header + 4px of border + MARGIN above
       // and below; what does not fit scrolls INSIDE the body.
       // the dock (quick actions + STOP / E-STOP, 84 px) sits under the body and never scrolls away
-      var JOG_STOP_DOCK_H = jogIsTouch() ? 100 : 84;
+      var JOG_HEADER_H = jogIsTouch() ? 52 : 38; // px: the title bar (the header buttons + 4 px above and below)
+      var JOG_STOP_DOCK_H = jogIsTouch() ? 120 : 84;
       var JOG_STATUS_BAR_H = 44; // fixed status bar under the header
       var JOG_BODY_MAX_H = "calc(100vh - " + (28 + 4 + 2 * MARGIN + JOG_STOP_DOCK_H + JOG_STATUS_BAR_H) + "px)";
 
@@ -432,11 +438,6 @@
             jogBodyEl.style.overflowY = "auto";
             jogBodyEl.style.marginBottom = "";
           }
-          var saved = loadPos("emergencyFabJogPanelPos");
-          var left = saved ? saved.left : 16;
-          var top = saved ? saved.top : window.innerHeight - JOG_PANEL_H_ESTIMATE - 16;
-          jogPanelEl.style.left = clamp(left, MARGIN, window.innerWidth - JOG_PANEL_W - MARGIN) + "px";
-          jogPanelEl.style.top = clamp(top, MARGIN, window.innerHeight - JOG_PANEL_H_ESTIMATE - MARGIN) + "px";
           jogReclampPanel();
         }
         // Plain ASCII text, not unicode symbols -- the same reason
@@ -880,6 +881,7 @@
       }
 
       function jogSetControlsEnabled(enabled) {
+        enabled = enabled && jogHoldOk(); // a touch screen needs "Hold to enable" held (15-hold.js)
         if (jogRingEl) {
           jogRingEl.style.opacity = enabled ? "1" : "0.35";
           jogRingEl.style.pointerEvents = enabled ? "auto" : "none";
@@ -1088,7 +1090,7 @@
             }
             jogSetControlsEnabled(jogEnabled);
             jogSetHomeEnabled(jogMachineFree());
-            jogUpdateStatusText();
+            jogUpdateStatusText(); jogPendantPaint(status); // the position display of design 3 (12-jog3.js)
           })
           .catch(function () {
             // Tolerate a SINGLE network/server failure without cutting the jog --
@@ -1110,81 +1112,6 @@
           });
       }
 
-      // Variant of makeDraggable that drags `target` taking the gesture
-      // from a separate `handle` (the title bar), not from the
-      // whole element -- so that the knob/buttons inside the panel can
-      // use their own drag gestures (the knob) without moving the
-      // panel by accident.
-      function makeDraggableByHandle(target, handle, posKey, w, h, defaultLeft, defaultTop) {
-        var saved = loadPos(posKey);
-        var left = saved ? saved.left : defaultLeft;
-        var top = saved ? saved.top : defaultTop;
-        left = clamp(left, MARGIN, window.innerWidth - w - MARGIN);
-        top = clamp(top, MARGIN, window.innerHeight - h - MARGIN);
-        jogPutPanel(target, left, top); // never over the Emergency stop
-
-        var dragging = false;
-        var pointerId = null;
-        var startX = 0;
-        var startAnd = 0;
-        var startLeft = 0;
-        var startTop = 0;
-
-        handle.addEventListener("pointerdown", function (ev) {
-          ev.preventDefault(); // ver nota en makeDraggable()
-          // While the panel is in full screen mode (see
-          // jogApplyFullscreen) it is scaled with a CSS transform -- the
-          // offsetLeft/offsetTop math below assumes 1:1 with
-          // screen px, so dragging here would feel wrong
-          // (too fast/slow depending on the scale). Simpler:
-          // disable dragging entirely while it lasts.
-          if (target.dataset.fsLock === "1") return;
-          dragging = true;
-          pointerId = ev.pointerId;
-          startX = ev.clientX;
-          startAnd = ev.clientY;
-          startLeft = target.offsetLeft;
-          startTop = target.offsetTop;
-          handle.setPointerCapture(pointerId);
-        });
-
-        handle.addEventListener("pointermove", function (ev) {
-          if (!dragging || ev.pointerId !== pointerId) return;
-          var dx = ev.clientX - startX;
-          var dy = ev.clientY - startAnd;
-          var newLeft = clamp(startLeft + dx, MARGIN, window.innerWidth - target.offsetWidth - MARGIN);
-          var newTop = clamp(startTop + dy, MARGIN, window.innerHeight - target.offsetHeight - MARGIN);
-          jogPutPanel(target, newLeft, newTop); // it slides around the Emergency stop
-        });
-
-        function endDrag(ev) {
-          if (!dragging || ev.pointerId !== pointerId) return;
-          dragging = false;
-          try {
-            handle.releasePointerCapture(pointerId);
-          } catch (e) {
-            /* ya liberado */
-          }
-          savePos(posKey, target.offsetLeft, target.offsetTop);
-        }
-
-        handle.addEventListener("pointerup", endDrag);
-        handle.addEventListener("pointercancel", endDrag);
-
-        window.addEventListener("resize", function () {
-          // The same fix as in makeDraggable() -- clamp from the
-          // SAVED position, not the current one, so that it returns to its place when
-          // the window recovers its size (see the big comment
-          // there).
-          var saved2 = loadPos(posKey);
-          var baseLeft = saved2 ? saved2.left : defaultLeft;
-          var baseTop = saved2 ? saved2.top : defaultTop;
-          var l = clamp(baseLeft, MARGIN, window.innerWidth - target.offsetWidth - MARGIN);
-          var t = clamp(baseTop, MARGIN, window.innerHeight - target.offsetHeight - MARGIN);
-          jogPutPanel(target, l, t);
-        });
-      }
-
       // The panel changes height by itself (changing tab, opening a
       // collapsible Advanced section, adding macros...) without anyone dragging it --
       // if it grows downward from where it was, the bottom edge
@@ -1195,24 +1122,15 @@
         if (!jogPanelEl || jogPanelEl.dataset.fsLock === "1") return;
         if (jogPanelEl.style.display === "none") return;
         jogSizeApply();
-        var saved = loadPos("emergencyFabJogPanelPos");
-        var baseLeft = saved ? saved.left : jogPanelEl.offsetLeft;
-        var baseTop = saved ? saved.top : jogPanelEl.offsetTop;
-        jogPutPanel(
-          jogPanelEl,
-          clamp(baseLeft, MARGIN, window.innerWidth - jogPanelEl.offsetWidth - MARGIN),
-          clamp(baseTop, MARGIN, window.innerHeight - jogPanelEl.offsetHeight - MARGIN)
-        );
+        jogPosPlace(); // from the saved corner + percentage (15-pos.js): bounded to the visible area every time
       }
 
-      // ---- Emergency stop zone (request 2026-10-12) ----
-      // The jog NEVER covers DWC's red Emergency stop button
-      // (EmergencyBtn.vue: last button of the app-bar, top right,
-      // with the mdi-flash icon; on a phone only the icon remains). The zone goes
-      // from MARGIN to the left of the button to the right edge and from
-      // the top to MARGIN below the bar. If the button is not found
-      // (DWC still being built, another language does not matter: it is looked up by icon)
-      // the last 160 px of the bar are reserved. Without a bar: no zone.
+      // ---- Emergency stop zone (request 2026-10-12; the whole bar since 2026-11-06) ----
+      // The jog NEVER covers DWC's top bar: the red Emergency stop button lives there (EmergencyBtn.vue: last button of the app-bar, top
+      // right, with the mdi-flash icon; on a phone only the icon remains) and so do the menu and the state. Before, only the band of the
+      // button itself was kept free, and a panel dragged to the top left still hid the bar (owner report 2026-11-06). The zone is now the
+      // whole width of the window, from the top to MARGIN below the bar (and below the button, when it sticks out of the bar). Without a
+      // bar (DWC still being built): no zone. The shared rule for every floating panel is workshopFloatMinTop (_shared/00-core.js).
       function jogZoneEmergency() {
         var bar = document.querySelector("header.v-app-bar") || document.querySelector(".v-app-bar");
         if (!bar) return null;
@@ -1221,9 +1139,8 @@
         var icon = bar.querySelector(".mdi-flash");
         var btn = icon && icon.closest ? icon.closest("button, .v-btn") : null;
         var r = btn ? btn.getBoundingClientRect() : null;
-        var izq = r && r.width > 0 ? r.left : br.right - 160;
         var down = Math.max(br.bottom, r && r.width > 0 ? r.bottom : 0);
-        return { left: Math.max(0, izq - MARGIN), top: 0, right: window.innerWidth, bottom: down + MARGIN };
+        return { left: 0, top: 0, right: window.innerWidth, bottom: down + MARGIN };
       }
 
       // Pure logic (tested with node, without DOM): moves the rectangle
@@ -1312,8 +1229,9 @@
       }
 
       function jogToggle() {
-        if (isJogOpen()) jogCollapse();
-        else jogExpand();
+        if (isJogOpen()) return jogCollapse();
+        if (jogPanelLock()) return jogPanelLockTap(); // owner rule 2026-11-06: a jog that needs a session or a role is not opened; the tap signs in (17-role-reason.js)
+        jogExpand();
       }
 
       // Close the jog (the panel's "-" button or the bar's launcher).
@@ -1341,6 +1259,7 @@
           /* no critico */
         }
         if (jogKeyboardOffHook) jogKeyboardOffHook();
+        jogHoldReset(); // a closed jog is not enabled (15-hold.js)
         var token = ++jogCloseToken;
 
         function finish() {
@@ -1446,7 +1365,7 @@
         // -- barra de titulo (handle de arrastre + minimizar) --
         var header = document.createElement("div");
         header.style.cssText = [
-          "height:36px",
+          "height:" + JOG_HEADER_H + "px", // the header buttons are 44 px (a finger), 4 px of air above and below
           "flex:none",
           "background:transparent;border-bottom:1px solid rgba(255,255,255,0.12)",
           "display:flex",
@@ -1499,30 +1418,13 @@
 
         var minBtn = document.createElement("button");
         minBtn.type = "button";
+        minBtn.setAttribute("data-jog-min", "");
         minBtn.title = i18nT('jog.minimize');
         minBtn.textContent = "–"; // guion/minus
         // 2026-10-16 ("the jog does not minimize on the Pi"): with the mouse it worked and with the finger it did not. The button measured 20 x 20 px:
         // the finger fell on the title bar (which drags the panel and captures the pointer) and the pointerup never reached
         // the button. Now it measures 40 x 32 px and also minimizes with touchend / click (only once per touch).
-        minBtn.style.cssText = [
-          // same look as the gear (22 x 20); the finger target is larger thanks to a transparent border that is part of the
-          // button but not painted (background-clip), so it is easy to hit and does not look bigger than its neighbours
-          "flex:none",
-          "box-sizing:content-box",
-          "width:22px",
-          "height:20px",
-          "border-radius:11px", // 4px painted radius + the 7px transparent border: background-clip shrinks the radius by the border width
-          "border:7px solid transparent",
-          "margin:0 -3px 0 0",
-          "background:rgba(255,255,255,0.15)",
-          "background-clip:padding-box", // AFTER the background shorthand: the shorthand resets it and the border would be painted
-          "color:#fff",
-          "font-size:14px",
-          "line-height:18px",
-          "padding:0",
-          "cursor:pointer",
-          "touch-action:manipulation",
-        ].join(";");
+        minBtn.style.cssText = "flex:none;box-sizing:border-box;width:" + jogHeaderBtnPx() + "px;height:" + jogHeaderBtnPx() + "px;min-width:" + jogHeaderBtnPx() + "px;min-height:" + jogHeaderBtnPx() + "px;border-radius:8px;border:1px solid rgba(255,255,255,0.35);background:transparent;color:#fff;font-size:18px;line-height:1;padding:0;cursor:pointer;touch-action:manipulation;";
         var minLast = 0;
         function minTouch(ev) {
           ev.stopPropagation();
@@ -1538,7 +1440,7 @@
         minBtn.addEventListener("pointerup", minTouch);
         minBtn.addEventListener("touchend", minTouch, { passive: false });
         minBtn.addEventListener("click", minTouch);
-        header.insertBefore(tjTipMakeHelpBtn(), jogFsBtn && jogFsBtn.parentNode === header ? jogFsBtn : null); // "?" modo ayuda (12-tips.js)
+        header.insertBefore(jogHelpButtonMake(), jogFsBtn && jogFsBtn.parentNode === header ? jogFsBtn : null); jogPanelTeardownFns.push(jogHelpClose); // "?": a legend to read, never a mode that changes the buttons (15-help.js)
         jogGearMount(header); // gear (settings) (15-gear.js)
         jogStartupMount(header, minBtn); // start-up chip, then the minimize button (19-startup.js)
         panel.appendChild(header);
@@ -1548,11 +1450,12 @@
         // -- fixed status bar (under the header, never scrolls): homing, blocks, warnings --
         var jogStatusBar = document.createElement("div");
         jogStatusBar.style.cssText = "flex:none;width:100%;box-sizing:border-box;padding:6px 10px;background:#263238;border-bottom:1px solid rgba(255,255,255,0.12);display:flex;flex-direction:column;gap:4px;position:relative;";
+        jogStatusBar.setAttribute("data-jog-h-area", "status");
         panel.appendChild(jogStatusBar);
 
         // -- cuerpo --
         var body = document.createElement("div");
-        body.style.cssText = "padding:8px;display:flex;flex-direction:column;align-items:center;gap:8px;";
+        body.style.cssText = "padding:8px 8px " + (jogIsTouch() ? 12 : 8) + "px;display:flex;flex-direction:column;align-items:center;gap:8px;";
         // The header (drag + minimize) stays ALWAYS visible: what does
         // not fit on the screen scrolls inside the body, it does not push
         // the panel out of the window (see JOG_BODY_MAX_H).
@@ -1567,7 +1470,7 @@
         jogStatusBar.appendChild(statusThe);
         jogStatusEl = statusThe;
         jogNoticeEl = document.createElement("div");
-        jogNoticeEl.style.cssText = "display:none;position:absolute;left:0;top:100%;z-index:5;width:100%;box-sizing:border-box;padding:6px;border-radius:6px;background:rgba(255,152,0,0.18);border:1px solid var(--wf-n-down-text,#ffb74d);color:#ffe0b2;font-size:11px;font-weight:bold;line-height:1.35;text-align:center;";
+        jogNoticeEl.style.cssText = "display:none;width:100%;box-sizing:border-box;padding:6px;border-radius:6px;background:#3d3016;border:1px solid var(--wf-n-down-text,#ffb74d);color:#ffe0b2;font-size:11px;font-weight:bold;line-height:1.35;text-align:center;";
         jogStatusBar.appendChild(jogNoticeEl);
         // Position: at the top, before the controls, the same in both options (13-position.js)
         var jogPosT = jogPosCard();
@@ -1607,11 +1510,12 @@
         jogDock.style.cssText = "width:100%;box-sizing:border-box;flex:none;background:#263238;border-top:1px solid rgba(255,255,255,0.18);";
         panel.appendChild(jogDock);
         jogStopDockEl = jogDock;
-        jogSizeMount(panel); // the saved size and the strip with the resize handle under the dock (15-size.js)
+        jogSizeMount(panel); // the saved size and the size handle in the header (15-size.js)
+        jogHeaderOrder(header); // layout, size, gear, minimize in one group at the right (15-size-handle.js)
         jogDock.style.touchAction = "none"; // dragging on the dock does not scroll the page behind
         // quick actions, always at hand (two taps: they move): Home (all), Home X / Y / Z, raise Z
         var jogQuick = document.createElement("div");
-        jogQuick.style.cssText = "display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:6px 8px 0 8px;";
+        jogQuick.style.cssText = "display:grid;grid-template-columns:repeat(auto-fit,minmax(" + (jogIsTouch() ? 44 : 30) + "px,1fr));gap:" + (jogIsTouch() ? 12 : 4) + "px;padding:" + (jogIsTouch() ? 12 : 6) + "px 8px 0 8px;";
         jogDock.appendChild(jogQuick);
         var jogQH = jog2Helpers();
         var jogQCss = "min-height:" + jogTouchPx(30) + "px;border-radius:6px;font-size:11px;padding:0 1px;min-width:0;overflow:hidden;white-space:nowrap;text-overflow:clip;";
@@ -1647,7 +1551,7 @@
             .catch(function (e) { console.error("[WorkshopJog] z here:", e); });
         });
         jogQZHere.title = i18nT('jog.z_here_help');
-        jogQuick.appendChild(jogQZHere);
+        (jogIsTouch() ? jogZHereToBody : jogQuick.appendChild.bind(jogQuick))(jogQZHere, body); // a touch screen: the dock keeps the four Home buttons in one row
         // The labels of these buttons never show dots: the font gets smaller until the word fits, and it is fitted
         // again whenever the bar changes size (the panel zoom, a resize) or the label changes (the "?" of the second tap).
         function jogAdjustText(btn) {
@@ -1669,11 +1573,12 @@
         }
         setTimeout(jogAdjustAll, 0);
         var stopRow = document.createElement("div");
-        stopRow.style.cssText = "display:flex;gap:4px;width:100%;box-sizing:border-box;padding:6px 8px 3px 8px;"; // the strip of the resize handle comes right under it
+        stopRow.style.cssText = "display:flex;gap:" + (jogIsTouch() ? 12 : 4) + "px;width:100%;box-sizing:border-box;padding:" + (jogIsTouch() ? 12 : 6) + "px 8px 8px 8px;";
         jogDock.appendChild(stopRow);
         jogFreeMount(body); // "Move without limits" + its notice, below STOP / E-STOP (11-free.js)
 
         jogStopMount(stopRow); // STOP + E-STOP (16-touch.js)
+        jogHoldDockMount(stopRow); // a touch screen: the hold-to-enable button between STOP and E-STOP (15-hold.js)
 
         // -- X/Y mode: Free (circle, with axis snapping) or Straight
         // (two independent 1D sliders, total guarantee of a single
@@ -1775,7 +1680,7 @@
         jogXTrackEl.addEventListener("pointerdown", function (ev) {
           ev.stopPropagation();
           ev.preventDefault();
-          if (!jogEnabled) return;
+          if (!jogCanMove()) return;
           jogStraightXPointerId = ev.pointerId;
           try {
             jogXTrackEl.setPointerCapture(jogStraightXPointerId);
@@ -1821,7 +1726,7 @@
         jogYTrackEl.addEventListener("pointerdown", function (ev) {
           ev.stopPropagation();
           ev.preventDefault();
-          if (!jogEnabled) return;
+          if (!jogCanMove()) return;
           jogStraightYPointerId = ev.pointerId;
           try {
             jogYTrackEl.setPointerCapture(jogStraightYPointerId);
@@ -2034,7 +1939,7 @@
         ring.addEventListener("pointerdown", function (ev) {
           ev.stopPropagation();
           ev.preventDefault();
-          if (!jogEnabled) return;
+          if (!jogCanMove()) return;
           jogPointerId = ev.pointerId;
           try {
             ring.setPointerCapture(jogPointerId);
@@ -2152,7 +2057,7 @@
         zTrack.addEventListener("pointerdown", function (ev) {
           ev.stopPropagation();
           ev.preventDefault();
-          if (!jogEnabled) return;
+          if (!jogCanMove()) return;
           jogZPointerId = ev.pointerId;
           try {
             zTrack.setPointerCapture(jogZPointerId);
@@ -2502,7 +2407,7 @@
           return null;
         }
 
-        if (jogControls(jogAjGet().style === 2 ? 2 : 1).keyboard && jogAjHasKeyboard()) {
+        if (jogControls(jogAjGet().style).keyboard && jogAjHasKeyboard()) {
           kbCard = document.createElement("div");
           kbCard.style.cssText = "width:100%;box-sizing:border-box;border:1px solid rgba(255,255,255,0.12);border-radius:8px;padding:6px;display:flex;flex-direction:column;gap:6px;";
           // amber heartbeat of the held key (it moves the machine, DESIGN.md 2)
@@ -3493,34 +3398,11 @@
         jogAxesExtraHook = jogStepAxesRender;
 
         var stepDistRow = document.createElement("div");
-        stepDistRow.style.cssText = "display:flex;align-items:center;gap:6px;width:100%;";
         stepSection.appendChild(stepDistRow);
-
-        var stepDistLabel = document.createElement("span");
-        stepDistLabel.style.cssText = "font-size:10px;color:#b0bec5;flex:0 0 auto;min-width:40px;text-align:right;";
-        stepDistRow.appendChild(stepDistLabel);
-
-        var stepDistSlider = document.createElement("input");
-        stepDistSlider.type = "range";
-        stepDistSlider.min = "0";
-        stepDistSlider.max = String(JOG_STEP_VALUES.length - 1);
-        stepDistSlider.step = "1";
-        stepDistSlider.value = String(jogStepIndex);
-        stepDistSlider.title = i18nT('jog.step_distance');
-        stepDistSlider.style.cssText = "flex:1 1 auto;width:0;height:20px;touch-action:pan-x;cursor:pointer;";
-        stepDistRow.appendChild(stepDistSlider);
-
-        function jogUpdateStepDistLabel() {
-          stepDistLabel.textContent = JOG_STEP_VALUES[jogStepIndex] + " mm";
-        }
-        jogUpdateStepDistLabel();
-
-        stepDistSlider.addEventListener("pointerdown", function (ev) {
-          ev.stopPropagation();
-        });
-        stepDistSlider.addEventListener("input", function () {
-          jogStepIndex = parseInt(stepDistSlider.value, 10);
-          jogUpdateStepDistLabel();
+        var jogUpdateStepDistLabel = jogStepCellsMount(stepDistRow, JOG_STEP_VALUES, function () {
+          return jogStepIndex;
+        }, function (i) {
+          jogStepIndex = i;
         });
 
         var stepMoveRow = document.createElement("div");
@@ -3542,7 +3424,7 @@
         function jogPasoEje(axis, sign) {
           // The same "idle or busy" gate as the continuous jog -- see
           // jogCheckEnabled/jogSetControlsEnabled.
-          if (!jogEnabled) return;
+          if (!jogCanMove()) return;
           jogNotifyWithoutHoming([axis]);
           var dist = sign * JOG_STEP_VALUES[jogStepIndex];
           var feed = axis === "Z" ? jogMaxFeedZ() : jogMaxFeedXY();
@@ -3554,16 +3436,28 @@
           // another's G90 and RRF took it as an ABSOLUTE position (rejected or
           // to elsewhere). Now each step is ONE block and they go in line.
           var block = jogBlockStep(jogMachineMode, [axis + dist.toFixed(3)], feed); // S0 only in Laser mode (09-mode.js)
+          jogStepPendingN++;
           jogStepQueue = jogStepQueue
             .then(function () {
+              if (!jogCanMove()) return; // enable was let go while the step waited: it is not sent
               return postCode(block);
             })
             .catch(function (e) {
               console.error("[WorkshopJog] error in step:", e);
+            })
+            .then(function () {
+              jogStepPendingN--;
             });
         }
         var jogStepQueue = Promise.resolve(); // pasos en fila, uno detras del otro
         jogStepAxisFn = jogPasoEje;
+        jogStepApi = jogStepApiMake(JOG_STEP_VALUES, {
+          getIndex: function () { return jogStepIndex; },
+          setIndex: function (i) { jogStepIndex = i; jogUpdateStepDistLabel(); },
+          getAxis: function () { return jogStepAxis; },
+          setAxis: function (a) { jogStepAxis = a; jogUpdateStepAxisVisual(); },
+          move: jogPasoEje,
+        }); // what design 3 (12-jog3.js) needs of the Step tab
         [
           [stepMinusBtn, -1],
           [stepPlusBtn, 1],
@@ -3612,7 +3506,7 @@
           btn.addEventListener("pointerdown", function (ev) {
             ev.stopPropagation();
             ev.preventDefault(); // ver nota en viewBtn pointerdown (EmergencyFab camara)
-            if (btn.disabled || !jogEnabled || pid !== null || jogStepHold) return;
+            if (btn.disabled || !jogCanMove() || pid !== null || jogStepHold) return;
             pid = ev.pointerId;
             // IN CAPTURE (true): the button's own pointerup does
             // stopPropagation, and on touch the event goes to the button (implicit
@@ -3624,7 +3518,7 @@
             window.addEventListener("blur", onBlur);
             holdTimer = setTimeout(function () {
               holdTimer = null;
-              if (pid === null || !jogEnabled) return;
+              if (pid === null || !jogCanMove()) return;
               holding = true;
               jogStepHold = { axis: jogStepAxis, sign: sign };
               btn.style.background = "#e65100";
@@ -3707,8 +3601,9 @@
           row.style.justifyContent = "center"; // deslizantes / perilla / Z siempre centrados
           row.style.width = "100%";
         }
-        if (jogAjGet().style === 2 && typeof jog2Assemble === "function") {
-          jog2Assemble({
+        var jogAsmFn = jogAjGet().style === 2 ? jog2Assemble : jogAssembler(jogAjGet().style); // designs 2, 3 (pendant), 4 (hive): their own view on top, the usual jog in More
+        if (jogAsmFn) {
+          jogAsmFn({
             axisModeRow: axisModeRow,
             knobRow: row,
             applyControls: jogAplicarControles,
@@ -3719,7 +3614,7 @@
             stopRow: stopRow,
             posT: jogPosT,
             speedSlider: speedSlider,
-            stepSlider: stepDistSlider,
+            setStep: function (i) { jogStepIndex = i; jogUpdateStepDistLabel(); },
             steps: JOG_STEP_VALUES,
             getStepIndex: function () { return jogStepIndex; },
             keyboard: kbCard, // tecladito dibujado (null si no va), 2026-10-11
@@ -3727,8 +3622,8 @@
             // "Mas" keeps only what is not there
             // true when "More" would show something (14-advanced.js)
             moreHasSomething: function () { return jogMoreHasSomething(jogTabBtns.advanced, tabBar, macrosHost); },
-            removeRepeated: function () {
-              speedRow.style.display = "none";
+            removeRepeated: function (keepSpeed) {
+              speedRow.style.display = keepSpeed ? "" : "none"; speedRow.style.width = "100%"; // the hive keeps the speed in More: as wide as More, or the slider collapses
               axisMaxThe.style.display = "none"; // the Advanced > Limits and speeds section shows the same data
               if (jogTabBtns.step) jogTabBtns.step.style.display = "none";
               if (jogTabSections.step) jogTabSections.step.style.display = "none";
@@ -3770,15 +3665,7 @@
           jogTouch = null;
         });
 
-        makeDraggableByHandle(
-          panel,
-          header,
-          "emergencyFabJogPanelPos",
-          JOG_PANEL_W,
-          JOG_PANEL_H_ESTIMATE,
-          16,
-          window.innerHeight - JOG_PANEL_H_ESTIMATE - 16
-        );
+        jogPosDraggable(panel, header); // drag by the title bar; the place is a corner + percentage (15-pos.js)
 
         // See jogReclampPanel -- it reacts to any change in the
         // panel's height, from wherever it comes, without having to remember to call it
@@ -3793,6 +3680,8 @@
           });
         }
         jogWinOn("resize", jogReclampPanel);
+        jogWinOn("orientationchange", jogReclampPanel);
+        jogWinOn("blur", jogHoldReset); // the window lost the focus: nothing stays enabled (15-hold.js)
 
         jogSetControlsEnabled(jogEnabled);
         jogSetHomeEnabled(jogMachineFree());
@@ -3807,7 +3696,7 @@
         jogApplyAxisMode(savedAxisMode === "straight" ? "straight" : "free");
         // the saved axis mode (knob / tracks) must not bring back a control that Settings turned off
         // (arrows or keyboard for X/Y showed the knob or the two tracks again, plus the Z track)
-        jogAplicarControles(jogControls(jogAjGet().style === 2 ? 2 : 1));
+        jogAplicarControles(jogControls(jogAjGet().style));
 
         if (jogFsBtn) {
           var wantsFs = false;

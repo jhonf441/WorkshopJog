@@ -1,16 +1,15 @@
       // ---- Size of the floating panel: the state and what it does to the panel (the numbers are 09-size.js, the handle is 15-size-handle.js) ----
 
       var JOG_SIZE_STYLE_ID = "workshop-jog-size-css";
-      // size = the saved {w, h} or null (the original size); handle = the corner element; drag = { id, x, y, w, h, moved } while a finger or the
-      // mouse holds it; tap = the last tap on it (for the double tap that gives the original size back)
+      // size = the saved {w, h} or null (the original size); handle = the size button of the header (S / M / W, 15-size-handle.js)
       // natural = { h, scale }: the outer height of the panel as tall as the content of the open tab, measured at that zoom (null = not yet);
 // dirty = it has to be measured again (the tab or the content changed); watch = the MutationObserver of the body, wait = a re-measure is queued
-var jogSizeState = { size: null, handle: null, drag: null, tap: null, natural: null, dirty: true, watch: null, wait: false };
+var jogSizeState = { size: null, handle: null, natural: null, dirty: true, watch: null, wait: false };
 
       // What the panel is made of (see jogSizeChromeH): the header is 36 px, the status bar and the dock are estimates (the real ones change with
       // the notices and with the touch screen), and the strip of the handle does not zoom.
       function jogSizeChrome() {
-        return { header: 36, status: JOG_STATUS_BAR_H, dock: JOG_STOP_DOCK_H, foot: JOG_SIZE_FOOT_H, natural: jogSizeState.natural };
+        return { header: JOG_HEADER_H, status: JOG_STATUS_BAR_H, dock: JOG_STOP_DOCK_H, foot: JOG_SIZE_FOOT_H, natural: jogSizeState.natural };
       }
 
       function jogSizeWin() {
@@ -67,7 +66,7 @@ var jogSizeState = { size: null, handle: null, drag: null, tap: null, natural: n
           var js = jogSizeState;
           // while the corner is being dragged the zoom changes at every move, and the content at another zoom is the same drawing (09-size.js
           // jogSizeNaturalAt takes it linearly): it is not measured again then (two forced layouts per move froze the page); it is when the finger lets go
-          if (!js.dirty && js.natural && (js.drag || js.natural.scale === jogScale)) return;
+          if (!js.dirty && js.natural && js.natural.scale === jogScale) return;
           var before = js.natural;
           if (!jogSizeMeasure()) return;
           if (before && before.h === js.natural.h && before.scale === js.natural.scale) return;
@@ -82,9 +81,17 @@ var jogSizeState = { size: null, handle: null, drag: null, tap: null, natural: n
         [jogHeaderEl, jogBodyEl, jogStopDockEl].forEach(function (el) {
           if (el) jogSizeStyleSet(el, "zoom", String(fit.scale));
         });
+        // an open Jog takes at most 40 % of the visible area (09-pos.js): a taller content scrolls inside the body, header and dock stay in view
+        var win = jogSizeWin();
+        var cap = Math.min(jogAreaMaxHeight(fit.w, win.vw, win.vh, win.margin), win.vh - 2 * win.margin - fit.reserve);
+        var nat = jogSizeNaturalAt(chrome.natural, fit.scale);
+        var h = fit.h;
+        if (nat && nat > cap) h = Math.min(h || nat, cap);
+        else if (h && h > cap) h = cap;
+        jogSizeStyleSet(panel, "maxHeight", JOG_PANEL_MAX_H);
         jogSizeStyleSet(panel, "width", fit.w - JOG_SIZE_BORDER + "px"); // the border is outside the style width and height
-        jogSizeStyleSet(panel, "height", fit.h ? fit.h - JOG_SIZE_BORDER + "px" : "");
-        if (fit.h) panel.setAttribute("data-jog-sized", "");
+        jogSizeStyleSet(panel, "height", h ? h - JOG_SIZE_BORDER + "px" : "");
+        if (h) panel.setAttribute("data-jog-sized", "");
         else panel.removeAttribute("data-jog-sized");
         jogSizeStyleSet(jogBodyEl, "maxHeight", jogSizeBodyMax(fit, chrome, MARGIN));
       }
@@ -159,9 +166,13 @@ var jogSizeState = { size: null, handle: null, drag: null, tap: null, natural: n
         st.id = JOG_SIZE_STYLE_ID;
         st.textContent = [
           P + "[data-jog-sized]" + free + "{display:flex;flex-direction:column;}",
+          P + '[data-fs-lock="1"] [data-jog-size-handle]{display:none;}',
+          // the "?" of the title bar: clear (before it was dim, as if disabled), and in the accent color while its card is open
+          P + " [data-jog-header-actions] .wf-help-btn{opacity:1!important;color:#e3e8eb!important;background:transparent!important;border:1px solid rgba(255,255,255,0.35)!important;}",
+          P + ' [data-jog-header-actions] .wf-help-btn[aria-expanded="true"]{background:' + jogAjGet().accent + '!important;border-color:' + jogAjGet().accent + '!important;color:#fff!important;}',
+          P + " [data-jog-header-actions] .wf-help-btn *{color:inherit!important;fill:currentColor;}", // the icon follows the button (it stayed grey on the blue)
           P + "[data-jog-sized]" + free + " > [data-jog-body]{flex:1 1 auto;min-height:0;max-height:none!important;}",
-          P + '[data-fs-lock="1"] [data-jog-size-strip]{display:none;}',
-        ].join("\n");
+                  ].join("\n");
         document.head.appendChild(st);
       }
 
@@ -170,8 +181,6 @@ var jogSizeState = { size: null, handle: null, drag: null, tap: null, natural: n
       function jogSizeMount(panel) {
         var js = jogSizeState;
         jogSizeStyle();
-        js.drag = null;
-        js.tap = null;
         try {
           js.size = jogSizeRead(localStorage.getItem(JOG_SIZE_KEY));
         } catch (e) {
@@ -181,11 +190,11 @@ var jogSizeState = { size: null, handle: null, drag: null, tap: null, natural: n
         js.dirty = true;
         js.wait = false;
         jogBodyEl.setAttribute("data-jog-body", "");
-        var strip = document.createElement("div");
-        strip.setAttribute("data-jog-size-strip", "");
-        strip.style.cssText = "flex:none;position:relative;width:100%;height:" + JOG_SIZE_FOOT_H + "px;touch-action:none;";
-        strip.appendChild(jogSizeHandleMake(js));
-        panel.appendChild(strip);
+        jogBodyEl.setAttribute("data-jog-h-area", "body"); // the areas of the panel: the touch rules (16-touch.js) look for them
+        if (jogStopDockEl) jogStopDockEl.setAttribute("data-jog-h-area", "dock");
+        if (jogHeaderEl) jogHeaderEl.setAttribute("data-jog-h-area", "header");
+        jogHeaderEl.appendChild(jogSizeHandleMake(js)); // the one size handle, top right (15-size-handle.js)
+        jogSizeHandlePaint(js);
         jogSizeWatch(jogBodyEl);
         setTimeout(function () {
           jogSizeApply();

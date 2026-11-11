@@ -92,7 +92,7 @@
           if (jogFreeActive()) jogFreeExit();
           else jogFreeOpenSheet();
         });
-        if (jogHeaderEl) jogHeaderEl.insertBefore(jogFreeBtn, jogHeaderEl.firstChild.nextSibling); // title, chip, gear
+        if (jogHeaderEl) (jogHeaderEl.querySelector("[data-jog-header-info]") || jogHeaderEl).appendChild(jogFreeBtn); // with the title and the other chips, never next to the action buttons (15-size-handle.js)
         else body.appendChild(jogFreeBtn);
         jogFreeRender();
       }
@@ -249,15 +249,19 @@
 
       // Installs the fallback line at the end of sys/daemon.g (creating it if it does not exist).
       function jogFreeInstallBackup() {
-        return tzGetText("0:/sys/daemon.g")
-          .catch(function () {
+        return Promise.all([
+          tzGetText("0:/sys/daemon.g").catch(function () {
             return "";
-          })
-          .then(function (t) {
-            if (t.indexOf("jogFreeFailsafe") >= 0) return;
-            var nuevo = t + (t && !/\n$/.test(t) ? "\n" : "") + JOG_FREE_FAILSAFE_LINE + "\n";
-            return tzPutText("0:/sys/daemon.g", nuevo);
-          });
+          }),
+          tzGetText(JOG_STARTUP_DAEMON_TAIL).catch(function () {
+            return null;
+          }),
+        ]).then(function (r) {
+          var t = r[0];
+          if (jogFreeDaemonHasFailsafe(t, r[1])) return;
+          var nuevo = t + (t && !/\n$/.test(t) ? "\n" : "") + JOG_FREE_FAILSAFE_LINE + "\n";
+          return tzPutText("0:/sys/daemon.g", nuevo);
+        });
       }
 
       // Hoja de activacion: advertencias, ajustes y confirmacion.

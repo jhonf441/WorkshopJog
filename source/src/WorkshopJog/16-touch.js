@@ -4,7 +4,7 @@
       // (M112), so it fires on the first touch (pointerdown) and its buttons are at least JOG_TOUCH_STOP_PX high.
 
       var JOG_TOUCH_STOP_PX = 44; // STOP / E-STOP height on a touch screen
-      var JOG_TOUCH_MIN_PX = 32; // nothing else that is touched is lower (DESIGN.md, section 4)
+      var JOG_TOUCH_MIN_PX = 44; // nothing that is touched is smaller (a finger needs 44 px; was 32)
       var JOG_TOUCH_STYLE_ID = "emergency-fab-jog-touch-css";
       var JOG_PHONE_PX = 600; // under this width (a phone) the panel starts folded and its buttons are 44 px
 
@@ -15,6 +15,11 @@
         } catch (e) {
           return false;
         }
+      }
+
+      // The side of a header button (layout, settings, minimize, size): 44 px for a finger, 30 px for a mouse (the header holds more there: role chip, help).
+      function jogHeaderBtnPx() {
+        return jogIsTouch() ? 44 : 30;
       }
 
       // A phone-width window: the floating panel must not stay open over the page.
@@ -46,7 +51,14 @@
         var css = [
           P + ",\n" + P + " *{overscroll-behavior:contain;}",
           "@media (pointer: coarse){",
+          // every touched control is at least 44 x 44 px (a finger), and the buttons that sit in a row have 12 px between them
           P + " button,\n" + P + " select,\n" + P + " input:not([type=range]):not([type=checkbox]){min-height:" + JOG_TOUCH_MIN_PX + "px!important;}",
+          P + " button{min-width:" + JOG_TOUCH_MIN_PX + "px;}",
+          P + " :is(div,span):has(> button){gap:12px!important;}",
+          // the header holds four buttons that always show (layout, settings, minimize, size): with 44 px buttons and 12 px between them nothing else
+          // fits in the width of the panel, so on a touch screen the role chip, the "?" help and the full screen button give way
+          P + " [data-jog-header-info] > button," + P + " [data-jog-h-area=\"header\"] > button{display:none!important;}", // the informing chips give way (the actions are in their own group)
+          P + " [data-jog-h-area=\"header\"]{gap:4px!important;padding:0 6px!important;}", // the group of actions has its own 12 px between buttons
           small.join(",\n") + "{font-size:11px!important;}",
           "}",
         ].join("\n");
@@ -96,6 +108,7 @@
         b.title = title;
         b.textContent = label;
         b.setAttribute("data-tip-pass", "1"); // works even in help mode (12-tips.js)
+        b.setAttribute("data-jog-stop", ""); // nothing is dragged or resized within 48 px of it (15-pos.js)
         b.style.cssText = [
           "flex:1 1 0",
           "min-width:" + JOG_TOUCH_STOP_PX + "px",

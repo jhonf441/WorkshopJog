@@ -253,9 +253,11 @@
         clearTimeout(workshopNoticeToastTimer);
         var out = typeof workshopSignedOut === "function" && workshopSignedOut();
         var opts = { bottom: 84, closable: true, kind: kind };
-        if (refusal && out) {
+        // the way out of a refusal: "Sign in" while nobody is, "Change role" when the role is what falls short (another person signs in; the session of this
+        // browser stays until that succeeds). Both are the ONE dialog (workshopLogin).
+        if (refusal && (out || kind === "role")) {
           opts.action = {
-            label: i18nT("notice.notice_sign_in"),
+            label: i18nT(out ? "notice.notice_sign_in" : "notice.notice_change_role"),
             run: function () {
               if (typeof workshopLogin === "function") workshopLogin();
             },

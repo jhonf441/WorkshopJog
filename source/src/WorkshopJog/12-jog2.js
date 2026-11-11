@@ -40,7 +40,7 @@
       }
 
       // o: {body, statusEl, avisoEl, stopRow, speedSlider, stepSlider, pasos,
-      //     getStepIndex()}
+      //     getStepIndex(), setStep(i)}
       // Style and buttons of option 2 (also used by option 1 for the
       // arrows, Settings > What is shown > Controls).
       function jog2Helpers() {
@@ -155,13 +155,12 @@
             if (!idx.length) return;
             var row = el("div", "display:flex;align-items:center;gap:6px;");
             row.appendChild(el("span", "flex:0 0 46px;font-size:10px;color:" + C.sec + ";", i18nT(g[0])));
-            var seg = el("div", "display:flex;flex:1 1 auto;min-width:0;");
+            var seg = el("div", "display:flex;flex:1 1 auto;min-width:0;" + (jogIsTouch() ? "flex-wrap:wrap;gap:12px;" : "")); // touch: separate 44 px buttons, 12 px apart
             idx.forEach(function (i, k) {
               var on = i === active;
-              var radius = (k === 0 ? "6px 0 0 6px" : k === idx.length - 1 ? "0 6px 6px 0" : "0");
-              var b = boton(String(o.steps[i]), "flex:1 1 0;min-width:0;min-height:30px;padding:0 2px;border-radius:" + radius + ";" + (k ? "margin-left:-1px;" : "") + (on ? "background:" + C.prim + ";border-color:" + C.prim + ";color:#fff;position:relative;z-index:1;" : ""), function () {
-                o.stepSlider.value = String(i);
-                o.stepSlider.dispatchEvent(new Event("input")); // option 1 saves the step (same value)
+              var radius = jogIsTouch() ? "6px" : (k === 0 ? "6px 0 0 6px" : k === idx.length - 1 ? "0 6px 6px 0" : "0");
+              var b = boton(String(o.steps[i]), "flex:1 1 " + (jogIsTouch() ? 44 : 0) + "px;min-width:" + (jogIsTouch() ? 44 : 0) + "px;min-height:" + (jogIsTouch() ? 44 : 30) + "px;padding:0 2px;border-radius:" + radius + ";" + (k && !jogIsTouch() ? "margin-left:-1px;" : "") + (on ? "background:" + C.prim + ";border-color:" + C.prim + ";color:#fff;position:relative;z-index:1;" : ""), function () {
+                o.setStep(i); // the Step tab keeps the value
                 paintSteps();
               });
               seg.appendChild(b);
@@ -311,16 +310,16 @@
       // o: {stopRow, pasos, getStepIndex()}; H = jog2Helpers().
       function jog2Move(o, H, cfg) {
         if (!cfg.arrows && !cfg.zBot) return null;
-        var C = H.C, el = H.el, boton = H.button, botonDoble = H.buttonDouble;
-        var move = el("div", "display:grid;grid-template-columns:minmax(0,calc(75% - 1px)) minmax(0,1fr);gap:4px;align-items:start;");
-        var cross = el("div", "display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:" + JOG2_CELL_H + "px;gap:4px;");
+        var C = H.C, el = H.el, boton = H.button, botonDoble = H.buttonDouble, gp = jogIsTouch() ? 12 : 4; // gp: 12 px between buttons on a touch screen
+        var move = el("div", "display:grid;grid-template-columns:" + (jogIsTouch() ? "minmax(0,1fr) 44px" : "minmax(0,calc(75% - 1px)) minmax(0,1fr)") + ";gap:" + gp + "px;align-items:start;"); // touch: Z+ / Z- are 44 px wide
+        var cross = el("div", "display:grid;grid-template-columns:repeat(3,minmax(0,1fr));grid-auto-rows:" + JOG2_CELL_H + "px;gap:" + gp + "px;");
         move.appendChild(cross);
-        var colZ = el("div", "display:grid;grid-template-rows:repeat(3," + JOG2_CELL_H + "px);gap:4px;");
+        var colZ = el("div", "display:grid;grid-template-rows:repeat(3," + JOG2_CELL_H + "px);gap:" + gp + "px;");
         move.appendChild(colZ);
 
         var hold = null; // {nx, ny, nz, desde, timer}
         function estadoMovible(axes) {
-          if (!jogEnabled) return false;
+          if (!jogCanMove()) return false; // the machine is ready and, on a touch screen, "Hold to enable" is held (15-hold.js)
           jogNotifyWithoutHoming(axes);
           return true;
         }

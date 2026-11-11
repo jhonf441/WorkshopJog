@@ -16,21 +16,20 @@
       // Every size here is the OUTER one (what offsetWidth / offsetHeight say and what the finger drags): the style width and height of the panel
       // are JOG_SIZE_BORDER less.
 
-      var JOG_PANEL_W = 208; // width of the content at zoom 1: the width it is drawn for
-      var JOG_SCALE_MIN = 0.8; // zoom of the narrowest panel
+      var JOG_PANEL_W = 232; // width of the content at zoom 1: the width it is drawn for
+      var JOG_SCALE_MIN = 1; // zoom of the narrowest panel (never under 1: the buttons are 44 px at zoom 1)
       var JOG_SCALE_MAX = 1.8; // zoom of the widest panel
+      var JOG_PANEL_MAX_H = "calc(100vh - " + 2 * MARGIN + "px)"; // the panel is never taller than the window
       var JOG_SIZE_BORDER = 4; // the border of the panel (2 px a side), outside its style width and height
       var JOG_SIZE_DEFAULT_W = JOG_PANEL_W + JOG_SIZE_BORDER; // 212: the original panel
       var JOG_SIZE_MIN_W = Math.round(JOG_PANEL_W * JOG_SCALE_MIN) + JOG_SIZE_BORDER; // 170
       var JOG_SIZE_MAX_W = Math.round(JOG_PANEL_W * JOG_SCALE_MAX) + JOG_SIZE_BORDER; // 378
       var JOG_SIZE_KEY = "workshopJogSize";
-      var JOG_SIZE_FOOT_H = 20; // the strip under the dock that holds the handle: the handle never covers STOP / E-STOP
+      var JOG_SIZE_FOOT_H = 0; // nothing under the dock any more: the size handle moved to the header (15-size-handle.js)
       var JOG_SIZE_ESS_GAP = 10; // px under the controls (before the zoom is taken off) that stay with them
       var JOG_SIZE_BODY_MIN = 60; // px (before the zoom) of the body that always stay in view
       var JOG_SIZE_WATCH_MS = 120; // wait after the body changes before it is measured again
-      var JOG_SIZE_TAP_MS = 400; // two taps on the handle this close in time and place give the original size back
-      var JOG_SIZE_TAP_PX = 10;
-      var jogScale = 1; // zoom of the content now (set by jogSizeApply); the knob and the tracks divide their drawing by it
+            var jogScale = 1; // zoom of the content now (set by jogSizeApply); the knob and the tracks divide their drawing by it
 
       // The zoom of a panel width, three decimals so the content follows the finger without steps.
       function jogSizeScaleOf(w) {
@@ -119,27 +118,6 @@
         return { w: w, h: h, scale: scale, reserve: reserve };
       }
 
-      // What a drag of the handle may reach from where the panel is: at = { left, top }. The panel grows to the right and down, so it
-      // stops at the edge of the window and, while its top is in the band of the Emergency stop button, at the left of that button.
-      function jogSizeLimits(win, at, chrome) {
-        var right = win.vw - win.margin;
-        if (win.zone && at.top < win.zone.bottom) right = Math.min(right, win.zone.left);
-        var maxW = Math.max(JOG_SIZE_MIN_W, Math.min(JOG_SIZE_MAX_W, right - at.left));
-        // chrome.natural (optional): no zoom at which the content is taller than the window
-        if (chrome && chrome.natural) maxW = Math.max(JOG_SIZE_MIN_W, Math.min(maxW, jogSizeMaxWOfScale(jogSizeMaxScale(jogSizeBasis(chrome.natural), win.vh - 2 * win.margin))));
-        return { minW: JOG_SIZE_MIN_W, maxW: maxW, maxH: win.vh - win.margin - at.top };
-      }
-
-      // The size a drag gives: start = { w, h } of the panel when the finger came down, dx / dy = how far it went. The height stays between the
-      // lowest and the tallest panel of the zoom the width gives (both the content, once measured: dragging down past the content changes
-      // nothing). If the room is less than the minimum, the minimum wins (the panel is then moved back inside by jogReclampPanel).
-      function jogSizeDrag(start, dx, dy, lim, chrome) {
-        var w = Math.round(clamp(start.w + dx, lim.minW, lim.maxW));
-        var scale = jogSizeScaleOf(w);
-        var h = Math.round(clamp(start.h + dy, jogSizeMinHeight(scale, chrome, lim.maxH), jogSizeMaxHeight(scale, chrome, lim.maxH)));
-        return { w: w, h: h };
-      }
-
       // Max height of the body while the panel is as tall as its content: the whole panel fits in the window. The limit is measured INSIDE the
       // zoom (it is divided by it). `fit` is what jogSizeFit answered.
       function jogSizeBodyMax(fit, chrome, margin) {
@@ -155,9 +133,4 @@
         } catch (e) {
           return null;
         }
-      }
-
-      // Whether a tap on the handle is the second of a double tap. prev = the last tap or null, now = { t, x, y }.
-      function jogSizeIsDoubleTap(prev, now) {
-        return !!prev && now.t - prev.t <= JOG_SIZE_TAP_MS && Math.hypot(now.x - prev.x, now.y - prev.y) <= JOG_SIZE_TAP_PX;
       }

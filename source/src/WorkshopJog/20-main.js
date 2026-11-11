@@ -17,6 +17,7 @@
           return {
             open: open,
             busy: closing,
+            locked: jogPanelLock(), // 17-role-reason.js: a session or a role is needed to move: the launcher shows a lock and signs in, nothing opens
             statusText: closing ? i18nT('main.stopping_movement_and_closing') : open ? i18nT('main.open_on_this_screen') : i18nT('main.closed'),
           };
         },
@@ -70,7 +71,7 @@
       });
 
       // the <style> elements only the Jog uses leave the page when it stops (the shared ones go with the last plugin: workshopRemoveLeftovers)
-      var JOG_OWN_STYLES = ["workshop-jog-free-css", "workshop-jog-scroll-css", JOG_SIZE_STYLE_ID, JOG_TOUCH_STYLE_ID];
+      var JOG_OWN_STYLES = ["workshop-jog-free-css", "workshop-jog-scroll-css", JOG_SIZE_STYLE_ID, JOG_TOUCH_STYLE_ID, JOG3_STYLE_ID];
       workshopOwnStyles(JOG_OWN_STYLES);
 
       workshopOnStop(function () {

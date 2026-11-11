@@ -7,12 +7,34 @@
       // Nothing here moves the machine or writes over a file of the person.
 
       var JOG_STARTUP_FAILSAFE = "0:/sys/workshop/macros/work/jogFreeFailsafe.g";
+      var JOG_STARTUP_DAEMON_TAIL = "0:/sys/workshop/hooks/daemon-tail.g";
+
+      // true when an ACTIVE line (not a comment) of the text names the failsafe macro
+      function jogActiveCallsFailsafe(text) {
+        return String(text || "")
+          .split(/\r?\n/)
+          .some(function (l) {
+            return l.replace(/;.*$/, "").indexOf("jogFreeFailsafe") >= 0;
+          });
+      }
 
       // Pure: state of the failsafe from the text of the macro (null = missing) and of daemon.g (null = missing).
       // The macro missing is red; present but not called from daemon.g is orange (the line is added the first time the mode is armed).
-      function jogStartupStateFailsafe(macroText, daemonText) {
+      // daemon.g carries the failsafe when it calls the macro itself (the line) or through the workshop's marked block (hook `daemon-tail`,
+      // SD layout phase 5): in that case the call lives in sys/workshop/hooks/daemon-tail.g and daemon.g no longer names jogFreeFailsafe.
+      // 11-free.js uses it too (same file at build time) so the page never adds a second line.
+      // The MARK alone is not enough (review of the SD plan): the block only calls sys/workshop/hooks/daemon-tail.g, so it counts when that file
+      // exists AND calls the failsafe (`tailText`: its text, null = missing). Otherwise the failsafe is NOT running and the page keeps adding its line.
+      function jogFreeDaemonHasFailsafe(daemonText, tailText) {
+        var t = String(daemonText || "");
+        if (jogActiveCallsFailsafe(t)) return true;
+        var block = /^[ \t]*;[ \t]*>>>[ \t]*WORKSHOP[ \t]+hook=daemon-tail[ \t]/m.test(t);
+        return block && tailText !== null && tailText !== undefined && jogActiveCallsFailsafe(tailText);
+      }
+
+      function jogStartupStateFailsafe(macroText, daemonText, tailText) {
         if (macroText === null || macroText === undefined) return "missing";
-        return String(daemonText || "").indexOf("jogFreeFailsafe") >= 0 ? "configured" : "example";
+        return jogFreeDaemonHasFailsafe(daemonText, tailText) ? "configured" : "example";
       }
 
       function jogStartupRead(path) {
@@ -38,8 +60,8 @@
           what: "startup_jog.failsafe_what", why: "startup_jog.failsafe_for", ifMissing: "startup_jog.failsafe_missing",
           texts: { configured: "startup_jog.failsafe_ok", example: "startup_jog.failsafe_no_daemon", missing: "startup_jog.failsafe_none" },
           check: function () {
-            return Promise.all([jogStartupRead(JOG_STARTUP_FAILSAFE), jogStartupRead("0:/sys/daemon.g")]).then(function (r) {
-              return jogStartupStateFailsafe(r[0], r[1]);
+            return Promise.all([jogStartupRead(JOG_STARTUP_FAILSAFE), jogStartupRead("0:/sys/daemon.g"), jogStartupRead(JOG_STARTUP_DAEMON_TAIL)]).then(function (r) {
+              return jogStartupStateFailsafe(r[0], r[1], r[2]);
             });
           },
         },
@@ -50,8 +72,10 @@
       var jogStartupInput = null;
       var jogGearDot = null;
 
+      // The dot shows only for steps the person can do now (`pending`): rows nobody could check without a session (`session` of the summary,
+      // 16-startup.js) are not pending steps, so a signed-out screen does not show a false "something to do".
       function jogStartupBadge(res) {
-        if (jogGearDot) jogGearDot.style.display = res && res.ready === false ? "block" : "none";
+        if (jogGearDot) jogGearDot.style.display = res && res.pending > 0 ? "block" : "none";
       }
 
       function jogStartupCreate() {
@@ -80,7 +104,7 @@
         var card = document.createElement("div");
         if (!jogStartupInput) return card;
         var res = jogStartupInput.summary();
-        var pending = res && res.ready === false ? res.pending : 0;
+        var pending = res && res.pending > 0 ? res.pending : 0;
         var ready = !!res && res.ready === true;
         var color = pending ? "#e65100" : ready ? "#2e7d32" : "#1976d2";
         card.style.cssText = "margin:10px 12px 0 12px;padding:10px 12px;border-radius:10px;border:2px solid " + color + ";background:" + (pending ? "rgba(230,81,0,0.14)" : ready ? "rgba(46,125,50,0.14)" : "rgba(25,118,210,0.14)") + ";";

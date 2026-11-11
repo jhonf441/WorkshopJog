@@ -1,5 +1,78 @@
 # WorkshopJog -- historial de versiones
 
+## 3.24.0 -- 2026-11-10
+
+- Help ("?"): it no longer works as a mode where tapping a button explained it (a mistaken tap could move the machine). It now swaps the controls for a legend of the design in use, inside the panel and in the same dark look; the icon follows the button color.
+- Hive: the PAD mode (X and Y together) uses hexagon direction keys instead of a round knob, so it stays part of the honeycomb; with the hive open the band no longer repeats the axis, its position or the step.
+- The "machine is not free" notice no longer floats over the position card with a see-through background; it sits in the status bar and pushes the content down.
+
+## 3.23.0 -- 2026-11-10
+
+- Help became a read-only card (replaced in 3.24.0 by a legend inside the panel).
+- Buttons that cannot act (Home, Zero, enable) look off and do not answer while the machine is not ready; STOP and E-STOP are never put off.
+- Pendant and hive show the speed of the move (mm/s); the MPG wheel tooltip states the distance of one click (the Step value).
+- Size W is 320 px wide (was 378) and M is 276 px; more realistic pendant (printed scale around the wheel, knurled switches, rubber keys, scanlines on the readout).
+
+## 3.22.0 -- 2026-11-10
+
+- Realistic pendant without a box (3D wheel, keycaps, recessed OLED); each design draws its own bottom bar; the help button is back on touch screens and clear
+
+## 3.21.0 -- 2026-11-10
+
+- Pendant and hive have no More / Advanced / macros; compact pendant at size S; rotary switches stop at both ends and turn with a finger; hive feed slider
+
+## 3.20.0 -- 2026-11-10
+
+- Pendant redesigned: modern and realistic (OLED readout, anodized wheel with accent ring, dotted switches, soft keys, status LED)
+
+## 3.19.0 -- 2026-11-10
+
+- Horizontal layout removed; More does not repeat the knob, sliders, Z or Step tab in the pendant and the hive
+
+## 3.18.1 -- 2026-11-10
+
+- Horizontal dock is a row under the body when the panel is tall enough, a column only on low windows
+
+## 3.18.0 -- 2026-11-10
+
+- Horizontal bar redone (one top row, STOP at the bottom of the dock, designs across all columns, pendant in two columns), title bar in two groups, hive never overflows
+
+## 3.17.1 -- 2026-11-10
+
+- The HIVE button is translated (COLMENA)
+
+## 3.17.0 -- 2026-11-10
+
+- Designs 3 (pendant) and 4 (hive) in the settings, one orientation button, ordered header, fixed-size settings sheet, hold to enable on every movement control
+
+## 3.16.1 -- 2026-11-10
+
+- Header buttons are 44 px only on touch screens (30 px with a mouse); the header never overflows
+
+## 3.16.0 -- 2026-11-10
+
+- Panal style (honeycomb with an MPG wheel), one S/M/W size handle, corner + percentage position, hold to enable, 44 px touch targets
+
+## 3.15.1 -- 2026-11-10
+
+- Jog horizontal: body scrolls inside in short windows, pinned position bar, dock fills its row, 44 px touch strip
+
+## 3.15.0 -- 2026-11-10
+
+- Horizontal layout: the same floating panel with all its controls laid out in columns, switch in the header, remembered per screen
+
+## 3.14.20 -- 2026-11-10
+
+- Recipes relative to the G-code (Printing), session role switch and UI fixes (26), SD layout manifest
+
+## 3.14.19 -- 2026-11-09
+
+- SD layout: mode files move to sys/workshop/modes, hook macros, templates for air assist, status LEDs and CNC buttons, bar buttons with a missing macro locked, unmigrated modes notice
+
+## 3.14.18 -- 2026-11-07
+
+- UI fixes from the 18 screenshots: session and role locks, floating camera and Jog, Model colours, bed editor, calibration assistant
+
 ## 3.14.17 -- 2026-11-06
 
 - Refusals: the sign-in chip and only the note nearest to the touch blink; a reason fits its text so the blink rings the words

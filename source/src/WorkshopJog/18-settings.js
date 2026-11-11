@@ -41,11 +41,11 @@
       // fields of the design in use at the top level (so the rest of the plugin
       // reads them as before) and `d` with both designs.
       var JOG_AJ_LAYOUT_KEYS = ["tabs", "secs", "open", "order", "axesHidden", "accent", "border", "controls", "jog2Free"];
-      function jogAjDesignDefaults() {
+      function jogAjDesignDefaults(n) {
         return {
           tabs: { step: true, advanced: true },
-          secs: { position: true, macros: true },
-          open: { position: true, macros: false },
+          secs: { position: !jogAjDesignOwnControls(n), macros: true }, // designs 3 and 4 show the position in their own cells: the full card is off until asked for
+          open: { position: !jogAjDesignOwnControls(n), macros: false },
           order: ["macros"],
           axesHidden: [], // ejes extra (U, V, A...) that are NOT shown in the Paso tab
           accent: "#1976d2",
@@ -70,23 +70,23 @@
       function jogAjCompose(g, d) {
         var a = jogAjClone(g);
         a.d = d;
-        var cur = d[a.style === 2 ? 2 : 1];
+        var cur = d[jogAjIdx(a.style)];
         JOG_AJ_LAYOUT_KEYS.forEach(function (k) { a[k] = jogAjClone(cur[k]); });
         return a;
       }
       function jogAjDefaults() {
-        return jogAjCompose(jogAjSharedDefaults(), { 1: jogAjDesignDefaults(), 2: jogAjDesignDefaults() });
+        return jogAjCompose(jogAjSharedDefaults(), { 1: jogAjDesignDefaults(1), 2: jogAjDesignDefaults(2), 3: jogAjDesignDefaults(3), 4: jogAjDesignDefaults(4) });
       }
       // The top-level layout fields of `a` go back into a.d[design in use].
       function jogAjStash(a) {
         var cur = {};
         JOG_AJ_LAYOUT_KEYS.forEach(function (k) { cur[k] = jogAjClone(a[k]); });
-        a.d[a.style === 2 ? 2 : 1] = cur;
+        a.d[jogAjIdx(a.style)] = cur;
       }
       // Changes the design being edited: keeps what was edited and loads the other one.
       function jogAjSwitch(a, n) {
         jogAjStash(a);
-        a.style = n === 2 ? 2 : 1;
+        a.style = jogAjIdx(n);
         var cur = a.d[a.style];
         JOG_AJ_LAYOUT_KEYS.forEach(function (k) { a[k] = jogAjClone(cur[k]); });
       }
@@ -98,6 +98,8 @@
       var JOG_CTRL_FAB = {
         1: { knob: true, sliders: true, arrows: false, keyboard: false, zSlide: true, zBot: false },
         2: { knob: false, sliders: false, arrows: true, keyboard: false, zSlide: false, zBot: true },
+        3: { knob: false, sliders: false, arrows: false, keyboard: false, zSlide: false, zBot: false }, // the pendant has all of them itself: More does not repeat them
+        4: { knob: false, sliders: false, arrows: false, keyboard: false, zSlide: false, zBot: false }, // the hive's pad has its own hexagon keys
       };
       // Keyboard (2026-10-11, "if the keyboard is active it cannot allow control
       // of X and Y; if you use one you cannot use the others"): it is ONE MORE option of the
@@ -149,14 +151,14 @@
       // Keyboard chosen on a screen without a keyboard: the design's factory ones.
       // Each design keeps its own controls (null = its factory ones).
       function jogControls(estilo) {
-        var n = estilo === 2 ? 2 : 1;
-        var c = jogAjGet().d[n].controls;
+        var n = jogAjIdx(estilo);
+        var c = jogAjDesignOwnControls(n) ? null : jogAjGet().d[n].controls; // designs 3 and 4: always the factory ones, inside More
         if (c && c.keyboard && !jogAjHasKeyboard()) c = null;
         return c ? JSON.parse(JSON.stringify(c)) : JSON.parse(JSON.stringify(JOG_CTRL_FAB[n]));
       }
       // One design's stored settings, validated and completed with its factory values.
-      function jogAjCleanDesign(o) {
-        var d = jogAjDesignDefaults();
+      function jogAjCleanDesign(o, n) {
+        var d = jogAjDesignDefaults(n);
         if (!o || typeof o !== "object") return d;
         ["tabs", "secs", "open"].forEach(function (k) {
           if (o[k] && typeof o[k] === "object")
@@ -184,7 +186,7 @@
       }
       function jogAjGet() {
         var g = jogAjSharedDefaults();
-        var d = { 1: jogAjDesignDefaults(), 2: jogAjDesignDefaults() };
+        var d = { 1: jogAjDesignDefaults(1), 2: jogAjDesignDefaults(2), 3: jogAjDesignDefaults(3), 4: jogAjDesignDefaults(4) };
         try {
           var o = JSON.parse(localStorage.getItem(JOG_AJ_KEY) || "{}");
           if (typeof o.speedStart === "number" && o.speedStart >= 1 && o.speedStart <= 100) g.speedStart = o.speedStart;
@@ -192,10 +194,11 @@
           if (st) g.steps = st;
           if (typeof o.stepDefault === "number" && isFinite(o.stepDefault)) g.stepDefault = o.stepDefault;
           if (o.openOnLoad === "open" || o.openOnLoad === "closed") g.openOnLoad = o.openOnLoad;
-          if (o.style === 2) g.style = 2;
+          g.style = jogAjIdx(o.style);
           if (o.d && typeof o.d === "object") {
-            d[1] = jogAjCleanDesign(o.d[1]);
-            d[2] = jogAjCleanDesign(o.d[2]);
+            JOG_AJ_DESIGNS.forEach(function (n) {
+              d[n] = jogAjCleanDesign(o.d[n], n);
+            });
           }
         } catch (e) {
           /* defaults */
@@ -342,7 +345,7 @@
           "position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;font-family:Roboto,Helvetica,Arial,sans-serif;";
         var box = document.createElement("div");
         box.style.cssText =
-          "background:#263238;color:#eceff1;border:1px solid #455a64;border-radius:10px;width:min(440px,calc(100vw - 32px));max-height:calc(100vh - 32px);display:flex;flex-direction:column;box-shadow:0 6px 24px rgba(0,0,0,0.6);";
+          "background:#263238;color:#eceff1;border:1px solid #455a64;border-radius:10px;width:min(560px,calc(100vw - 32px));height:min(640px,calc(100vh - 32px));display:flex;flex-direction:column;box-shadow:0 6px 24px rgba(0,0,0,0.6);";
         ov.appendChild(box);
         ov.addEventListener("pointerdown", function (ev) {
           if (ev.target === ov) close();
@@ -369,7 +372,7 @@
         dsg.appendChild(dsgRow);
         dsgRow.appendChild(el("span", "font-size:12px;color:var(--wf-n-role-text,#b0bec5);margin-right:4px;", i18nT('settings.design')));
         var dsgBtns = {};
-        [[1, i18nT('settings.option_1_knob_and_tabs')], [2, i18nT('settings.option_2_task_based')]].forEach(function (o) {
+        [[1, i18nT('settings.option_1_knob_and_tabs')], [2, i18nT('settings.option_2_task_based')], [3, i18nT('settings.option_3_pendant')], [4, i18nT('settings.option_4_hive')]].forEach(function (o) {
           var b = el("button", "", o[1]);
           b.type = "button";
           b.addEventListener("click", function () {
@@ -387,7 +390,7 @@
         var tabs = el("div", "padding:8px 12px 0 12px;");
         tabs.className = "wf-tabs";
         box.appendChild(tabs);
-        var bodyThe = el("div", "overflow-y:auto;padding:10px 12px;flex:1;font-size:13px;");
+        var bodyThe = el("div", "overflow-y:auto;padding:10px 12px;flex:1 1 0;min-height:0;font-size:13px;");
         box.appendChild(bodyThe);
         var foot = el("div", "display:flex;gap:6px;padding:10px 12px;border-top:1px solid rgba(255,255,255,0.12);align-items:center;flex-wrap:wrap;");
         box.appendChild(foot);
@@ -506,14 +509,12 @@
             var on = p[0] === cur;
             tabBtns[p[0]].classList.toggle("on", on);
           });
-          [1, 2].forEach(function (n) {
+          JOG_AJ_DESIGNS.forEach(function (n) {
             var on = a.style === n;
             dsgBtns[n].style.cssText =
               "padding:5px 10px;border-radius:14px;cursor:pointer;font-size:12px;border:1px solid " + (on ? a.accent : "rgba(255,255,255,0.3)") + ";background:" + (on ? a.accent : "transparent") + ";color:#fff;";
           });
-          dsgHint.textContent = a.style === 2
-            ? i18nT('settings.option_2_large_position_arrows_tap')
-            : i18nT('settings.option_1_knob_z_and_home');
+          dsgHint.textContent = i18nT({ 1: 'settings.option_1_knob_z_and_home', 2: 'settings.option_2_large_position_arrows_tap', 3: 'settings.option_3_hint', 4: 'settings.option_4_hint' }[a.style]);
           bodyThe.innerHTML = "";
           if (jogRolePageLock(cur)) bodyThe.appendChild(jogRoleCover(jogRolePageLock(cur)));
           else if (cur === "see") drawVer();
@@ -525,8 +526,9 @@
 
         function drawControles() {
           h(bodyThe, i18nT('settings.controls_to_move'));
+          if (jogAjDesignOwnControls(a.style)) return hint(bodyThe, i18nT(a.style === 3 ? 'settings.own_controls_3' : 'settings.own_controls_4')); // designs 3 and 4: not configurable, and why
           var hayTeclado = jogAjHasKeyboard();
-          var fab = JSON.parse(JSON.stringify(JOG_CTRL_FAB[a.style === 2 ? 2 : 1]));
+          var fab = JSON.parse(JSON.stringify(JOG_CTRL_FAB[jogAjIdx(a.style)]));
           var c = a.controls ? JSON.parse(JSON.stringify(a.controls)) : fab;
           // Keyboard saved on a touch screen: the factory ones are used (and shown)
           var tecladoSinTeclado = !!(c.keyboard && !hayTeclado);
@@ -636,14 +638,8 @@
         }
         // Tabs, extra axes and sections: both designs (in option 2 they are inside "Mas").
         function drawEstructura() {
-          hint(bodyThe, a.style === 2
-            ? i18nT('settings.only_on_this_screen_in_option')
-            : i18nT('settings.only_on_this_screen_the_knob'));
-          h(bodyThe, i18nT('settings.tabs'));
-          var r = row(bodyThe);
-          [["step", i18nT("jog.step")], ["advanced", i18nT("jog.advanced")]].forEach(function (t) {
-            check(r, t[1], a.tabs[t[0]], function (v) { a.tabs[t[0]] = v; });
-          });
+          hint(bodyThe, i18nT(a.style === 1 ? 'settings.only_on_this_screen_the_knob' : a.style === 2 ? 'settings.only_on_this_screen_in_option' : 'settings.only_on_this_screen_in_options_3_4'));
+          jogAjDrawTabs(h, row, check, bodyThe, a); // the Step / Advanced tabs (09-designs.js): not for the pendant and the hive, which have no More
           h(bodyThe, i18nT('settings.extra_axes_step_tab'));
           if (!jogAxesExtra.length) hint(bodyThe, i18nT('settings.this_machine_only_has_x_y'));
           else {
@@ -658,6 +654,7 @@
               });
             });
           }
+          if (jogAjDesignOwnControls(a.style)) return; // designs 3 and 4 have no More: no sections to show, open or order
           h(bodyThe, i18nT('settings.sections'));
           hint(bodyThe, i18nT('settings.show_it_is_displayed_open_it'));
           var names = {};
@@ -726,6 +723,7 @@
         // machine, so every screen and phone shows the same ones.
         function drawMacros() {
           h(bodyThe, i18nT('jog.macro_buttons'));
+          if (jogAjDesignOwnControls(a.style)) return hint(bodyThe, i18nT('settings.no_more_34')); // designs 3 and 4 have no macro buttons
           hint(bodyThe, workshopPluginActive("bar") ? i18nT('settings.macro_buttons_what') : i18nT('settings.macro_buttons_what_no_bar'));
           if (jogMacroAdmin) jogMacroAdmin.mount(bodyThe);
           else hint(bodyThe, i18nT('settings.macro_buttons_not_ready'));
@@ -843,7 +841,7 @@
         foot.appendChild(btn(i18nT('settings.restore_this_design'), false, function () {
           var est = a.style;
           var f = jogAjDefaults();
-          a.d[est] = jogAjDesignDefaults();
+          a.d[est] = jogAjDesignDefaults(est);
           JOG_AJ_LAYOUT_KEYS.forEach(function (k) { a[k] = jogAjClone(a.d[est][k]); });
           a.steps = f.steps;
           a.stepDefault = f.stepDefault;

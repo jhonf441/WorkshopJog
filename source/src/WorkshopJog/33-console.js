@@ -142,6 +142,79 @@
         }
       }
 
+      // ---- The replies of the board reach the console even while its section is closed (owner request 2026-11-06) ----
+      // The section only read the replies while it was open and after its own Send. With the switch on (per screen, localStorage) the jog keeps a
+      // small inbox of every new message of the board from the status it already reads every 2 s (jogCheckEnabled publishes it: workshopOnStatus),
+      // whichever tab or section is open, and the Console shows that inbox when it opens. Off: as before (only after a Send, while open).
+      var JOG_CONS_ALWAYS_KEY = "workshopJogConsoleAlways";
+      var jogConsInbox = []; // [{text, level}] the reply lines on screen (and the ones waiting for the section), newest last, max JOG_CONS_RESP_MAX
+      var jogConsSeen = []; // reply keys already known (the messages of the status that were already shown or were there before)
+      var jogConsInboxHook = null; // set by the section while mounted: repaint when a line arrives
+      var jogConsAlways = false;
+
+      function jogConsAlwaysRead() {
+        try {
+          return localStorage.getItem(JOG_CONS_ALWAYS_KEY) === "1";
+        } catch (e) {
+          return false;
+        }
+      }
+
+      // Pure: the inbox after a line. Returns a new list, never longer than max.
+      function jogConsInboxAdd(list, text, level, max) {
+        var out = (Array.isArray(list) ? list : []).concat([{ text: String(text), level: level || "info" }]);
+        return out.slice(-(max || JOG_CONS_RESP_MAX));
+      }
+
+      function jogConsPut(text, level) {
+        jogConsInbox = jogConsInboxAdd(jogConsInbox, text, level, JOG_CONS_RESP_MAX);
+        if (jogConsInboxHook) {
+          try {
+            jogConsInboxHook();
+          } catch (e) {
+            /* a broken view must not break the jog */
+          }
+        }
+      }
+
+      // The keys of the messages of a status (what is there now: shown or not, it is not new any more)
+      function jogConsKeysOf(status) {
+        return ((status && status.messages) || []).map(jogConsMsgKey);
+      }
+
+      // Switches the inbox on or off for this screen. On: what the board already said is not dumped (only what comes from now on).
+      function jogConsAlwaysSet(on, status) {
+        jogConsAlways = !!on;
+        try {
+          localStorage.setItem(JOG_CONS_ALWAYS_KEY, on ? "1" : "0");
+        } catch (e) {
+          /* no storage: it lasts while the page lives */
+        }
+        if (on) jogConsSeen = jogConsKeysOf(status);
+      }
+
+      // Every /machine/status the jog reads (workshopOnStatus): the new messages of the board go to the inbox while the switch is on.
+      function jogConsWatch(status) {
+        if (!jogConsAlways || !status || (typeof pluginStopped !== "undefined" && pluginStopped)) return;
+        var nuevos = jogConsMessagesNew(jogConsSeen, status.messages);
+        if (!nuevos.length) return;
+        nuevos.forEach(function (m) {
+          jogConsSeen.push(jogConsMsgKey(m));
+          jogConsPut(String(m.content).trim(), m.type === 2 ? "error" : m.type === 1 ? "notice" : "info");
+        });
+        while (jogConsSeen.length > 400) jogConsSeen.shift();
+      }
+
+      jogConsAlways = jogConsAlwaysRead();
+      if (jogConsAlways && typeof workshop !== "undefined" && workshop && workshop.lastStatus) jogConsSeen = jogConsKeysOf(workshop.lastStatus); // what is there at start is old
+      if (typeof workshopOnStatus === "function") workshopOnStatus(jogConsWatch); // the pure tests load this file without the registry
+      if (typeof workshopOnStop === "function") {
+        workshopOnStop(function () {
+          workshopOffStatus(jogConsWatch);
+          jogConsInboxHook = null;
+        });
+      }
+
       // ---- Advanced section: Console ----
       jogRegisterSectionAdvanced({
         id: "console",
@@ -153,9 +226,7 @@
           var idx = hist.length;
           var borrador = "";
           var cursor = { text: null, i: 0 }; // pending multi-command line: resumes after a double tap
-          var seen = []; // reply keys already known
           var esperando = false;
-          var resp = [];
 
           var row = document.createElement("div");
           row.style.cssText = "display:flex;gap:4px;width:100%;";
@@ -178,11 +249,11 @@
 
           function paintResp() {
             output.textContent = "";
-            if (!resp.length) {
+            if (!jogConsInbox.length) {
               output.textContent = ctx.i18n("avConsole.no_reply");
               return;
             }
-            resp.forEach(function (r) {
+            jogConsInbox.forEach(function (r) {
               var l = document.createElement("div");
               l.style.color = r.level === "error" ? "#ef9a9a" : r.level === "notice" ? "var(--wf-n-down-text,#ffb74d)" : r.level === "cmd" ? "var(--wf-n-session-text,#90caf9)" : "var(--wf-n-role-text,#b0bec5)";
               l.textContent = r.text;
@@ -190,21 +261,18 @@
             });
             output.scrollTop = output.scrollHeight;
           }
-          function put(text, level) {
-            resp.push({ text: text, level: level });
-            while (resp.length > JOG_CONS_RESP_MAX) resp.shift();
-            paintResp();
-          }
+          var put = jogConsPut; // the shared inbox: what arrived while the section was closed is already there
+          jogConsInboxHook = paintResp;
           function keys() {
-            var st = ctx.state().status;
-            return ((st && st.messages) || []).map(jogConsMsgKey);
+            return jogConsKeysOf(ctx.state().status);
           }
+          // the replies while the section is open: after a Send (as ever), or always while the switch is on (then jogConsWatch reads them)
           function readResponse(status) {
-            if (!esperando || !status) return;
-            var nuevos = jogConsMessagesNew(seen, status.messages);
+            if (!esperando || !status || jogConsAlways) return;
+            var nuevos = jogConsMessagesNew(jogConsSeen, status.messages);
             if (!nuevos.length) return;
             nuevos.forEach(function (m) {
-              seen.push(jogConsMsgKey(m));
+              jogConsSeen.push(jogConsMsgKey(m));
               put(String(m.content).trim(), m.type === 2 ? "error" : m.type === 1 ? "notice" : "info");
             });
           }
@@ -224,7 +292,7 @@
               cursor.text = text;
               cursor.i = 0;
             }
-            seen = keys();
+            if (!jogConsAlways) jogConsSeen = keys(); // with the switch on the keys are kept all the time (jogConsWatch)
             esperando = true;
             var secs = c.segments;
             function step() {
@@ -277,10 +345,29 @@
           hint.style.cssText = "font-size:10px;color:rgba(255,255,255,0.45);";
           hint.textContent = ctx.i18n("avConsole.hint");
           ctx.container.appendChild(hint);
+          // the switch: the replies of the board keep arriving while this section (or the whole Advanced tab) is closed; per screen
+          var always = document.createElement("label");
+          always.style.cssText = "display:flex;align-items:flex-start;gap:6px;font-size:11px;color:#b0bec5;cursor:pointer;min-height:32px;";
+          var cb = document.createElement("input");
+          cb.type = "checkbox";
+          cb.checked = jogConsAlways;
+          cb.style.cssText = "flex:none;width:18px;height:18px;margin:0;";
+          ["keydown", "keyup", "pointerdown"].forEach(function (ev) {
+            cb.addEventListener(ev, function (e) { e.stopPropagation(); });
+          });
+          cb.addEventListener("change", function () {
+            jogConsAlwaysSet(cb.checked, ctx.state().status);
+          });
+          always.appendChild(cb);
+          always.appendChild(document.createTextNode(ctx.i18n("avConsole.always_label")));
+          ctx.container.appendChild(always);
           return {
             render: paintResp,
             update: readResponse,
-            destroy: function () { esperando = false; },
+            destroy: function () {
+              esperando = false;
+              if (jogConsInboxHook === paintResp) jogConsInboxHook = null;
+            },
           };
         },
       });

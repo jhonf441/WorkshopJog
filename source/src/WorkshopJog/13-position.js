@@ -30,7 +30,7 @@
         seg.appendChild(bZone);
         seg.appendChild(bMachine);
         // three boxes (the panel measures ~260 px: the numbers cannot go on one line)
-        var nums = el("div", "display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;");
+        var nums = el("div", "display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:" + (jogIsTouch() ? 12 : 4) + "px;");
         card.appendChild(nums);
         var numThe = {};
         ["X", "Y", "Z"].forEach(function (L) {
@@ -85,6 +85,7 @@
         var miniWrap = el("div", "width:100%;height:0;position:sticky;top:-8px;z-index:5;margin-bottom:-8px;flex:none;");
         var mini = el("div", "position:absolute;left:-8px;right:-8px;top:0;display:none;box-sizing:border-box;background:" + C.background + ";border-bottom:2px solid " + C.prim + ";box-shadow:0 2px 8px rgba(0,0,0,0.55);padding:5px 10px;font-family:'IBM Plex Mono',ui-monospace,monospace;color:" + C.text + ";pointer-events:none;display:none;align-items:center;flex-wrap:wrap;gap:3px 12px;");
         miniWrap.appendChild(mini);
+        miniWrap.setAttribute("data-jog-mini", ""); // 12-jog2.js / 12-jog3.js find the pinned bar by this
         // 2026-10-16: the pinned bar says WHICH position it shows (zone G55 / machine, and what aims in machine) and gives each axis
         // its own cell: a coloured letter and a big number of fixed width (it does not dance while moving). The speed goes to
         // the right and is dimmed when the head is still. One cell per datum: when the panel is narrow they wrap whole.
