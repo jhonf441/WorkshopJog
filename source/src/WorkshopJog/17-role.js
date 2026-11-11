@@ -5,7 +5,7 @@
 
       var jogRoleKey = null; // key of the view the panel in the page was built for (null = no panel yet)
 
-      // A control the role cannot use: visible, dimmed, not clickable or focusable (AWS rule: nothing disappears without a word).
+      // A control the role cannot use: visible, dimmed, not clickable or focusable (locked-in-place rule: nothing disappears without a word).
       function jogRoleLockEl(el) {
         el.style.opacity = "0.4";
         el.style.pointerEvents = "none";

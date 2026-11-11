@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "plugin": "WorkshopJog",
+  "namespace": "jog",
+  "prefixes": [
+    "jog"
+  ],
+  "ui": "ui:jog:open",
+  "operations": [
+    "jog.axis",
+    "jog.free",
+    "jog.stop_axis",
+    "jog.stop_xy",
+    "jog.stop_z",
+    "jog.xy",
+    "jog.z",
+    "motors.disable",
+    "settings.set"
+  ],
+  "shared": [
+    "motors.disable",
+    "settings.set"
+  ],
+  "restricted": [],
+  "targets": [],
+  "profiles": {
+    "readonly": {
+      "title": "JogReadOnly",
+      "capabilities": [
+        "machine.stop"
+      ]
+    },
+    "operator": {
+      "title": "JogOperator",
+      "capabilities": [
+        "machine.move",
+        "machine.stop"
+      ]
+    },
+    "admin": {
+      "title": "JogAdmin",
+      "capabilities": [
+        "machine.motors",
+        "machine.move",
+        "machine.stop"
+      ]
+    }
+  }
+}

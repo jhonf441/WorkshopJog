@@ -25,8 +25,11 @@
     "sys/workshop/macros/work/jogFreeSet.g",
     "sys/workshop/macros/work/workzeroaxis.g"
   ],
+  "dsfFiles": [
+    "permissions.json"
+  ],
   "dwcFiles": [
-    "js/WorkshopJog.a27839cd.js",
-    "js/WorkshopJog.a27839cd.js.gz"
+    "js/WorkshopJog.0fd622f8.js",
+    "js/WorkshopJog.0fd622f8.js.gz"
   ]
 }

@@ -24,7 +24,7 @@
         return { move: move, advanced: advanced, motorsLink: advanced, key: (move ? "m" : "-") + (advanced ? "a" : "-") };
       }
 
-      // What stays in the page but locked (AWS rule: nothing disappears without a word): the technician tabs and pages an operator cannot open.
+      // What stays in the page but locked (locked-in-place rule: nothing disappears without a word): the technician tabs and pages an operator cannot open.
       // They keep their place with a lock and the role that opens them; opening one shows ONE cover that says why.
       function jogRoleLocked(view) {
         return !view.advanced; // the Advanced tab and the speed / macros pages need the technician (settings.set + motors.disable)
