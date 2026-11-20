@@ -79,7 +79,7 @@
         // a small padlock icon in the panel header, next to the gear (2026-10-16): the text chip ("Sin limites: no") was wider
         // than the header and pushed the title and the minimize button out of it. The text lives in the tooltip.
         jogFreeBtn.style.cssText =
-          "flex:none;width:22px;height:20px;box-sizing:border-box;border-radius:4px;border:1px solid var(--wf-n-down-text,#ffb74d);background:transparent;color:var(--wf-n-down-text,#ffb74d);display:inline-flex;align-items:center;justify-content:center;padding:0;margin-right:4px;cursor:pointer;touch-action:none;";
+          "flex:none;width:28px;height:28px;box-sizing:border-box;overflow:visible;border-radius:4px;border:1px solid var(--wf-n-down-text,#ffb74d);background:transparent;color:var(--wf-n-down-text,#ffb74d);display:inline-flex;align-items:center;justify-content:center;padding:0;margin-right:4px;cursor:pointer;touch-action:none;";
         jogFreeBtn.setAttribute("data-tip-pass", "1");
         jogFreeBtn.addEventListener("pointerdown", function (ev) {
           ev.stopPropagation();
@@ -134,7 +134,7 @@
         var esperando = jogFreeRequest && Date.now() - jogFreeRequest < 4000;
         // closed padlock = the limits protect the machine; open padlock = no limits (on) or waiting for the service
         jogFreeBtn.innerHTML =
-          '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="' +
+          '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="display:block;flex:none" aria-hidden="true"><path d="' +
           (on || esperando
             ? "M18,1C15.24,1 13,3.24 13,6V8H4A2,2 0 0,0 2,10V20A2,2 0 0,0 4,22H16A2,2 0 0,0 18,20V10A2,2 0 0,0 16,8H15V6C15,4.34 16.34,3 18,3C19.66,3 21,4.34 21,6V8H23V6C23,3.24 20.76,1 18,1M10,13A2,2 0 0,1 12,15C12,16.11 11.11,17 10,17C8.89,17 8,16.1 8,15C8,13.89 8.9,13 10,13Z"
             : "M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z") +

@@ -45,6 +45,7 @@
       }
 
       function jogControlTick() {
+        jogAccessAsk(); // 17-role-access.js: the answers of the service for the move and the advanced groups (never a stop)
         jogRoleSyncSafe(); // the mode may change what this role can run (17-role.js)
         jogControlPaint();
         var n = workshopControlNotice(jogControlSeen);

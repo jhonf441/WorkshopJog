@@ -1,4 +1,7 @@
 {
+  "subjects_jog": {
+    "jog_panel": "Jog panel"
+  },
   "jog": {
     "not_while_a_job_is_running": "Not while a job is running",
     "jog_locked": "Jog locked",
@@ -133,6 +136,8 @@
     "mode_not_changed": "The mode did not change: still in {mode}.",
     "role_view_only": "View only: your role does not move the machine here. STOP is always available.",
     "sign_in_needed": "Sign-in required to move the machine.",
+    "move_failed": "The jog did not move: {reason}",
+    "service_no_answer": "The service did not answer, so the jog did not move. Try again in a few seconds.",
     "stop_failed": "STOP did not reach the machine. Press it again or use the emergency stop.",
     "sign_in_button": "Sign in",
     "resize_handle": "Panel size (S, M, W)",
@@ -457,7 +462,11 @@
     "less_keys": "Hide keys, zero and feed",
     "stop_title": "STOP: soft stop of the jog. It does NOT replace the machine's physical emergency stop.",
     "speed": "SPEED",
-    "wheel_now": "MPG wheel: turn it to move {ax}. Each click moves {d} mm (the Step switch); a whole turn is 100 clicks."
+    "wheel_now": "MPG wheel: turn it to move {ax}. Each click moves {d} mm (the Step switch); a whole turn is 100 clicks.",
+    "reach": "Moving {ax} {mm} mm",
+    "dir_hint": "Clockwise = + (forward) / counter-clockwise = - (back). Let go to stop.",
+    "z_up_title": "Z+: one step up ({d} mm)",
+    "z_down_title": "Z-: one step down ({d} mm)"
   },
   "hive": {
     "axis_title": "Active axis: tap for the next one",

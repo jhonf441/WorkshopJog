@@ -134,12 +134,9 @@
         if (!one || !(out.zSlide || out.zBot)) return null; // always something for X/Y and for Z
         return out;
       }
-      // Keyboard (2026-10-11, "if it is a mobile or touch device that option must
-      // not be allowed"): there is no API to know whether there is a PHYSICAL keyboard. Without
-      // a touch screen (PC, common notebook) it is assumed that there is. With a
-      // touch screen only if there is also a fine pointer (mouse / touchpad):
-      // notebook or 2-in-1 with keyboard. Phone, tablet and the touch kiosk without
-      // mouse: no (the option stays gray and the little keyboard is not drawn).
+      // Keyboard (2026-10-11, "if it is a mobile or touch device that option must not be allowed"): there is no API to know whether there is
+      // a PHYSICAL keyboard. Without a touch screen (PC, notebook) it is assumed there is; with one only if there is also a fine pointer (mouse /
+      // touchpad). Phone, tablet and the touch kiosk without mouse: no (the option stays gray and the little keyboard is not drawn).
       function jogAjHasKeyboard() {
         if (!(navigator.maxTouchPoints > 0)) return true;
         try {
@@ -357,7 +354,7 @@
           return e;
         }
         var hd = el("div", "display:flex;align-items:center;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.12);");
-        hd.appendChild(el("div", "font-size:16px;font-weight:500;flex:1;", i18nT('settings.jog_settings')));
+        hd.appendChild(el("div", "font-size:16px;font-weight:500;flex:1;", i18nT('settings.jog_settings'))); hd.appendChild(workshopVersionChip()); // 2026-11-18: the version lives here, not in the jog header
         var xb = el("button", "background:none;border:none;color:#b0bec5;font-size:18px;cursor:pointer;padding:0 4px;", "x");
         xb.type = "button";
         xb.addEventListener("click", close);
@@ -516,7 +513,7 @@
           });
           dsgHint.textContent = i18nT({ 1: 'settings.option_1_knob_z_and_home', 2: 'settings.option_2_large_position_arrows_tap', 3: 'settings.option_3_hint', 4: 'settings.option_4_hint' }[a.style]);
           bodyThe.innerHTML = "";
-          if (jogRolePageLock(cur)) bodyThe.appendChild(jogRoleCover(jogRolePageLock(cur)));
+          if (jogRolePageLock(cur)) bodyThe.appendChild(jogRoleCover(jogRolePageLock(cur), "advanced"));
           else if (cur === "see") drawVer();
           else if (cur === "speed") drawSpeed();
           else if (cur === "steps") drawSteps();

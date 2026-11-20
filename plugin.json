@@ -2,7 +2,7 @@
   "id": "WorkshopJog",
   "name": "Jog",
   "author": "jhonf441",
-  "version": "3.24.0",
+  "version": "3.24.14",
   "license": "GPL-3.0-or-later",
   "homepage": "https://github.com/jhonf441/WorkshopJog",
   "tags": [
@@ -29,7 +29,7 @@
     "permissions.json"
   ],
   "dwcFiles": [
-    "js/WorkshopJog.0fd622f8.js",
-    "js/WorkshopJog.0fd622f8.js.gz"
+    "js/WorkshopJog.d9cac8dd.js",
+    "js/WorkshopJog.d9cac8dd.js.gz"
   ]
 }

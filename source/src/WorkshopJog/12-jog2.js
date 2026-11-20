@@ -98,6 +98,39 @@
         });
       }
 
+      // The Step row of design 2: three groups (fine / medium / large) painted into `stepRow`, the active value shown on the right.
+      function jog2StepRow(o, H, stepRow) {
+        var C = H.C, el = H.el, boton = H.button;
+        function paintSteps() {
+          stepRow.textContent = "";
+          var active = o.getStepIndex();
+          var cab = el("div", "display:flex;align-items:baseline;justify-content:space-between;");
+          cab.appendChild(el("span", "font-size:11px;color:" + C.sec + ";", i18nT('jog.step')));
+          cab.appendChild(el("span", "font-size:14px;font-weight:600;color:" + C.text + ";", String(o.steps[active]) + " mm"));
+          stepRow.appendChild(cab);
+          [["jog2.step_fine", function (v) { return v < 1; }], ["jog2.step_medium", function (v) { return v >= 1 && v <= 10; }], ["jog2.step_large", function (v) { return v > 10; }]].forEach(function (g) {
+            var idx = [];
+            o.steps.forEach(function (v, i) { if (g[1](v)) idx.push(i); });
+            if (!idx.length) return;
+            var row = el("div", "display:flex;align-items:center;gap:6px;");
+            row.appendChild(el("span", "flex:0 0 46px;font-size:10px;color:" + C.sec + ";", i18nT(g[0])));
+            var seg = el("div", "display:flex;flex:1 1 auto;min-width:0;" + (jogIsTouch() ? "flex-wrap:wrap;gap:12px;" : "")); // touch: separate 44 px buttons, 12 px apart
+            idx.forEach(function (i, k) {
+              var on = i === active;
+              var radius = jogIsTouch() ? "6px" : (k === 0 ? "6px 0 0 6px" : k === idx.length - 1 ? "0 6px 6px 0" : "0");
+              var b = boton(String(o.steps[i]), "flex:1 1 " + (jogIsTouch() ? 44 : 0) + "px;min-width:" + (jogIsTouch() ? 44 : 0) + "px;min-height:" + (jogIsTouch() ? 44 : 30) + "px;padding:0 2px;border-radius:" + radius + ";" + (k && !jogIsTouch() ? "margin-left:-1px;" : "") + (on ? "background:" + C.prim + ";border-color:" + C.prim + ";color:#fff;position:relative;z-index:1;" : ""), function () {
+                o.setStep(i); // the Step tab keeps the value
+                paintSteps();
+              });
+              seg.appendChild(b);
+            });
+            row.appendChild(seg);
+            stepRow.appendChild(row);
+          });
+        }
+        paintSteps();
+      }
+
       function jog2Assemble(o) {
         var body = o.body;
         var H = jog2Helpers();
@@ -142,34 +175,7 @@
         // long row of ten buttons. The groups come from the values of Settings: < 1 mm, 1 to 10 mm, over 10 mm.
         var stepRow = el("div", "display:flex;flex-direction:column;gap:4px;");
         root.appendChild(stepRow);
-        function paintSteps() {
-          stepRow.textContent = "";
-          var active = o.getStepIndex();
-          var cab = el("div", "display:flex;align-items:baseline;justify-content:space-between;");
-          cab.appendChild(el("span", "font-size:11px;color:" + C.sec + ";", i18nT('jog.step')));
-          cab.appendChild(el("span", "font-size:14px;font-weight:600;color:" + C.text + ";", String(o.steps[active]) + " mm"));
-          stepRow.appendChild(cab);
-          [["jog2.step_fine", function (v) { return v < 1; }], ["jog2.step_medium", function (v) { return v >= 1 && v <= 10; }], ["jog2.step_large", function (v) { return v > 10; }]].forEach(function (g) {
-            var idx = [];
-            o.steps.forEach(function (v, i) { if (g[1](v)) idx.push(i); });
-            if (!idx.length) return;
-            var row = el("div", "display:flex;align-items:center;gap:6px;");
-            row.appendChild(el("span", "flex:0 0 46px;font-size:10px;color:" + C.sec + ";", i18nT(g[0])));
-            var seg = el("div", "display:flex;flex:1 1 auto;min-width:0;" + (jogIsTouch() ? "flex-wrap:wrap;gap:12px;" : "")); // touch: separate 44 px buttons, 12 px apart
-            idx.forEach(function (i, k) {
-              var on = i === active;
-              var radius = jogIsTouch() ? "6px" : (k === 0 ? "6px 0 0 6px" : k === idx.length - 1 ? "0 6px 6px 0" : "0");
-              var b = boton(String(o.steps[i]), "flex:1 1 " + (jogIsTouch() ? 44 : 0) + "px;min-width:" + (jogIsTouch() ? 44 : 0) + "px;min-height:" + (jogIsTouch() ? 44 : 30) + "px;padding:0 2px;border-radius:" + radius + ";" + (k && !jogIsTouch() ? "margin-left:-1px;" : "") + (on ? "background:" + C.prim + ";border-color:" + C.prim + ";color:#fff;position:relative;z-index:1;" : ""), function () {
-                o.setStep(i); // the Step tab keeps the value
-                paintSteps();
-              });
-              seg.appendChild(b);
-            });
-            row.appendChild(seg);
-            stepRow.appendChild(row);
-          });
-        }
-        paintSteps();
+        jog2StepRow(o, H, stepRow);
         if (mv) root.appendChild(el("div", "font-size:10px;color:" + C.sec + ";", i18nT('jog2.tap_an_arrow_one_step_hold')));
         var speedRow = el("div", "display:flex;align-items:center;gap:6px;flex-wrap:wrap;");
         root.appendChild(speedRow);
@@ -319,7 +325,7 @@
 
         var hold = null; // {nx, ny, nz, desde, timer}
         function estadoMovible(axes) {
-          if (!jogCanMove()) return false; // the machine is ready and, on a touch screen, "Hold to enable" is held (15-hold.js)
+          if (!jogCanMove()) return jogCannotMoveExplain(false); // the machine is ready and, on a touch screen, "Hold to enable" is held (15-hold.js)
           jogNotifyWithoutHoming(axes);
           return true;
         }

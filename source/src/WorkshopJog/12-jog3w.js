@@ -43,7 +43,7 @@
       // while it is not enabled it is dimmed and a tap shows a short note. look "metal" is the pendant wheel: an anodized aluminium rim with fine knurling that
       // turns with the finger, a finger dimple, a brushed hub with the active axis engraved and a ring of the accent color that lights when it can move;
       // "flat" is the flat honeycomb one. Returns { el, setOn(on), setHub(text) }.
-      function jogWheelMake(size, look, canMove, onStep, onBlocked) {
+      function jogWheelMake(size, look, canMove, onStep, onBlocked, onRelease) {
         var metal = look === "metal";
         var accent = jogAjGet().accent;
         var w = document.createElement("div");
@@ -111,6 +111,7 @@
           if (pid === null || ev.pointerId !== pid) return;
           pid = null;
           acc = 0;
+          if (onRelease) onRelease(); // the steps that have not gone out yet are dropped: nothing keeps moving after the finger left
         }
         w.addEventListener("pointerup", end);
         w.addEventListener("pointercancel", end);

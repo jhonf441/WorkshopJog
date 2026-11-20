@@ -18,9 +18,18 @@
         return elapsedMs > JOG_MODE_CONFIRM_MS ? "late" : "wait";
       }
 
+      // The sentence of the one rule of every mode switch (workshopModeSwitchReason, src/_shared/07-modes.js) when `code` switches the mode and the
+      // person may not ("" otherwise: any other button, or allowed). The bar and the Printing page ask the same.
+      function jogModeSwitchBlock(code) {
+        if (!jogModeTargetOf(code) || typeof workshopModeSwitchReason !== "function") return "";
+        return workshopModeSwitchReason();
+      }
+
       // Sends a macro of a button; a mode macro also waits for the model and says so (notify = the note of the button) when the mode did not change
       function jogPostMacro(code, label, notify) {
         var target = jogModeTargetOf(code);
+        var denied = jogModeSwitchBlock(code);
+        if (denied) { notify(denied); return Promise.resolve(); } // nothing is sent: the reason is written on the button
         return postCode(code)
           .then(function () {
             if (!target) return;

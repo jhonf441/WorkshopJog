@@ -44,8 +44,12 @@
       }
 
       // the cover that replaces the content of a locked tab or page: no session blue, role too low gray, never a button (the chip has the sign-in)
-      function jogRoleCover(need) {
-        return workshopNoticeEl(typeof workshopSignedOut === "function" && workshopSignedOut() ? "session" : "role", "cover", { needed: need, action: "" });
+      // group (optional): the group of 17-role-access.js whose refusal the cover tells; the sentence of the service wins, the role is the fallback
+      function jogRoleCover(need, group) {
+        var signedOut = typeof workshopSignedOut === "function" && workshopSignedOut();
+        var svc = !signedOut && group && typeof jogAccessNote === "function" ? jogAccessNote(group) : null;
+        if (svc) return workshopNoticeEl(svc.kind, "cover", { text: svc.text, action: "", subject: i18nT("subjects_jog.jog_panel") });
+        return workshopNoticeEl(signedOut ? "session" : "role", "cover", { needed: need, action: "", subject: i18nT("subjects_jog.jog_panel") });
       }
 
       function jogRoleNow() {

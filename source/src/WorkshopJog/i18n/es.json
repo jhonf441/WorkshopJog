@@ -1,4 +1,7 @@
 {
+  "subjects_jog": {
+    "jog_panel": "Panel de Jog"
+  },
   "jog": {
     "not_while_a_job_is_running": "No con un trabajo en curso",
     "jog_locked": "Jog bloqueado",
@@ -133,6 +136,8 @@
     "mode_not_changed": "El modo no cambió: sigue en {mode}.",
     "role_view_only": "Solo lectura: tu rol no mueve la máquina aquí. El PARO siempre está disponible.",
     "sign_in_needed": "Requiere iniciar sesión para mover la máquina.",
+    "move_failed": "El jog no se movió: {reason}",
+    "service_no_answer": "El servicio no respondió y el jog no se movió. Prueba de nuevo en unos segundos.",
     "stop_failed": "El PARO no llegó a la máquina. Púlsalo otra vez o usa la parada de emergencia.",
     "sign_in_button": "Iniciar sesión",
     "resize_handle": "Tamaño del panel (S, M, W)",
@@ -457,7 +462,11 @@
     "less_keys": "Ocultar teclas, cero y avance",
     "stop_title": "STOP: paro suave del jog. NO sustituye al paro de emergencia físico de la máquina.",
     "speed": "VEL",
-    "wheel_now": "Rueda MPG: gírala para mover {ax}. Cada clic mueve {d} mm (el selector de paso); una vuelta son 100 clics."
+    "wheel_now": "Rueda MPG: gírala para mover {ax}. Cada clic mueve {d} mm (el selector de paso); una vuelta son 100 clics.",
+    "reach": "Moviendo {ax} {mm} mm",
+    "dir_hint": "Horario = + (adelante) / antihorario = - (atrás). Suelta para parar.",
+    "z_up_title": "Z+: un paso arriba ({d} mm)",
+    "z_down_title": "Z-: un paso abajo ({d} mm)"
   },
   "hive": {
     "axis_title": "Eje activo: toca para el siguiente",

@@ -144,13 +144,41 @@
         if (refusal) {
           if (JOG_OPS_MOVE[op]) jogReleaseAllHolds();
           jogRefusalShow(refusal, jogSignedOut());
-        } else if (JOG_OPS_MOVE[op]) jogCheckResponse(request, body);
+          if (refusal === "jog.sign_in_needed" && !jogSignedOut()) jogSessionLost();
+        } else if (JOG_OPS_MOVE[op]) {
+          jogCheckResponse(request, body);
+          jogMoveFailedSay(body);
+        }
+      }
+
+      // The service says "sign in" but this page still believes it has a session (it expired or another browser took it, and the page has not asked
+      // yet): the knob used to snap back with nothing said. Ask who this browser is NOW: the state becomes "expired", the reason with its "Sign in"
+      // button is painted under the controls and the name + PIN dialog opens.
+      function jogSessionLost() {
+        if (typeof workshopWhoami !== "function") return;
+        workshopWhoami().then(function () {
+          jogUpdateStatusText();
+          if (jogSignedOut() && typeof workshopLogin === "function") workshopLogin().then(jogUpdateStatusText);
+        }, function () {});
+      }
+
+      // A move the service refused for a reason this file does not know (not a session, a role, a block or a confirmation: those say their own words)
+      // never ends silent either: the gesture is dropped and the notice says what the service said.
+      function jogMoveFailedSay(body) {
+        var e = body && !body.ok ? body.error || {} : null;
+        if (!e || e.code === "motion_denied" || e.code === "confirm_required") return;
+        jogReleaseAllHolds();
+        jogShowNotice(i18nT("jog.move_failed", { reason: String(e.message || e.code || "").slice(0, 160) }), 8000);
       }
 
       // A jog order that never got an answer (network): a failed STOP is told, it must never end silent.
       function jogPostFailed(op, e) {
         console.error("[WorkshopJog] error sending:", e, op);
         if (/^jog\.stop_/.test(op)) jogRefusalShow("jog.stop_failed", false);
+        else if (JOG_OPS_MOVE[op]) {
+          jogReleaseAllHolds(); // no answer from the service (restarting, network): nothing moved, and the knob goes back saying so
+          jogShowNotice(i18nT("jog.service_no_answer"), 8000);
+        }
       }
 
       // Guard of the quick buttons (Home, Z here...): true = blocked. A blocked tap never ends silent: it says why in the status line
@@ -177,12 +205,12 @@
       // it says why, and opens the sign-in when nobody is signed in. Listens on the body of the panel (called once from 10-jog.js).
       function jogBlockedWatch(body) {
         body.addEventListener("pointerdown", function (ev) {
-          if (jogEnabled && jogRoleNow().move) return;
+          if (jogEnabled && jogRoleNow().move && jogHoldOk()) return;
           var over = [jogRingEl, jogXTrackEl, jogYTrackEl, jogZTrackEl].some(function (el) {
             if (!el) return false;
             var r = el.getBoundingClientRect();
             return ev.clientX >= r.left && ev.clientX <= r.right && ev.clientY >= r.top && ev.clientY <= r.bottom;
           });
-          if (over) jogBlockedExplain();
+          if (over) jogCannotMoveExplain(); // also the touch screen without "Hold to enable" held: it says to hold it
         });
       }

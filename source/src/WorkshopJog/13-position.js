@@ -11,6 +11,42 @@
       // actualizar(status) with the status from jogFetchStatus.
       var JOG_POS_CODES = ["G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3"];
 
+      // The pinned compact bar of jogPosCard: `nums` is the row of numbers of the card, `H` the helpers of jog2Helpers().
+      function jogPosMiniBar(H, nums) {
+        var C = H.C, el = H.el;
+        // Compact copy of the position and the speed, pinned right under the status bar when the row of numbers
+        // (X Y Z) of the card scrolls out of view (the content keeps scrolling normally under it). The wrapper has no
+        // height, so showing or hiding the bar never moves the content (no flicker with the observer).
+        var miniWrap = el("div", "width:100%;height:0;position:sticky;top:-8px;z-index:5;margin-bottom:-8px;flex:none;");
+        var mini = el("div", "position:absolute;left:-8px;right:-8px;top:0;display:none;box-sizing:border-box;background:" + C.background + ";border-bottom:2px solid " + C.prim + ";box-shadow:0 2px 8px rgba(0,0,0,0.55);padding:5px 10px;font-family:'IBM Plex Mono',ui-monospace,monospace;color:" + C.text + ";pointer-events:none;display:none;align-items:center;flex-wrap:wrap;gap:3px 12px;");
+        miniWrap.appendChild(mini);
+        miniWrap.setAttribute("data-jog-mini", ""); // 12-jog2.js / 12-jog3.js find the pinned bar by this
+        // 2026-10-16: the pinned bar says WHICH position it shows (zone G55 / machine, and what aims in machine) and gives each axis
+        // its own cell: a coloured letter and a big number of fixed width (it does not dance while moving). The speed goes to
+        // the right and is dimmed when the head is still. One cell per datum: when the panel is narrow they wrap whole.
+        var AXIS_COL = { X: "#ef9a9a", Y: "#a5d6a7", Z: "rgb(144,202,249)" };
+        var miniFrame = el("span", "flex:none;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:10px;background:" + C.prim + ";color:#fff;white-space:nowrap;");
+        mini.appendChild(miniFrame);
+        var miniSp = {};
+        var miniNum = {};
+        ["X", "Y", "Z"].forEach(function (L) {
+          miniSp[L] = el("span", "display:inline-flex;align-items:baseline;gap:4px;white-space:nowrap;");
+          miniSp[L].appendChild(el("span", "font-size:11px;font-weight:700;color:" + AXIS_COL[L] + ";", L));
+          miniNum[L] = el("span", "display:inline-block;min-width:62px;text-align:right;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;", "--");
+          miniSp[L].appendChild(miniNum[L]);
+          mini.appendChild(miniSp[L]);
+        });
+        miniSp.V = el("span", "display:inline-block;margin-left:auto;white-space:nowrap;font-size:11px;font-weight:600;");
+        mini.appendChild(miniSp.V);
+        if (typeof IntersectionObserver !== "undefined") {
+          new IntersectionObserver(function (es) {
+            var e = es[es.length - 1];
+            mini.style.display = !e.isIntersecting && nums.offsetHeight > 0 ? "flex" : "none";
+          }, { threshold: [0, 0.01] }).observe(nums);
+        }
+        return { wrap: miniWrap, mini: mini, frame: miniFrame, sp: miniSp, num: miniNum };
+      }
+
       function jogPosCard() {
         var H = jog2Helpers();
         var C = H.C, el = H.el, boton = H.button;
@@ -79,36 +115,8 @@
         var limThe = line(i18nT('position.limits'));
         var speedThe = line(i18nT('position.speed_reached_requested'));
 
-        // Compact copy of the position and the speed, pinned right under the status bar when the row of numbers
-        // (X Y Z) of the card scrolls out of view (the content keeps scrolling normally under it). The wrapper has no
-        // height, so showing or hiding the bar never moves the content (no flicker with the observer).
-        var miniWrap = el("div", "width:100%;height:0;position:sticky;top:-8px;z-index:5;margin-bottom:-8px;flex:none;");
-        var mini = el("div", "position:absolute;left:-8px;right:-8px;top:0;display:none;box-sizing:border-box;background:" + C.background + ";border-bottom:2px solid " + C.prim + ";box-shadow:0 2px 8px rgba(0,0,0,0.55);padding:5px 10px;font-family:'IBM Plex Mono',ui-monospace,monospace;color:" + C.text + ";pointer-events:none;display:none;align-items:center;flex-wrap:wrap;gap:3px 12px;");
-        miniWrap.appendChild(mini);
-        miniWrap.setAttribute("data-jog-mini", ""); // 12-jog2.js / 12-jog3.js find the pinned bar by this
-        // 2026-10-16: the pinned bar says WHICH position it shows (zone G55 / machine, and what aims in machine) and gives each axis
-        // its own cell: a coloured letter and a big number of fixed width (it does not dance while moving). The speed goes to
-        // the right and is dimmed when the head is still. One cell per datum: when the panel is narrow they wrap whole.
-        var AXIS_COL = { X: "#ef9a9a", Y: "#a5d6a7", Z: "rgb(144,202,249)" };
-        var miniFrame = el("span", "flex:none;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:10px;background:" + C.prim + ";color:#fff;white-space:nowrap;");
-        mini.appendChild(miniFrame);
-        var miniSp = {};
-        var miniNum = {};
-        ["X", "Y", "Z"].forEach(function (L) {
-          miniSp[L] = el("span", "display:inline-flex;align-items:baseline;gap:4px;white-space:nowrap;");
-          miniSp[L].appendChild(el("span", "font-size:11px;font-weight:700;color:" + AXIS_COL[L] + ";", L));
-          miniNum[L] = el("span", "display:inline-block;min-width:62px;text-align:right;font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;", "--");
-          miniSp[L].appendChild(miniNum[L]);
-          mini.appendChild(miniSp[L]);
-        });
-        miniSp.V = el("span", "display:inline-block;margin-left:auto;white-space:nowrap;font-size:11px;font-weight:600;");
-        mini.appendChild(miniSp.V);
-        if (typeof IntersectionObserver !== "undefined") {
-          new IntersectionObserver(function (es) {
-            var e = es[es.length - 1];
-            mini.style.display = !e.isIntersecting && nums.offsetHeight > 0 ? "flex" : "none";
-          }, { threshold: [0, 0.01] }).observe(nums);
-        }
+        var pinned = jogPosMiniBar(H, nums);
+        var miniWrap = pinned.wrap, mini = pinned.mini, miniFrame = pinned.frame, miniSp = pinned.sp, miniNum = pinned.num;
 
         // paint() runs on every poll (10 a second): it writes only what changed, because every write wakes the style / layout of the page and
         // the observers of the panel (measured on the kiosk 2026-11-04: ~100 identical text writes a second were a good part of its load).

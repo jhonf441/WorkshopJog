@@ -34,7 +34,7 @@
           el: led,
           paint: function () {
             var state = jogCanMove() ? "ready" : jogEnabled ? "hold" : "off";
-            var color = { ready: "#43d17a", hold: "#ffb74d", off: "#5d666d" }[state];
+            var color = { ready: "#43d17a", hold: "var(--wf-n-down-text,#ffb74d)", off: "#5d666d" }[state];
             led.style.background = color;
             led.style.boxShadow = state === "off" ? "inset 0 1px 1px rgba(0,0,0,0.6)" : "0 0 8px " + color + ",inset 0 1px 1px rgba(255,255,255,0.5)";
             var t = i18nT("pendant.led_" + state);
@@ -55,7 +55,7 @@
         card.setAttribute("data-jog-pendant", "");
         card.style.setProperty("--jp3", jogAjGet().accent);
         root.appendChild(card);
-        var note = el("div", "min-height:14px;font-size:11px;text-align:center;color:#ffb74d;"); // what the wheel says when it cannot move
+        var note = el("div", "min-height:14px;font-size:11px;text-align:center;color:var(--wf-n-down-text,#ffb74d);"); // what the wheel says when it cannot move
         var noteTimer = null;
         function say(t) {
           note.textContent = t;
@@ -74,12 +74,20 @@
         card.appendChild(screen);
         var mid = el("div", "display:flex;align-items:center;justify-content:space-around;gap:8px;");
         card.appendChild(mid);
+        var reach = el("div", "margin-top:4px;font-size:10px;letter-spacing:0.6px;color:var(--wf-n-down-text,#ffb74d);font-family:'IBM Plex Mono',ui-monospace,monospace;text-align:left;padding-left:4px;"); // how far the wheel will still move
+        screen.appendChild(reach);
         var wheel = jogWheelMake(116, "metal", jogCanMove, function (sign) {
           api.move(api.getAxis(), sign);
+          reach.textContent = jogWheelReachText(api);
         }, function () {
           say(i18nT(jogEnabled ? "pendant.hold_to_enable_note" : "pendant.not_ready"));
+        }, function () {
+          api.cancel();
+          reach.textContent = jogWheelReachText(api);
         });
         mid.appendChild(el("div", "padding:6px 6px 16px;")).appendChild(wheel.el);
+        var zk = jogWheelZKeys(H, api, say);
+        mid.appendChild(zk.el);
         var dials = jog3Dials(el, api);
         mid.appendChild(dials.el);
         card.appendChild(note);
@@ -108,6 +116,8 @@
           wheel.setHub(api.getAxis());
           wheel.el.setAttribute("data-tip", i18nT("pendant.wheel_now", { ax: api.getAxis(), d: api.values[api.getIndex()] })); // what a click does NOW
           speedLine.textContent = jogWheelSpeedText(status);
+          reach.textContent = jogWheelReachText(api);
+          zk.paint();
           zero.paint(api.getAxis());
           feed.paint();
         }

@@ -209,6 +209,8 @@
       var jogStepPlusBtn = null;
       var jogStepApi = null; // the Step tab's axis, distance and move for design 3 (set where the tab is built)
       var jogStepPendingN = 0; // steps sent to the queue and not finished yet
+      var jogStepGen = 0; // bumped by jogStepCancel(): the steps of an older generation that have not gone out yet are dropped
+      var jogStepPendMm = {}; // axis -> signed mm of the steps that have not finished (the wheel tells how far the machine will still go)
       function jogStepPending() {
         return jogStepPendingN;
       }
@@ -744,7 +746,7 @@
       // "in a home all they are still active").
       // Buttons that only make sense in certain modes (request
       // 2026-10-08: "disable the buttons that are not of the current mode"):
-      // jogModeOnly(b, ["Laser"]) marks them, and jogSetBtnEnabled -- the
+      // a button carrying data-tj-modes is marked this way, and jogSetBtnEnabled -- the
       // single path to enable/disable -- leaves them disabled
       // outside those modes, with the reason in the tooltip. Without a known mode
       // (the status has not arrived yet) nothing is blocked.
@@ -760,18 +762,6 @@
       var jogAxesExtraHook = null; // set by the Step tab to redraw its buttons
       function jogIsAxisExtra(ax) {
         return !!ax && ["X", "Y", "Z"].indexOf(ax) < 0;
-      }
-      // modeOnly: the mode is its ONLY gate (e.g. Air): it is re-evaluated here
-      // each time the mode changes, because nothing else refreshes it.
-      var jogModeOnlyButtons = [];
-      function jogModeOnly(b, modes, onlyMode) {
-        if (!b) return b;
-        b.dataset.tjModes = modes.join(",");
-        if (onlyMode) {
-          jogModeOnlyButtons.push(b);
-          jogSetBtnEnabled(b, true);
-        }
-        return b;
       }
       function jogSetBtnEnabled(b, en) {
         if (!b) return;
@@ -957,9 +947,6 @@
             mm = jogModeKnown(mm); // an unknown or missing mode is null (no mode assumptions)
             if (mm !== jogMachineMode) {
               jogMachineMode = mm;
-              jogModeOnlyButtons.forEach(function (b) {
-                jogSetBtnEnabled(b, true);
-              });
             }
             var jf = status && status.job && status.job.file && status.job.file.fileName;
             jogLastJobFile = jf ? String(jf).split("/").pop() : null;
@@ -1680,7 +1667,7 @@
         jogXTrackEl.addEventListener("pointerdown", function (ev) {
           ev.stopPropagation();
           ev.preventDefault();
-          if (!jogCanMove()) return;
+          if (!jogCanMove()) return jogCannotMoveExplain();
           jogStraightXPointerId = ev.pointerId;
           try {
             jogXTrackEl.setPointerCapture(jogStraightXPointerId);
@@ -1726,7 +1713,7 @@
         jogYTrackEl.addEventListener("pointerdown", function (ev) {
           ev.stopPropagation();
           ev.preventDefault();
-          if (!jogCanMove()) return;
+          if (!jogCanMove()) return jogCannotMoveExplain();
           jogStraightYPointerId = ev.pointerId;
           try {
             jogYTrackEl.setPointerCapture(jogStraightYPointerId);
@@ -1939,7 +1926,7 @@
         ring.addEventListener("pointerdown", function (ev) {
           ev.stopPropagation();
           ev.preventDefault();
-          if (!jogCanMove()) return;
+          if (!jogCanMove()) return jogCannotMoveExplain();
           jogPointerId = ev.pointerId;
           try {
             ring.setPointerCapture(jogPointerId);
@@ -2057,7 +2044,7 @@
         zTrack.addEventListener("pointerdown", function (ev) {
           ev.stopPropagation();
           ev.preventDefault();
-          if (!jogCanMove()) return;
+          if (!jogCanMove()) return jogCannotMoveExplain();
           jogZPointerId = ev.pointerId;
           try {
             zTrack.setPointerCapture(jogZPointerId);
@@ -2165,7 +2152,7 @@
           if (jogAdvCover && jogAdvCover.parentNode) jogAdvCover.parentNode.removeChild(jogAdvCover);
           jogAdvCover = null;
           if (lockedAdv) {
-            jogAdvCover = jogRoleCover("technician");
+            jogAdvCover = jogRoleCover("technician", "advanced");
             tabContent.appendChild(jogAdvCover);
           }
           try {
@@ -3184,6 +3171,8 @@
             var modos = macro.modes || (orig && orig.modes) || [];
             var inJob = macro.inJob != null ? !!macro.inJob : !(orig && orig.inJob === false);
             function block() {
+              var switchDenied = jogModeSwitchBlock(jogMacroCode(macro)); // a mode macro follows the one switch rule (09-mode-confirm.js)
+              if (switchDenied) return switchDenied;
               if (!ofBar) return jogEnabled ? "" : i18nT('jog.jog_locked');
               if (modos.length && jogMachineMode && modos.indexOf(jogMachineMode) < 0) return i18nT('jog.only_in_mode', { modes: modos.join(" / ") });
               var est = jogStatusCache.status && jogStatusCache.status.state && jogStatusCache.status.state.status;
@@ -3424,7 +3413,7 @@
         function jogPasoEje(axis, sign) {
           // The same "idle or busy" gate as the continuous jog -- see
           // jogCheckEnabled/jogSetControlsEnabled.
-          if (!jogCanMove()) return;
+          if (!jogCanMove()) return jogCannotMoveExplain();
           jogNotifyWithoutHoming([axis]);
           var dist = sign * JOG_STEP_VALUES[jogStepIndex];
           var feed = axis === "Z" ? jogMaxFeedZ() : jogMaxFeedXY();
@@ -3437,9 +3426,12 @@
           // to elsewhere). Now each step is ONE block and they go in line.
           var block = jogBlockStep(jogMachineMode, [axis + dist.toFixed(3)], feed); // S0 only in Laser mode (09-mode.js)
           jogStepPendingN++;
+          jogStepPendMm[axis] = (jogStepPendMm[axis] || 0) + dist;
+          var gen = jogStepGen;
           jogStepQueue = jogStepQueue
             .then(function () {
               if (!jogCanMove()) return; // enable was let go while the step waited: it is not sent
+              if (gen !== jogStepGen) return; // the finger left the wheel while the step waited: it is not sent
               return postCode(block);
             })
             .catch(function (e) {
@@ -3447,6 +3439,8 @@
             })
             .then(function () {
               jogStepPendingN--;
+              jogStepPendMm[axis] -= dist;
+              if (Math.abs(jogStepPendMm[axis]) < 1e-6) jogStepPendMm[axis] = 0;
             });
         }
         var jogStepQueue = Promise.resolve(); // pasos en fila, uno detras del otro
@@ -3457,6 +3451,8 @@
           getAxis: function () { return jogStepAxis; },
           setAxis: function (a) { jogStepAxis = a; jogUpdateStepAxisVisual(); },
           move: jogPasoEje,
+          cancel: function () { jogStepGen++; },
+          pending: function () { return jogStepPendMm; },
         }); // what design 3 (12-jog3.js) needs of the Step tab
         [
           [stepMinusBtn, -1],

@@ -35,12 +35,14 @@
         if (!jogStatusEl || !jogStatusEl.parentNode) return;
         var state = typeof workshopSessionState === "function" ? workshopSessionState() : "";
         var kind = jogReasonKindOf(jogSignedOut(), jogRoleNow().move, state);
-        var key = kind + "|" + (typeof workshopNoticeStamp === "function" ? workshopNoticeStamp() : "");
+        // the sentence of the service (profile, ceiling, condition...) when it has answered, the one of the role otherwise (17-role-access.js)
+        var svc = kind === "role" ? jogAccessNote("move") : null;
+        var key = kind + "|" + (typeof workshopNoticeStamp === "function" ? workshopNoticeStamp() : "") + "|" + (svc ? svc.kind + svc.text : "");
         if (jogReasonEl && jogReasonEl.getAttribute("data-key") === key && jogReasonEl.parentNode) return;
         if (jogReasonEl && jogReasonEl.parentNode) jogReasonEl.parentNode.removeChild(jogReasonEl);
         jogReasonEl = null;
         if (!kind) return;
-        jogReasonEl = workshopReasonEl(kind, workshopNoticeText(kind, "operator"));
+        jogReasonEl = workshopReasonEl(svc ? svc.kind : kind, svc ? svc.text : workshopNoticeText(kind, "operator"), i18nT("subjects_jog.jog_panel"));
         jogReasonEl.setAttribute("data-key", key);
         jogReasonEl.style.flexWrap = "wrap";
         var lock = jogPanelLockOf(kind);
@@ -49,7 +51,13 @@
           var b = document.createElement("button");
           b.type = "button";
           b.className = "wf-btn" + (lock.kind === "session" ? " wf-main" : "");
-          b.textContent = i18nT(lock.kind === "session" ? "jog.lock_sign_in" : "jog.lock_change_role");
+          var bIcon = document.createElement("span");
+          bIcon.className = "wf-btn-icon mdi " + (lock.kind === "session" ? "mdi-account-lock-outline" : "mdi-account-switch-outline"); // the icon of the action, as in the shared notice
+          bIcon.setAttribute("aria-hidden", "true");
+          b.appendChild(bIcon);
+          var bText = document.createElement("span");
+          bText.textContent = i18nT(lock.kind === "session" ? "jog.lock_sign_in" : "jog.lock_change_role");
+          b.appendChild(bText);
           b.style.cssText = "min-height:28px;padding:0 10px;font-size:12px;";
           b.setAttribute("data-tip-pass", "1");
           b.addEventListener("pointerdown", function (ev) { ev.stopPropagation(); });

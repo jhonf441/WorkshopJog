@@ -136,7 +136,7 @@
         }
         var card = el("div", "width:100%;max-width:100%;min-width:0;box-sizing:border-box;display:flex;flex-direction:column;gap:12px;padding:8px;border:1px solid rgba(255,255,255,0.18);border-radius:10px;color:#eceff1;overflow:hidden;");
         root.appendChild(card);
-        var note = el("div", "min-height:14px;font-size:11px;text-align:center;color:#ffb74d;");
+        var note = el("div", "min-height:14px;font-size:11px;text-align:center;color:var(--wf-n-down-text,#ffb74d);");
         var noteTimer = null;
         function say(t) {
           note.textContent = t;
@@ -166,8 +166,17 @@
         card.appendChild(band.el);
         var speedLine = el("div", "font-size:11px;font-variant-numeric:tabular-nums;color:#b0bec5;text-align:center;"); // the speed of the move, always in view
         card.appendChild(speedLine);
-        var honey = jog4Honey(el, api, accent, say);
+        var reach = el("div", "min-height:14px;font-size:11px;text-align:center;color:var(--wf-n-down-text,#ffb74d);font-variant-numeric:tabular-nums;"); // how to turn the wheel, then how far it will still move
+        var honey = jog4Honey(el, api, accent, say, function () {
+          reach.textContent = jogWheelReachText(api);
+        });
         card.appendChild(honey.el);
+        card.appendChild(reach);
+        var zk = jogWheelZKeys(H, api, say); // Z+ / Z- under the honeycomb: Z is always at hand, whichever axis the wheel has
+        var zRow = el("div", "display:none;align-self:center;gap:12px;");
+        zRow.appendChild(zk.el);
+        zk.el.style.flexDirection = "row";
+        card.appendChild(zRow);
         // the pad: the knob of the usual jog (X and Y at the same time, with the curve and the soft start of Settings > Speed) and the Z slider
         var padBox = el("div", "display:none;align-self:center;justify-content:center;width:100%;");
         // the pad is made of the same direction keys as the pendant (8 directions + Z), cut as hexagons: it stays part of the honeycomb (no round knob)
@@ -185,6 +194,8 @@
         card.appendChild(feed.el);
         function layout() {
           honey.el.style.display = open && !pad ? "block" : "none";
+          reach.style.display = zRow.style.display = open && !pad ? "" : "none";
+          if (open && !pad) zRow.style.display = "flex";
           padBox.style.display = open && pad && mv ? "flex" : "none";
           note.style.display = open ? "" : "none";
           paint(null);
@@ -195,6 +206,8 @@
           if (open && !pad) honey.paint(pos);
           if (open && pad && mv) padBox.style.opacity = jogCanMove() ? "1" : "0.4";
           speedLine.textContent = jogWheelSpeedText(status);
+          reach.textContent = jogWheelReachText(api);
+          zk.paint();
           feed.paint();
         }
         layout();
@@ -286,7 +299,7 @@
       }
 
       // The honeycomb: the wheel in the middle (12-jog3.js) and the ring of hexagons. The cells follow the axes the machine has.
-      function jog4Honey(el, api, accent, say) {
+      function jog4Honey(el, api, accent, say, onWheelMoved) {
         var c = JOG_HIVE_TOUCH;
         var D = c + JOG_HIVE_GAP; // distance to the ring: 12 px between neighbours
         var h = Math.round(c * 1.1547);
@@ -296,8 +309,12 @@
         var wr = D - c / 2 - JOG_HIVE_GAP; // 12 px between the wheel and the ring
         var wheel = jogWheelMake(2 * wr, "flat", jogCanMove, function (sign) {
           api.move(api.getAxis(), sign);
+          if (onWheelMoved) onWheelMoved();
         }, function () {
           say(i18nT(jogEnabled ? "pendant.hold_to_enable_note" : "pendant.not_ready"));
+        }, function () {
+          api.cancel();
+          if (onWheelMoved) onWheelMoved();
         });
         wheel.el.style.cssText += ";position:absolute;left:" + (W / 2 - wr) + "px;top:" + (Hh / 2 - wr) + "px;";
         box.appendChild(wheel.el);

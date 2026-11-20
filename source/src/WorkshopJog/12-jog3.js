@@ -62,7 +62,7 @@
 
       // The Step tab's axis, distance and move, as design 3 and 4 need them. impl = { getIndex, setIndex, getAxis, setAxis, move }.
       function jogStepApiMake(values, impl) {
-        return { values: values, getIndex: impl.getIndex, setIndex: impl.setIndex, getAxis: impl.getAxis, setAxis: impl.setAxis, move: impl.move };
+        return { values: values, getIndex: impl.getIndex, setIndex: impl.setIndex, getAxis: impl.getAxis, setAxis: impl.setAxis, move: impl.move, cancel: impl.cancel || function () {}, pending: impl.pending || function () { return {}; } };
       }
 
       // The axes the machine has (base + the extra ones that Settings did not hide), in the order of a pendant.
@@ -128,10 +128,31 @@
       // Home with a second tap: first tap writes "?" for 4 s, the second goes. btn = the button, text = its label, go() = what it does.
       function jogDockHomeTap(btn, text, go) {
         var armed = null;
+        // A hexagon (the Hive dock) has no CSS class to turn amber: its polygon is painted here and put back on the second tap or after 4 s.
+        var poly = btn.querySelector("polygon");
+        var was = null;
+        function paintArmed(on) {
+          if (!poly) return;
+          if (on) {
+            was = { fill: poly.getAttribute("fill"), op: poly.getAttribute("fill-opacity"), stroke: poly.getAttribute("stroke"), color: btn.style.color };
+            poly.setAttribute("fill", "#d68a16");
+            poly.setAttribute("fill-opacity", "1");
+            poly.setAttribute("stroke", "#ffcf7a");
+            btn.style.color = "#fff";
+          } else if (was) {
+            [["fill", was.fill], ["fill-opacity", was.op], ["stroke", was.stroke]].forEach(function (a) {
+              if (a[1] === null) poly.removeAttribute(a[0]);
+              else poly.setAttribute(a[0], a[1]);
+            });
+            btn.style.color = was.color;
+            was = null;
+          }
+        }
         function reset() {
           clearTimeout(armed);
           armed = null;
           btn.setAttribute("data-armed", "0");
+          paintArmed(false);
           jogDockLabel(btn, text);
         }
         btn.addEventListener("pointerdown", function (ev) {
@@ -142,6 +163,7 @@
           ev.stopPropagation();
           if (!armed) {
             btn.setAttribute("data-armed", "1");
+            paintArmed(true);
             jogDockLabel(btn, text + "?");
             armed = setTimeout(reset, 4000);
             return;
@@ -184,6 +206,38 @@
         var st = status || (jogStatusCache && jogStatusCache.status) || null;
         var cm = st && st.move && st.move.currentMove;
         return cm && typeof cm.topSpeed === "number" ? { top: cm.topSpeed, requested: cm.requestedSpeed || 0 } : null;
+      }
+
+      // What the wheel is about to do, in one line: "Moving X +0.4 mm" while steps are still on their way (the ones not yet finished; the ones not
+      // yet SENT are dropped when the finger leaves the wheel), else how to turn it: clockwise is +, counter-clockwise is -.
+      function jogWheelReachText(api) {
+        var pend = api.pending();
+        var ax = Object.keys(pend).filter(function (L) {
+          return Math.abs(pend[L]) > 1e-6;
+        })[0];
+        if (ax) return i18nT("pendant.reach", { ax: ax, mm: (pend[ax] > 0 ? "+" : "") + pend[ax].toFixed(2) });
+        return i18nT("pendant.dir_hint");
+      }
+
+      // Z+ / Z- next to the wheel: a tap is one step of Z at the Step distance, whichever axis the wheel has now. Returns { el, paint() }.
+      function jogWheelZKeys(H, api, say) {
+        var el = H.el;
+        var col = el("div", "display:flex;flex-direction:column;gap:12px;flex:none;");
+        col.className = "jp3-zkeys";
+        [["Z+", 1], ["Z-", -1]].forEach(function (z) {
+          var b = H.button(z[0], "min-width:44px;min-height:44px;font-weight:700;", function () {
+            if (!jogCanMove()) return say(i18nT(jogEnabled ? "pendant.hold_to_enable_note" : "pendant.not_ready"));
+            api.move("Z", z[1]);
+          });
+          b.title = i18nT(z[1] > 0 ? "pendant.z_up_title" : "pendant.z_down_title", { d: api.values[api.getIndex()] });
+          col.appendChild(b);
+        });
+        return {
+          el: col,
+          paint: function () {
+            col.style.opacity = jogCanMove() ? "" : "0.4";
+          },
+        };
       }
 
       function jogWheelSpeedText(status) {

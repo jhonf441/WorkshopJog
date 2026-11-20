@@ -23,6 +23,20 @@
         return jogEnabled && jogHoldOk();
       }
 
+      // A control that cannot move now never ends silent (owner report 2026-11-11: "I try to move the controls and they go back to their place"):
+      // the machine, the service, the session or the role say why in the status line (and the sign-in opens when nobody is signed in); on a touch
+      // screen without the button held, the note says to hold it. Once every 1.5 s, so a finger that keeps touching does not repeat it.
+      // Returns `result`, so a guard can be `return jogCannotMoveExplain(false);` on its own line.
+      var jogExplainAt = 0;
+      function jogCannotMoveExplain(result) {
+        var now = Date.now();
+        if (now - jogExplainAt < 1500) return result;
+        jogExplainAt = now;
+        if (!jogEnabled || !jogRoleNow().move) jogBlockedExplain();
+        else if (!jogHoldOk() && typeof jogShowNotice === "function") jogShowNotice(i18nT("pendant.hold_to_enable_note"), 3000);
+        return result;
+      }
+
       // Everything that shows the state of the button or depends on it is painted again.
       function jogHoldRepaint() {
         var on = jogHoldOk();

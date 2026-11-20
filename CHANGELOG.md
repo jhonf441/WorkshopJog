@@ -1,5 +1,61 @@
 # WorkshopJog -- historial de versiones
 
+## 3.24.14 -- 2026-11-18
+
+- accessRev: the page asks whoami at once when the service says the access changed
+
+## 3.24.13 -- 2026-11-18
+
+- Access changes (users or roles switched off or on, a role changed) reach the page: it asks whoami again while in view
+
+## 3.24.12 -- 2026-11-18
+
+- Version moved from the header to the settings sheet
+
+## 3.24.11 -- 2026-11-18
+
+- Icon on the sign-in button, bigger no-limits lock, softer blink
+
+## 3.24.10 -- 2026-11-17
+
+- Back to the previous look: the family design pieces of the last rounds are removed (steppers, docks, big readings, token fills)
+
+## 3.24.9 -- 2026-11-13
+
+- Phase 6: family design pieces (docks, step numbers, fills and dark palette as shared tokens)
+
+## 3.24.8 -- 2026-11-13
+
+- Access notices name what they lock (JS and Vue), locked covers say which section they cover
+
+## 3.24.7 -- 2026-11-13
+
+- Access notices name what they lock (JS and Vue), locked covers say which section they cover
+
+## 3.24.6 -- 2026-11-13
+
+- Safe state and accent colors moved to family tokens; off-scale sizes and monospace fonts aligned
+
+## 3.24.5 -- 2026-11-12
+
+- Session reconcile, access notices name what they lock, kiosk native number keyboard
+
+## 3.24.4 -- 2026-11-12
+
+- Kiosk PIN: read-only field and number pad only, no full keyboard
+
+## 3.24.3 -- 2026-11-11
+
+- The knob that snaps back says why: lost session (asks who the browser is and opens the sign-in), service without answer, unknown refusal
+
+## 3.24.2 -- 2026-11-11
+
+- A control that cannot move says why instead of snapping back silently: hold-to-enable on touch screens, machine, session, role
+
+## 3.24.1 -- 2026-11-11
+
+- Owner report 2026-11-11: shutdown without session, kiosk PIN pad, hive confirm color, wheel release and Z keys, version in every page bar
+
 ## 3.24.0 -- 2026-11-10
 
 - Help ("?"): it no longer works as a mode where tapping a button explained it (a mistaken tap could move the machine). It now swaps the controls for a legend of the design in use, inside the panel and in the same dark look; the icon follows the button color.
