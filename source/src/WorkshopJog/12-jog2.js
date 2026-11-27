@@ -54,7 +54,7 @@
         }
         // buttons: pointerdown does not drag the panel nor give focus (see jog)
         function boton(text, css, onTap) {
-          var b = el("button", "min-height:36px;border-radius:6px;border:1px solid " + C.edge + ";background:transparent;color:" + C.text + ";font:inherit;font-size:12px;cursor:pointer;touch-action:none;padding:0 8px;" + (css || ""), text);
+          var b = el("button", "min-height:44px;border-radius:6px;border:1px solid " + C.edge + ";background:transparent;color:" + C.text + ";font:inherit;font-size:12px;cursor:pointer;touch-action:none;padding:0 8px;" + (css || ""), text);
           b.type = "button";
           b.addEventListener("pointerdown", function (ev) { ev.stopPropagation(); ev.preventDefault(); });
           if (onTap) b.addEventListener("pointerup", function (ev) { ev.stopPropagation(); onTap(b); });
@@ -65,12 +65,20 @@
           var armed = null;
           var b = boton(text, css, function () {
             if (!armed) {
-              b.dataset.t = b.textContent;
-              b.textContent = confirmar;
+              b._idleHtml = b.innerHTML; // text or icon: put back as it was
+              // the armed button never grows (2026-11-22, "Home" and "Toca (" overflowed): its width is frozen while armed and a narrow one (a cell of
+              // the Home row is ~45 px) says the short word; the full text stays in the title and the amber color says the rest
+              var w = b.offsetWidth;
+              if (w) {
+                b.style.minWidth = w + "px";
+                b.style.maxWidth = w + "px";
+              }
+              b.title = b.title || confirmar;
+              b.textContent = w && w < 96 ? i18nT("jog.tap_short") : confirmar;
               b.style.background = C.amber;
               b.style.borderColor = C.amber;
               b.style.color = "#fff";
-              armed = setTimeout(desarmar, 4000);
+              armed = setTimeout(desarmar, JOG_ARM_MS);
               return;
             }
             desarmar();
@@ -79,7 +87,9 @@
           function desarmar() {
             clearTimeout(armed);
             armed = null;
-            if (b.dataset.t) b.textContent = b.dataset.t;
+            if (b._idleHtml !== undefined) b.innerHTML = b._idleHtml;
+            b.style.minWidth = "";
+            b.style.maxWidth = "";
             b.style.background = "transparent";
             b.style.borderColor = C.edge;
             b.style.color = C.text;
@@ -105,7 +115,7 @@
           stepRow.textContent = "";
           var active = o.getStepIndex();
           var cab = el("div", "display:flex;align-items:baseline;justify-content:space-between;");
-          cab.appendChild(el("span", "font-size:11px;color:" + C.sec + ";", i18nT('jog.step')));
+          cab.appendChild(el("span", "font-size:12px;color:" + C.sec + ";", i18nT('jog.step')));
           cab.appendChild(el("span", "font-size:14px;font-weight:600;color:" + C.text + ";", String(o.steps[active]) + " mm"));
           stepRow.appendChild(cab);
           [["jog2.step_fine", function (v) { return v < 1; }], ["jog2.step_medium", function (v) { return v >= 1 && v <= 10; }], ["jog2.step_large", function (v) { return v > 10; }]].forEach(function (g) {
@@ -113,7 +123,7 @@
             o.steps.forEach(function (v, i) { if (g[1](v)) idx.push(i); });
             if (!idx.length) return;
             var row = el("div", "display:flex;align-items:center;gap:6px;");
-            row.appendChild(el("span", "flex:0 0 46px;font-size:10px;color:" + C.sec + ";", i18nT(g[0])));
+            row.appendChild(el("span", "flex:0 0 46px;font-size:12px;color:" + C.sec + ";", i18nT(g[0])));
             var seg = el("div", "display:flex;flex:1 1 auto;min-width:0;" + (jogIsTouch() ? "flex-wrap:wrap;gap:12px;" : "")); // touch: separate 44 px buttons, 12 px apart
             idx.forEach(function (i, k) {
               var on = i === active;
@@ -131,20 +141,30 @@
         paintSteps();
       }
 
+      // -- assembly: option 2 on top, the usual jog in "More"; returns {root, more} (called by jog2Assemble) --
+      function jog2Shell(o, H) {
+        var body = o.body;
+        var C = H.C, el = H.el;
+        var root = el("div", "width:100%;display:flex;flex-direction:column;gap:8px;");
+        var more = el("div", "width:100%;display:none;flex-direction:column;align-items:center;gap:8px;border-top:1px solid " + C.edge + ";padding-top:8px;");
+        Array.prototype.slice.call(body.children).forEach(function (h) {
+          if (h !== o.statusEl && h !== o.noticeEl && h !== o.stopRow && h !== o.posT.card && h !== o.posT.mini && h !== jogZHereBtn) more.appendChild(h);
+        });
+        body.insertBefore(root, body.firstChild);
+        // "Z here" stays in view in this design too (on a touch screen it used to go into More with the rest of the usual jog)
+        if (jogZHereBtn && jogZHereBtn.parentNode === body) root.appendChild(jogZHereBtn);
+        body.insertBefore(o.posT.mini, root); // compact position/speed bar pinned under the status bar (13-position.js)
+        // the status and the warnings live in the fixed bar under the header (10-jog.js)
+        return { root: root, more: more };
+      }
+
       function jog2Assemble(o) {
         var body = o.body;
         var H = jog2Helpers();
         var C = H.C, el = H.el, boton = H.button, botonDoble = H.buttonDouble;
 
-        // -- assembly: option 2 on top, the usual jog in "More" --
-        var root = el("div", "width:100%;display:flex;flex-direction:column;gap:8px;");
-        var more = el("div", "width:100%;display:none;flex-direction:column;align-items:center;gap:8px;border-top:1px solid " + C.edge + ";padding-top:8px;");
-        Array.prototype.slice.call(body.children).forEach(function (h) {
-          if (h !== o.statusEl && h !== o.noticeEl && h !== o.stopRow && h !== o.posT.card && h !== o.posT.mini) more.appendChild(h);
-        });
-        body.insertBefore(root, body.firstChild);
-        body.insertBefore(o.posT.mini, root); // compact position/speed bar pinned under the status bar (13-position.js)
-        // the status and the warnings live in the fixed bar under the header (10-jog.js)
+        var shell = jog2Shell(o, H);
+        var root = shell.root, more = shell.more;
 
         // 1. where it is: the common position card (13-position.js); Settings decides whether it is seen
         root.appendChild(o.posT.card);
@@ -176,10 +196,10 @@
         var stepRow = el("div", "display:flex;flex-direction:column;gap:4px;");
         root.appendChild(stepRow);
         jog2StepRow(o, H, stepRow);
-        if (mv) root.appendChild(el("div", "font-size:10px;color:" + C.sec + ";", i18nT('jog2.tap_an_arrow_one_step_hold')));
+        if (mv) root.appendChild(el("div", "font-size:12px;color:" + C.sec + ";", i18nT('jog2.tap_an_arrow_one_step_hold')));
         var speedRow = el("div", "display:flex;align-items:center;gap:6px;flex-wrap:wrap;");
         root.appendChild(speedRow);
-        speedRow.appendChild(el("span", "font-size:11px;color:" + C.sec + ";", i18nT('jog2.speed')));
+        speedRow.appendChild(el("span", "font-size:12px;color:" + C.sec + ";", i18nT('jog2.speed')));
         var speed = el("input", "flex:1 1 120px;min-width:80px;");
         speed.type = "range";
         speed.min = o.speedSlider.min || "5";
@@ -187,7 +207,7 @@
         speed.step = o.speedSlider.step || "1";
         speed.value = o.speedSlider.value;
         speed.addEventListener("pointerdown", function (ev) { ev.stopPropagation(); });
-        var speedTxt = el("span", "font-size:11px;white-space:nowrap;width:100%;text-align:right;color:" + C.sec + ";");
+        var speedTxt = el("span", "font-size:12px;white-space:nowrap;width:100%;text-align:right;color:" + C.sec + ";");
         speedRow.appendChild(speed);
         speedRow.appendChild(speedTxt);
         function paintSpeed() {
@@ -203,7 +223,7 @@
         // 3. ir a
         var irCard = el("div", "background:" + C.background + ";border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:6px;");
         root.appendChild(irCard);
-        irCard.appendChild(el("span", "font-size:11px;color:" + C.sec + ";", i18nT('jog2.go_to')));
+        irCard.appendChild(el("span", "font-size:12px;color:" + C.sec + ";", i18nT('jog2.go_to')));
         var irRow = el("div", "display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:4px;align-items:center;");
         irCard.appendChild(irRow);
         var inp = {};
@@ -217,7 +237,7 @@
           l.appendChild(i);
           irRow.appendChild(l);
         });
-        var irMsg = el("div", "font-size:11px;color:var(--wf-n-down-text,#ffb74d);display:none;");
+        var irMsg = el("div", "font-size:12px;color:var(--wf-n-down-text,#ffb74d);display:none;");
         irCard.appendChild(botonDoble(i18nT('jog2.go'), i18nT('jog2.go_2'), "width:100%;", function () { irA(); }));
         irCard.appendChild(irMsg);
 
@@ -424,7 +444,7 @@
         // centre of the cross: "go to the zero X0 Y0 of the active zone" (two taps: it moves the machine; workzero.g
         // raises Z first and leaves it up). The step is in its own row
         var center = el("div", "display:flex;align-items:center;justify-content:center;");
-        var bZero = botonDoble("X0 Y0", i18nT('jog2.go_2'), "width:100%;height:100%;min-height:0;padding:0;font-size:11px;font-weight:600;border-color:" + C.prim + ";", function () {
+        var bZero = botonDoble("X0 Y0", i18nT('jog2.go_2'), "width:100%;height:100%;min-height:0;padding:0;font-size:12px;font-weight:600;border-color:" + C.prim + ";", function () {
           if (jogBlockedExplain()) return;
           postCode('M98 P"0:/sys/workshop/macros/work/workzero.g"').catch(function (e) { console.error("[WorkshopJog] go to zero:", e); });
         });

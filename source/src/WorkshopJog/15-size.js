@@ -94,6 +94,7 @@ var jogSizeState = { size: null, handle: null, natural: null, dirty: true, watch
         if (h) panel.setAttribute("data-jog-sized", "");
         else panel.removeAttribute("data-jog-sized");
         jogSizeStyleSet(jogBodyEl, "maxHeight", jogSizeBodyMax(fit, chrome, MARGIN));
+        jogSizeHandlePaint(jogSizeState); // the S / M / W button follows what the window allows (hidden when it cannot change anything)
       }
 
       // The tab or the content of the body changed: the measure is old. Looks at what is added, removed or written as text, and at a change
@@ -168,9 +169,9 @@ var jogSizeState = { size: null, handle: null, natural: null, dirty: true, watch
           P + "[data-jog-sized]" + free + "{display:flex;flex-direction:column;}",
           P + '[data-fs-lock="1"] [data-jog-size-handle]{display:none;}',
           // the "?" of the title bar: clear (before it was dim, as if disabled), and in the accent color while its card is open
-          P + " [data-jog-header-actions] .wf-help-btn{opacity:1!important;color:#e3e8eb!important;background:transparent!important;border:1px solid rgba(255,255,255,0.35)!important;}",
-          P + ' [data-jog-header-actions] .wf-help-btn[aria-expanded="true"]{background:' + jogAjGet().accent + '!important;border-color:' + jogAjGet().accent + '!important;color:#fff!important;}',
-          P + " [data-jog-header-actions] .wf-help-btn *{color:inherit!important;fill:currentColor;}", // the icon follows the button (it stayed grey on the blue)
+          P + " .wf-help-btn{opacity:1!important;color:#e3e8eb!important;background:transparent!important;border:1px solid rgba(255,255,255,0.35)!important;}",
+          P + ' .wf-help-btn[aria-expanded="true"]{background:' + jogAjGet().accent + '!important;border-color:' + jogAjGet().accent + '!important;color:#fff!important;}',
+          P + " .wf-help-btn *," + P + ' .wf-help-btn[aria-expanded="true"] .mdi{color:inherit!important;fill:currentColor;}', // the icon follows the button: white on the blue when open (it stayed grey, family.css .help-tip .mdi)
           P + "[data-jog-sized]" + free + " > [data-jog-body]{flex:1 1 auto;min-height:0;max-height:none!important;}",
                   ].join("\n");
         document.head.appendChild(st);

@@ -1,9 +1,12 @@
       // ---- The four designs of the Jog (chosen in the settings sheet, the gear) ----
       //
       // The design number: 1 = knob and tabs, 2 = by tasks, 3 = pendant (12-jog3.js), 4 = hive (12-jog4.js). Anything else is 1.
-      var JOG_AJ_DESIGNS = [1, 2, 3, 4];
+      // Design 4 (the hive) is switched OFF until the owner refines it (2026-11-20): it is not offered in the settings sheet and a saved 4 falls back to
+      // design 1, without error. The code of the hive (12-jog4.js) stays; set this flag to true to bring it back.
+      var JOG_HIVE_ENABLED = false;
+      var JOG_AJ_DESIGNS = JOG_HIVE_ENABLED ? [1, 2, 3, 4] : [1, 2, 3];
       function jogAjIdx(n) {
-        return n === 2 || n === 3 || n === 4 ? n : 1;
+        return n === 2 || n === 3 || (n === 4 && JOG_HIVE_ENABLED) ? n : 1;
       }
       // Designs 3 and 4 have their own controls (the wheel, the keypad, the hexagons), so the settings of "Controls to move" do not apply to them: the
       // sheet shows why instead of the options. "More" in these designs does NOT repeat what the design already has: no knob, no sliders, no Z, no Step tab

@@ -24,6 +24,7 @@
       var JOG_SIZE_DEFAULT_W = JOG_PANEL_W + JOG_SIZE_BORDER; // 212: the original panel
       var JOG_SIZE_MIN_W = Math.round(JOG_PANEL_W * JOG_SCALE_MIN) + JOG_SIZE_BORDER; // 170
       var JOG_SIZE_MAX_W = Math.round(JOG_PANEL_W * JOG_SCALE_MAX) + JOG_SIZE_BORDER; // 378
+      var JOG_SIZE_PRESET_REACH = 320; // the widest preset (W, 09-wheel.js): reachable whatever the height of the window
       var JOG_SIZE_KEY = "workshopJogSize";
       var JOG_SIZE_FOOT_H = 0; // nothing under the dock any more: the size handle moved to the header (15-size-handle.js)
       var JOG_SIZE_ESS_GAP = 10; // px under the controls (before the zoom is taken off) that stay with them
@@ -107,7 +108,10 @@
         var w = Math.round(clamp(size && size.w ? size.w : JOG_SIZE_DEFAULT_W, JOG_SIZE_MIN_W, maxW));
         var reserve = win.zone && win.zone.left - win.margin < w ? Math.ceil(win.zone.bottom) : 0;
         // the content has to fit in the window: a zoom that makes it taller does not grow (a smaller one does)
-        w = Math.max(JOG_SIZE_MIN_W, Math.min(w, jogSizeMaxWOfScale(jogSizeMaxScale(jogSizeBasis(chrome.natural), win.vh - 2 * win.margin - reserve))));
+        // (a preset size, up to JOG_SIZE_PRESET_REACH, is always allowed: the panel is as tall as the window and the body scrolls inside, so S, M and W
+        // are three different widths even on a tall pendant in a low window; above that the content has to fit)
+        var byHeight = jogSizeMaxWOfScale(jogSizeMaxScale(jogSizeBasis(chrome.natural), win.vh - 2 * win.margin - reserve));
+        w = Math.max(JOG_SIZE_MIN_W, Math.min(w, Math.max(byHeight, Math.min(maxW, JOG_SIZE_PRESET_REACH))));
         var scale = jogSizeScaleOf(w);
         reserve = win.zone && win.zone.left - win.margin < w ? Math.ceil(win.zone.bottom) : 0;
         var h = null;

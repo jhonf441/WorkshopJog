@@ -19,7 +19,7 @@
       // The assembler of a design number (null = the usual designs, built in 10-jog.js / 12-jog2.js).
       function jogAssembler(style) {
         if (style === 3) return jog3Assemble;
-        if (style === 4 && typeof jog4Assemble === "function") return jog4Assemble;
+        if (style === 4 && JOG_HIVE_ENABLED && typeof jog4Assemble === "function") return jog4Assemble;
         return null;
       }
 
@@ -125,7 +125,49 @@
         jogEmergencyStop({ style: {} });
       }
 
-      // Home with a second tap: first tap writes "?" for 4 s, the second goes. btn = the button, text = its label, go() = what it does.
+      // The house of the Home keys: ONE drawing for every design, so a narrow cell never cuts the word "Home" (2026-11-22: it read "Ho..."). The key that
+      // uses it carries aria-label and title with the full words; the icon hides while the key is armed (the short word takes its place).
+      var JOG_HOME_ICON_PATH = "M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z";
+      function jogHomeIconHtml(px) {
+        return '<svg class="jp-home-ico" viewBox="0 0 24 24" width="' + px + '" height="' + px + '" fill="currentColor" aria-hidden="true" style="flex:none;position:relative;pointer-events:none"><path d="' + JOG_HOME_ICON_PATH + '"/></svg>';
+      }
+      // Z here: an arrow down onto the floor line (Z is set where the head touches), one drawing for every design. An icon alone was not understood twice
+      // (2026-11-23: the old arrow with a small Z, then a probe with a Z that read "Z!"), so the key also says its short words (jogZHereKeyFill).
+      var JOG_ZHERE_ARROW_PATH = "M3 19h18v2H3zM11 3v10.17l-2.59-2.58L7 12l5 5 5-5-1.41-1.41L13 13.17V3z";
+      function jogZHereIconHtml(px) {
+        return '<svg class="jp-home-ico" viewBox="0 0 24 24" width="' + px + '" height="' + px + '" fill="currentColor" aria-hidden="true" style="flex:none;position:relative;pointer-events:none"><path d="' + JOG_ZHERE_ARROW_PATH + '"/></svg>';
+      }
+      // The content of the "Z here" key in every design: the arrow over the words "Z here" in 12/600 (ux, 2026-11-23). The words are in .jp-t, so a key
+      // armed by jogDockHomeTap shows its short word there and gets the words back after.
+      function jogZHereKeyFill(btn) {
+        btn.textContent = "";
+        var stack = document.createElement("span");
+        stack.style.cssText = "display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;line-height:1;min-width:0;max-width:100%;pointer-events:none;";
+        stack.innerHTML = jogZHereIconHtml(14);
+        var t = document.createElement("span");
+        t.className = "jp-t";
+        t.style.cssText = "font-size:12px;font-weight:600;white-space:nowrap;";
+        t.textContent = i18nT("jog.z_here");
+        stack.appendChild(t);
+        btn.appendChild(stack);
+      }
+      // The content of a Home key (2026-11-23): the house alone for "all axes", the house and the bold letter for one axis.
+      function jogHomeKeyFill(btn, axis) {
+        btn.innerHTML = jogHomeIconHtml(axis ? 14 : 20);
+        var t = document.createElement("span");
+        t.className = "jp-t";
+        t.style.fontWeight = "700";
+        t.textContent = axis || "";
+        btn.appendChild(t);
+      }
+      function jogHomeIconShow(btn, on) {
+        Array.prototype.forEach.call(btn.querySelectorAll(".jp-home-ico"), function (i) {
+          i.style.display = on ? "" : "none";
+        });
+      }
+
+      // Home with a second tap: the first tap ARMS the button (warning color, "Tap again", a bar that empties in 4 s and shows how long is left), the second goes. btn = the button, text = its label, go() = what it does.
+      var JOG_ARM_MS = 4000; // = WORKSHOP_ARM_MS (src/_shared/00-arm.js); tests/arm-ms.test.js keeps them equal // how long a first tap stays armed
       function jogDockHomeTap(btn, text, go) {
         var armed = null;
         // A hexagon (the Hive dock) has no CSS class to turn amber: its polygon is painted here and put back on the second tap or after 4 s.
@@ -152,8 +194,26 @@
           clearTimeout(armed);
           armed = null;
           btn.setAttribute("data-armed", "0");
+          btn.style.minWidth = "";
+          btn.style.maxWidth = "";
           paintArmed(false);
+          jogHomeIconShow(btn, true);
           jogDockLabel(btn, text);
+          var old = btn.querySelector(".jp3-armbar");
+          if (old) old.parentNode.removeChild(old);
+        }
+        // the bar of the time left: full at the first tap, empty after JOG_ARM_MS (no motion under prefers-reduced-motion: the CSS drops the transition and the color still says "armed")
+        function armBar() {
+          if (!btn.appendChild || btn.querySelector(".jp3-armbar")) return;
+          var bar = document.createElement("span");
+          bar.className = "jp3-armbar";
+          bar.setAttribute("aria-hidden", "true");
+          bar.style.cssText = "position:absolute;left:0;bottom:0;height:4px;width:100%;background:rgba(255,255,255,0.85);transform-origin:left;pointer-events:none;transition:transform " + JOG_ARM_MS + "ms linear;";
+          btn.style.position = "relative";
+          btn.style.overflow = "hidden";
+          btn.appendChild(bar);
+          void bar.offsetWidth; // the start state is drawn before it empties
+          bar.style.transform = "scaleX(0)";
         }
         btn.addEventListener("pointerdown", function (ev) {
           ev.stopPropagation();
@@ -164,8 +224,17 @@
           if (!armed) {
             btn.setAttribute("data-armed", "1");
             paintArmed(true);
-            jogDockLabel(btn, text + "?");
-            armed = setTimeout(reset, 4000);
+            // the key keeps its width while armed and a narrow one says the short word (the full text is its title): "Tap again" no longer overflows
+            var bw = btn.offsetWidth;
+            if (bw) {
+              btn.style.minWidth = bw + "px";
+              btn.style.maxWidth = bw + "px";
+            }
+            if (!btn.title) btn.title = i18nT("pendant.tap_again");
+            jogHomeIconShow(btn, false);
+            jogDockLabel(btn, bw && bw < 96 ? i18nT("jog.tap_short") : i18nT("pendant.tap_again"));
+            armBar();
+            armed = setTimeout(reset, JOG_ARM_MS);
             return;
           }
           reset();
@@ -230,12 +299,13 @@
             api.move("Z", z[1]);
           });
           b.title = i18nT(z[1] > 0 ? "pendant.z_up_title" : "pendant.z_down_title", { d: api.values[api.getIndex()] });
+          b.className = "jp3-cap"; // the keycap look of the pendant (only inside [data-jog-pendant]: other designs keep the plain button)
           col.appendChild(b);
         });
         return {
           el: col,
           paint: function () {
-            col.style.opacity = jogCanMove() ? "" : "0.4";
+            col.setAttribute("data-off", jogCanMove() ? "0" : "1"); // dimmed by the CSS of the pendant, keeping the relief
           },
         };
       }

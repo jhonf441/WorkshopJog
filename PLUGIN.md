@@ -10,7 +10,7 @@
 
 A floating panel on every DWC page to move the machine by hand: a free-direction knob, a Z slider, step buttons, go-to-zero, home, Z here, STOP and E-STOP, an advanced tab (macro buttons, extra axes, console, current), the "move without limits" mode and a settings sheet. It is not a page: you open it from the Control bar (button "Jog" under "THIS SCREEN"). The motion goes through the System service (`dsf/jog_move.py`, own DSF connection), not through DWC.
 
-Version documented: 3.13.x on DWC 3.6.3.
+Version documented: 3.30.x on DWC 3.6.3.
 
 ## 1. Requirements
 
@@ -22,11 +22,11 @@ Version documented: 3.13.x on DWC 3.6.3.
 
 ## 3. Functions
 
-The Jog is a floating panel that is available on every DWC page. It is opened with the button "Jog" of the group "THIS SCREEN" in the Control bar and closed with the "-" button of its title bar. It moves the real machine: in the pictures the panel was only opened and looked at; no knob, slider, step, Home, Probe, STOP or E-STOP was pressed. The panel is narrow and tall (about 275 x 885 px); the pictures show it at the size it has on a 682 px high screen. Red rectangles mark the control described.
+The Jog is a floating panel that is available on every DWC page. It is opened with the button "Jog" of the group "THIS SCREEN" in the Control bar and closed with the "-" button of its title bar. It moves the real machine: keep your hand near the STOP. The panel is narrow and tall (about 232 x 900 px); the pictures show it whole. Red rectangles mark the control described.
 
 ![Jog panel](https://raw.githubusercontent.com/jhonf441/WorkshopJog/main/img/01-jog-panel-step-tab.png)
 
-Picture 1: the whole panel with the "Step" tab: title buttons, position, mode, knob, speed, tabs, axis and step chips, home row and the two stop buttons (red rectangles).
+Picture 1: the whole panel with the "Step" tab: title buttons, position, mode, knob, speed, tabs, axis chips, step buttons, home row and the two stop buttons (red rectangles).
 
 ### Panel and title bar
 
@@ -43,7 +43,7 @@ Picture 1: the whole panel with the "Step" tab: title buttons, position, mode, k
 - Watch out: it never gets bigger than the window (on a phone a size saved on a wide screen is fitted, and comes back when the window is wide again) and it never grows under the Emergency stop button of DWC. Full screen (phones) has no handle.
 
 #### State line
-- What: the line under the title: "Ready - 2198 mm/min" when you can move, or an orange line with the reason when the jog is blocked: machine off, a job running, a service lock, no sign-in or a view-only role (for example "Locked: Machine off", "Blocked: live job running").
+- What: the line under the title: "Ready - 3030 mm/min" when you can move, or an orange line with the reason when the jog is blocked: machine off, a job running, a service lock, no sign-in or a view-only role (for example "Locked: Machine off", "Blocked: live job running").
 - Where: just under the title bar (picture 1).
 - How: read it before touching anything.
 
@@ -54,12 +54,12 @@ Picture 1: the whole panel with the "Step" tab: title buttons, position, mode, k
 
 #### Help mode ("?")
 - What: turns on short explanations under each group of buttons.
-- Where: third icon of the title bar (picture 1).
+- Where: second icon of the title bar (picture 1).
 - How: press it to turn it on, press again to turn it off.
 
 #### Settings (gear)
 - What: opens the sheet "Jog settings" (see below).
-- Where: second icon of the title bar (picture 1).
+- Where: fourth icon of the title bar (picture 1).
 - How: press it; "Cancel" closes the sheet without saving.
 
 ### Position
@@ -76,7 +76,7 @@ Picture 1: the whole panel with the "Step" tab: title buttons, position, mode, k
 - Watch out: it MOVES the machine.
 
 #### Limits and speed readouts
-- What: the limits of the axes (here X -12..620, Y 0..523, Z 0..314), the speed reached / requested in mm/s and the maximum of the axes (X9000 Y9000 Z600 mm/min).
+- What: the limits of the axes (here X 0..300, Y 0..300, Z 0..300), the speed reached / requested in mm/s and the maximum of the axes (X100 Y100 Z100 mm/min).
 - Where: under the Go to buttons (picture 1).
 - How: read only.
 
@@ -105,8 +105,8 @@ Picture 1: the whole panel with the "Step" tab: title buttons, position, mode, k
 - How: drag it.
 
 #### Step tab: axis chips, step slider and "-" / "+"
-- What: the chips X, Y, Z choose the axis; the step slider chooses the distance (here 1 mm); the buttons "-" and "+" move: a tap is one step, a hold is continuous until you release.
-- Where: tab "Step" and the chips under it (red rectangles, picture 1).
+- What: the chips X, Y, Z choose the axis; the step buttons choose the distance (here 1 mm); the buttons "-" and "+" below them move: a tap is one step, a hold is continuous until you release.
+- Where: tab "Step" and the chips under it (red rectangles, picture 1; the step buttons and "-" / "+" are below the axis chips).
 - How: 1. Choose the axis. 2. Choose the step. 3. Tap "+" or "-".
 - Watch out: it moves the machine. With the keyboard option on, the arrows (X/Y) and PgUp / PgDn (Z) do the same (it turns off when you close the jog or leave the window).
 
@@ -126,10 +126,10 @@ Picture 1: the whole panel with the "Step" tab: title buttons, position, mode, k
 
 ![Advanced tab](https://raw.githubusercontent.com/jhonf441/WorkshopJog/main/img/02-jog-panel-advanced-tab.png)
 
-Picture 2: the tab "Advanced" (here all its sections are hidden).
+Picture 2: the tab "Advanced" (here with the sections Console, Full log, Control per axis and per mode, and Jog log).
 
 #### Advanced sections
-- What: sections that can be shown, hidden and reordered (gear > Sections): macro buttons, extra axes (an axis added in `config.g` with `M584 U..., A...` shows up here and in Step with tap / hold +/-), tool change (RRF runs its tfree / tpre / tpost macros), a console (arrows up / down = history; several orders separated by `;` run one by one and stop if one fails; `M112` and `M999` are refused: use the jog E-STOP) and motor release. This machine shows "All the sections are hidden. Turn them on in the gear > Sections of the Advanced tab."
+- What: sections that can be shown, hidden and reordered (gear > Sections): macro buttons, extra axes (an axis added in `config.g` with `M584 U..., A...` shows up here and in Step with tap / hold +/-), tool change (RRF runs its tfree / tpre / tpost macros), a console (arrows up / down = history; several orders separated by `;` run one by one and stop if one fails; `M112` and `M999` are refused: use the jog E-STOP) and motor release.
 - Where: tab "Advanced" (red rectangle, picture 2).
 - How: press the tab; choose the sections in the gear.
 - Watch out: the console and the macro buttons run real G-code.
@@ -143,15 +143,15 @@ Picture 2: the tab "Advanced" (here all its sections are hidden).
 
 ![What is shown](https://raw.githubusercontent.com/jhonf441/WorkshopJog/main/img/03-settings-what-is-shown.png)
 
-Picture 3: the sheet "Jog settings": design (Option 1 / Option 2), the tabs and the controls to move (red rectangles).
+Picture 3: the sheet "Jog settings": design (Option 1 / 2 / 3) and the controls to move (red rectangles).
 
 #### First: start-up card
-- What: a green card "First: Start-up - Everything is ready" with the button "Review the start-up", to check again what the Jog needs (come back if you change something on the machine).
+- What: a card "First: Start-up" that tells what the Jog still needs on your machine (orange, with the button "Open the start-up"); when everything is ready it turns green ("Everything is ready") with the button "Review the start-up". Come back if you change something on the machine.
 - Where: top of the sheet (picture 3).
-- How: press "Review the start-up".
+- How: press "Open the start-up" (or "Review the start-up").
 
-#### Design: Option 1 or Option 2
-- What: Option 1 is the knob with the tabs Step / Advanced; Option 2 (task based) shows a large position, arrows (tap = one step, hold = smooth continuous), "Go to" with numbers and the stop at the bottom; the knob and everything of option 1 stay in "More". Each option keeps its own settings.
+#### Design: Option 1, 2 or 3
+- What: Option 1 is the knob with the tabs Step / Advanced; Option 2 (task based) shows a large position, arrows (tap = one step, hold = smooth continuous), "Go to" with numbers and the stop at the bottom; the knob and everything of option 1 stay in "More". Option 3 is the pendant design. Each option keeps its own settings.
 - Where: row "Design" (red rectangle, picture 3).
 - How: press an option, then "Save" (or "Cancel").
 

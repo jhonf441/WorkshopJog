@@ -1,5 +1,67 @@
 # WorkshopJog -- historial de versiones
 
+## 3.30.0 -- 2026-11-23
+
+- Family redesign, tanda 1 (FAMILIA-REDISENO.md): the scale of the family on the floating Jog -- header buttons 32, keys 36, STOP / E-STOP 48, all touched over 40 and 8 px apart; a header row of 40; sections without boxes (drawn keyboard, axis cells of the position card) and group titles 13/600; the settings sheet to the scale: header 48 with a close of 32, tabs 32, radio rows 36, check box rows 48, Save 36 and the other buttons 32 (8 px apart), the start-up button 36 as wide as its words; everything touched over 40
+
+## 3.29.1 -- 2026-11-23
+
+- The jog disappears at once when it closes: no transition or animation on the panel, with or without reduced motion (test jog-close-instant)
+
+## 3.29.0 -- 2026-11-23
+
+- Owner's notes of 2026-11-23: header in one row (title and five 36 px buttons, touched over 40), compact floating panel (keys 40 px, STOP / E-STOP 48 px), Home in one row with the house and the letter, Z here with its words, STOP / E-STOP never out of their column, readable help legend, whole status line, the unchosen Free / Straight in outline, Settings help folds open under its row, no veil of the Jog covers a stop (its own STOP / E-STOP stay pressable with a sheet open), panel contained (no page reflow), the panel built by sections (createJogPanel split, no behaviour change); the notices keep the STOP strip free when the jog sits low (C13.9); the phone's full screen button is an icon with its words; the selects of the axis controls keep their text off the arrow
+
+## 3.28.2 -- 2026-11-23
+
+- optional files are never requested when absent
+
+## 3.28.1 -- 2026-11-22
+
+- icon buttons in the dock, one-row header, size button always visible
+
+## 3.28.0 -- 2026-11-22
+
+- Two-row header, Home only at the bottom, no overflow, macros from the catalogue
+
+## Unreleased -- macro picker and object model state (22-nov-2026 review, lote 6)
+
+- The macro of a button made in the Settings is chosen from the service's catalogue (`macros.catalog`): "Your macros" and "Workshop macros (to call)" (only the ones a plugin declares for the person; the helpers only the plugins call are never offered). A macro of the workshop runs as `M98 P"0:/sys/workshop/macros/..."`. Install WorkshopService first.
+- The "Edit file" button is gone: a macro is not edited from the jog and is never opened in the viewer of DWC. "View content" shows it read-only in a dialog of its own.
+- "State" of the button: the same fields as the control bar: path suggested and checked against the live object model, value checked, Test row, ONE fold of help.
+
+## 3.27.3 -- 2026-11-22
+
+- Rebuild with shared update: start-up card split into modules, neutral Spanish texts, service texts resynced, unused .wf-index rule dropped
+
+## 3.27.2 -- 2026-11-22
+
+- Tuteo in texts (no voseo in es.json).
+
+## 3.27.1 -- 2026-11-22
+
+- Visual review round: single hover and focus for inputs and controls (family styles), 44 px switch and checkbox rows, range picker field 44 px.
+
+## 3.27.0 -- 2026-11-21
+
+- Style unification: 44 px controls and 12 px minimum text for any pointer (no pointer media queries), every double touch takes the family 4000 ms constant, controls under 44 px raised (speed slider, check rows, order handle area), shared pieces and help from the family kit.
+
+## 3.26.2 -- 2026-11-21
+
+- Jog: Z here (Z home at the current X and Y, G30) in the pendant (position card and a full-width row) and visible in design 2 on touch screens
+
+## 3.26.1 -- 2026-11-21
+
+- Help card readable (own text color and font), one session notice per page, no repeated asks for missing optional files; Jog pendant press feedback and tap-again confirmations; Vision silent on closed connection
+
+## 3.26.0 -- 2026-11-21
+
+- Pendant: one wheel with axis selector (no Z+/Z- buttons), Home per axis in the position card, bigger Home row
+
+## 3.25.0 -- 2026-11-20
+
+- Pendant without overflow, Home Z, 3D buttons and a filled circle; hive design off until refined
+
 ## 3.24.14 -- 2026-11-18
 
 - accessRev: the page asks whoami at once when the service says the access changed
@@ -54,7 +116,7 @@
 
 ## 3.24.1 -- 2026-11-11
 
-- Owner report 2026-11-11: shutdown without session, kiosk PIN pad, hive confirm color, wheel release and Z keys, version in every page bar
+- User report 2026-11-11: shutdown without session, kiosk PIN pad, hive confirm color, wheel release and Z keys, version in every page bar
 
 ## 3.24.0 -- 2026-11-10
 

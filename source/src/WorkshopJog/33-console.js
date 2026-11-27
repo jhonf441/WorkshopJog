@@ -119,7 +119,7 @@
         b.type = "button";
         b.textContent = text;
         b.className = "wf-btn" + (primario ? " wf-main" : "");
-        b.style.cssText = "padding:4px 10px;font-size:11px;";
+        b.style.cssText = "padding:4px 10px;font-size:12px;";
         b.addEventListener("click", fn);
         return b;
       }
@@ -142,7 +142,7 @@
         }
       }
 
-      // ---- The replies of the board reach the console even while its section is closed (owner request 2026-11-06) ----
+      // ---- The replies of the board reach the console even while its section is closed (user request 2026-11-06) ----
       // The section only read the replies while it was open and after its own Send. With the switch on (per screen, localStorage) the jog keeps a
       // small inbox of every new message of the board from the status it already reads every 2 s (jogCheckEnabled publishes it: workshopOnStatus),
       // whichever tab or section is open, and the Console shows that inbox when it opens. Off: as before (only after a Send, while open).
@@ -237,15 +237,15 @@
           inp.setAttribute("spellcheck", "false");
           inp.placeholder = ctx.i18n("avConsole.placeholder");
           inp.style.cssText =
-            "flex:1 1 0;min-width:0;min-height:32px;box-sizing:border-box;padding:4px 6px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;background:#263238;color:#eceff1;border:1px solid rgba(255,255,255,0.18);border-radius:6px;";
+            "flex:1 1 0;min-width:0;min-height:44px;box-sizing:border-box;padding:4px 6px;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;background:#263238;color:#eceff1;border:1px solid rgba(255,255,255,0.18);border-radius:6px;";
           ["keydown", "keyup", "keypress", "pointerdown"].forEach(function (ev) {
             inp.addEventListener(ev, function (e) { e.stopPropagation(); }); // arrows and letters are not jog shortcuts here
           });
           var stateThe = document.createElement("div");
-          stateThe.style.cssText = "font-size:10px;color:var(--wf-n-down-text,#ffb74d);min-height:12px;word-break:break-word;";
+          stateThe.style.cssText = "font-size:12px;color:var(--wf-n-down-text,#ffb74d);min-height:12px;word-break:break-word;";
           var output = document.createElement("div");
           output.style.cssText =
-            "max-height:140px;overflow-y:auto;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;line-height:1.4;color:#b0bec5;word-break:break-word;";
+            "max-height:140px;overflow-y:auto;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;line-height:1.4;color:#b0bec5;word-break:break-word;";
 
           function paintResp() {
             output.textContent = "";
@@ -342,12 +342,12 @@
           ctx.container.appendChild(stateThe);
           ctx.container.appendChild(output);
           var hint = document.createElement("div");
-          hint.style.cssText = "font-size:10px;color:rgba(255,255,255,0.45);";
+          hint.style.cssText = "font-size:12px;color:rgba(255,255,255,0.45);";
           hint.textContent = ctx.i18n("avConsole.hint");
           ctx.container.appendChild(hint);
           // the switch: the replies of the board keep arriving while this section (or the whole Advanced tab) is closed; per screen
           var always = document.createElement("label");
-          always.style.cssText = "display:flex;align-items:flex-start;gap:6px;font-size:11px;color:#b0bec5;cursor:pointer;min-height:32px;";
+          always.style.cssText = "display:flex;align-items:flex-start;gap:6px;font-size:12px;color:#b0bec5;cursor:pointer;min-height:44px;";
           var cb = document.createElement("input");
           cb.type = "checkbox";
           cb.checked = jogConsAlways;
@@ -385,9 +385,9 @@
           bar.style.cssText = "display:flex;flex-wrap:wrap;gap:4px;width:100%;";
           var items = document.createElement("div");
           items.style.cssText =
-            "max-height:200px;overflow-y:auto;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;line-height:1.4;word-break:break-word;";
+            "max-height:200px;overflow-y:auto;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;line-height:1.4;word-break:break-word;";
           var noticeThe = document.createElement("div");
-          noticeThe.style.cssText = "font-size:10px;color:#a5d6a7;min-height:12px;";
+          noticeThe.style.cssText = "font-size:12px;color:#a5d6a7;min-height:12px;";
           var chips = {};
           ["info", "notice", "error"].forEach(function (n) {
             var b = jogConsButton(ctx.i18n("avConsole.level_" + n), function () {

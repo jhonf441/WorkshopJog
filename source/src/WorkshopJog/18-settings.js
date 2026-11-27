@@ -193,7 +193,7 @@
           if (o.openOnLoad === "open" || o.openOnLoad === "closed") g.openOnLoad = o.openOnLoad;
           g.style = jogAjIdx(o.style);
           if (o.d && typeof o.d === "object") {
-            JOG_AJ_DESIGNS.forEach(function (n) {
+            [1, 2, 3, 4].forEach(function (n) {
               d[n] = jogAjCleanDesign(o.d[n], n);
             });
           }
@@ -339,26 +339,16 @@
         ov.id = "workshop-jog-settings";
         ov.setAttribute("data-workshop-i18n", "1");
         ov.style.cssText =
-          "position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;font-family:Roboto,Helvetica,Arial,sans-serif;";
+          "position:fixed;inset:0;z-index:" + JOG_VEIL_Z + ";background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;font-family:Roboto,Helvetica,Arial,sans-serif;";
         var box = document.createElement("div");
         box.style.cssText =
           "background:#263238;color:#eceff1;border:1px solid #455a64;border-radius:10px;width:min(560px,calc(100vw - 32px));height:min(640px,calc(100vh - 32px));display:flex;flex-direction:column;box-shadow:0 6px 24px rgba(0,0,0,0.6);";
-        ov.appendChild(box);
+        ov.appendChild(box); workshopVeilClear(ov); jogVeilUnderPanel(ov); // no veil covers a stop: DWC's bar, the control bar and the Jog's STOP / E-STOP stay free and pressable (15-veil.js)
         ov.addEventListener("pointerdown", function (ev) {
           if (ev.target === ov) close();
         });
-        function el(tag, css, text) {
-          var e = document.createElement(tag);
-          if (css) e.style.cssText = css;
-          if (text !== undefined) e.textContent = text;
-          return e;
-        }
-        var hd = el("div", "display:flex;align-items:center;padding:10px 12px;border-bottom:1px solid rgba(255,255,255,0.12);");
-        hd.appendChild(el("div", "font-size:16px;font-weight:500;flex:1;", i18nT('settings.jog_settings'))); hd.appendChild(workshopVersionChip()); // 2026-11-18: the version lives here, not in the jog header
-        var xb = el("button", "background:none;border:none;color:#b0bec5;font-size:18px;cursor:pointer;padding:0 4px;", "x");
-        xb.type = "button";
-        xb.addEventListener("click", close);
-        hd.appendChild(xb);
+        var el = jogAjUiEl, btn = jogAjUiButton, row = jogAjUiRow, hint = jogAjUiHint, h = jogAjUiTitle, check = jogAjUiCheck, num = jogAjUiNumber;
+        var hd = jogAjSheetHead(workshopSheetHeader(i18nT('settings.jog_settings'), close)); // the common sheet header: title, version pill, round 44 px close (2026-11-22; the version lives here, not in the jog header)
         box.appendChild(hd); box.appendChild(jogStartupCard(function () { close(); jogStartupInput.open(); })); // first thing to do (19-startup.js)
 
         // Design chooser (2026-10-13): every page of the sheet edits the design in use,
@@ -369,7 +359,9 @@
         dsg.appendChild(dsgRow);
         dsgRow.appendChild(el("span", "font-size:12px;color:var(--wf-n-role-text,#b0bec5);margin-right:4px;", i18nT('settings.design')));
         var dsgBtns = {};
-        [[1, i18nT('settings.option_1_knob_and_tabs')], [2, i18nT('settings.option_2_task_based')], [3, i18nT('settings.option_3_pendant')], [4, i18nT('settings.option_4_hive')]].forEach(function (o) {
+        [[1, i18nT('settings.option_1_knob_and_tabs')], [2, i18nT('settings.option_2_task_based')], [3, i18nT('settings.option_3_pendant')], [4, i18nT('settings.option_4_hive')]].filter(function (o) {
+          return JOG_AJ_DESIGNS.indexOf(o[0]) !== -1; // the hive is off while JOG_HIVE_ENABLED is false (09-designs.js)
+        }).forEach(function (o) {
           var b = el("button", "", o[1]);
           b.type = "button";
           b.addEventListener("click", function () {
@@ -380,7 +372,7 @@
           dsgRow.appendChild(b);
           dsgBtns[o[0]] = b;
         });
-        var dsgHint = el("div", "font-size:11px;color:#b0bec5;margin:4px 0 0 0;");
+        var dsgHint = el("div", "font-size:12px;color:#b0bec5;margin:4px 0 0 0;");
         dsg.appendChild(dsgHint);
 
         // pestanas de la hoja
@@ -389,7 +381,7 @@
         box.appendChild(tabs);
         var bodyThe = el("div", "overflow-y:auto;padding:10px 12px;flex:1 1 0;min-height:0;font-size:13px;");
         box.appendChild(bodyThe);
-        var foot = el("div", "display:flex;gap:6px;padding:10px 12px;border-top:1px solid rgba(255,255,255,0.12);align-items:center;flex-wrap:wrap;");
+        var foot = el("div", "display:flex;gap:8px;padding:10px 12px;border-top:1px solid rgba(255,255,255,0.12);align-items:center;flex-wrap:wrap;");
         box.appendChild(foot);
         var msg = el("div", "font-size:12px;flex:1 1 100%;min-height:0;");
         foot.appendChild(msg);
@@ -426,50 +418,6 @@
           if (jogRolePageLock(p[0])) jogRoleMarkTab(b, jogRolePageLock(p[0]));
         });
 
-        function btn(label, primary, fn) {
-          var b = el("button", "", label);
-          b.className = "wf-btn" + (primary ? " wf-main" : "");
-          b.type = "button";
-          b.addEventListener("click", fn);
-          return b;
-        }
-        function row(parent) {
-          var r = el("div", "display:flex;align-items:center;gap:8px;margin:5px 0;flex-wrap:wrap;");
-          parent.appendChild(r);
-          return r;
-        }
-        function hint(parent, text) {
-          parent.appendChild(el("div", "font-size:11px;color:#b0bec5;margin:2px 0 8px 0;", text));
-        }
-        // One single "Reset" lives in the footer (2026-10-13: "I only want a
-        // default in a single place"): no per-item default buttons.
-        function h(parent, text) {
-          parent.appendChild(el("div", "font-size:12px;font-weight:bold;color:var(--wf-n-session-text,#90caf9);margin:10px 0 4px 0;text-transform:uppercase;letter-spacing:0.5px;", text));
-        }
-        function check(parent, label, val, fn) {
-          var l = el("label", "display:flex;align-items:center;gap:6px;cursor:pointer;");
-          var c = document.createElement("input");
-          c.type = "checkbox";
-          c.checked = !!val;
-          c.style.cssText = "width:18px;height:18px;";
-          c.addEventListener("change", function () { fn(c.checked); });
-          l.appendChild(c);
-          l.appendChild(el("span", "", label));
-          parent.appendChild(l);
-          return c;
-        }
-        function num(parent, val, min, max, step, w, fn) {
-          var i = document.createElement("input");
-          i.type = "number";
-          i.min = String(min);
-          i.max = String(max);
-          i.step = String(step);
-          i.value = String(val);
-          i.style.cssText = "width:" + (w || 80) + "px;padding:4px 6px;background:#1e272c;color:#fff;border:1px solid #455a64;border-radius:4px;font-size:13px;";
-          i.addEventListener("input", function () { fn(parseFloat(i.value)); });
-          parent.appendChild(i);
-          return i;
-        }
         function slider(parent, label, val, min, max, step, fmt, fn) {
           var r = row(parent);
           r.appendChild(el("span", "flex:0 0 150px;", label));
@@ -530,7 +478,7 @@
           // Keyboard saved on a touch screen: the factory ones are used (and shown)
           var tecladoSinTeclado = !!(c.keyboard && !hayTeclado);
           if (tecladoSinTeclado) c = fab;
-          var notice = el("div", "font-size:11px;color:#ef9a9a;margin:2px 0;");
+          var notice = el("div", "font-size:12px;color:#ef9a9a;margin:2px 0;");
           function put(k, v) {
             c[k] = v;
             var clean = jogControlsClean(c);
@@ -579,14 +527,13 @@
             rx.appendChild(l);
           });
           if (!hayTeclado)
-            bodyThe.appendChild(el("div", "font-size:11px;color:var(--wf-n-down-text,#ffb74d);margin:2px 0 6px 0;",
+            bodyThe.appendChild(el("div", "font-size:12px;color:var(--wf-n-down-text,#ffb74d);margin:2px 0 6px 0;",
               tecladoSinTeclado
                 ? i18nT('settings.keyboard_this_screen_is_a_touchscreen')
                 : i18nT('settings.keyboard_this_screen_is_a_touchscreen_2')));
           // Z: only one, like X/Y (2026-10-11); with Keyboard, Z is also the keyboard
           var rz = row(bodyThe);
           rz.appendChild(el("span", "min-width:40px;", "Z"));
-          rz.appendChild(workshopHelpTipOf("jog_z"));
           if (c.keyboard) {
             rz.appendChild(el("span", "color:#b0bec5;", i18nT('settings.with_the_keyboard_pgup_raises_pgdn')));
           } else {
@@ -616,6 +563,7 @@
               rz.appendChild(l);
             });
           }
+          bodyThe.appendChild(workshopHelpFoldEl(workshopHelpSpecOf("jog_z"))); // note 4 (2026-11-23): the Z help folds open under its row, nothing floats (the "?" card opened behind the jog)
           bodyThe.appendChild(notice);
           if (c.keyboard)
             hint(bodyThe, i18nT('settings.only_the_keys_are_drawn_on'));
@@ -629,8 +577,11 @@
           drawControles();
           // Position (2026-10-11): a single card, at the top, in both options (13-position.js)
           h(bodyThe, i18nT('position.position'));
-          check(row(bodyThe), i18nT('settings.show_the_position_above_the_controls'), a.secs.position, function (v) { a.secs.position = v; });
-          hint(bodyThe, i18nT('settings.large_numbers_in_the_work_area'));
+          // options 3 and 4 (pendant, hive) draw the card BELOW their own controls and their readout already has the positions (12-jog3.js
+          // jogAsmFrame): the words say so (owner 2026-11-23, note 12: "above the controls" did not match the pendant that says "nothing else")
+          var ownReadout = jogAjDesignOwnControls(a.style); // off by default there (line 47): it is the one optional extra
+          check(row(bodyThe), i18nT(ownReadout ? 'settings.show_the_position_card_below' : 'settings.show_the_position_above_the_controls'), a.secs.position, function (v) { a.secs.position = v; });
+          hint(bodyThe, i18nT(ownReadout ? 'settings.position_card_option_3_4' : 'settings.large_numbers_in_the_work_area'));
           drawEstructura();
         }
         // Tabs, extra axes and sections: both designs (in option 2 they are inside "Mas").
@@ -738,8 +689,7 @@
           hint(bodyThe, i18nT('settings.how_far_the_knob_must_move'));
           h(bodyThe, i18nT('settings.on_opening_this_screen'));
           var r = row(bodyThe);
-          var sel = document.createElement("select");
-          sel.style.cssText = "padding:4px 6px;background:#1e272c;color:#fff;border:1px solid #455a64;border-radius:4px;";
+          var sel = workshopInputEl("select", "background:#1e272c;color:#fff;"); // size, border and radius: class wf-input
           [["last", i18nT('settings.remember_the_last_speed')], ["fixed", i18nT('settings.always_start_at')]].forEach(function (o) {
             var op = document.createElement("option");
             op.value = o[0];
@@ -762,17 +712,15 @@
         function drawSteps() {
           hint(bodyThe, i18nT('settings.this_screen_only_the_distances_of'));
           var r = row(bodyThe);
-          var t = document.createElement("input");
+          var t = workshopInputEl("input", "flex:1 1 220px;background:#1e272c;color:#fff;");
           t.type = "text";
           t.value = a.steps.join(", ");
-          t.style.cssText = "flex:1 1 220px;padding:6px;background:#1e272c;color:#fff;border:1px solid #455a64;border-radius:4px;font-size:13px;";
           r.appendChild(t);
           var prev = el("div", "display:flex;gap:4px;flex-wrap:wrap;margin:6px 0;");
           bodyThe.appendChild(prev);
           var r2 = row(bodyThe);
           r2.appendChild(el("span", "", i18nT('settings.step_chosen_on_opening')));
-          var sel = document.createElement("select");
-          sel.style.cssText = "padding:4px 6px;background:#1e272c;color:#fff;border:1px solid #455a64;border-radius:4px;";
+          var sel = workshopInputEl("select", "background:#1e272c;color:#fff;"); // size, border and radius: class wf-input
           r2.appendChild(sel);
           function sync() {
             var list = jogAjCleanSteps(t.value.split(/[,;\s]+/)) || [];
@@ -809,8 +757,7 @@
           swatches(bodyThe, JOG_AJ_BORDERS, a.border, function (c) { a.border = c; });
           h(bodyThe, i18nT('settings.on_page_load'));
           var r = row(bodyThe);
-          var sel = document.createElement("select");
-          sel.style.cssText = "padding:4px 6px;background:#1e272c;color:#fff;border:1px solid #455a64;border-radius:4px;";
+          var sel = workshopInputEl("select", "background:#1e272c;color:#fff;"); // size, border and radius: class wf-input
           [["remember", i18nT('settings.as_i_left_it')], ["open", i18nT('settings.always_open')], ["closed", i18nT('settings.always_minimized')]].forEach(function (o) {
             var op = document.createElement("option");
             op.value = o[0];

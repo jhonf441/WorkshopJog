@@ -72,14 +72,14 @@
       function jogFreeMount(body) {
         jogFreeCss();
         jogFreeBox = document.createElement("div");
-        jogFreeBox.style.cssText = "display:none;width:100%;box-sizing:border-box;border-radius:6px;padding:6px;font-size:11px;line-height:1.35;";
+        jogFreeBox.style.cssText = "display:none;width:100%;box-sizing:border-box;border-radius:6px;padding:6px;font-size:12px;line-height:1.35;";
         body.appendChild(jogFreeBox);
         jogFreeBtn = document.createElement("button");
         jogFreeBtn.type = "button";
         // a small padlock icon in the panel header, next to the gear (2026-10-16): the text chip ("Sin limites: no") was wider
         // than the header and pushed the title and the minimize button out of it. The text lives in the tooltip.
         jogFreeBtn.style.cssText =
-          "flex:none;width:28px;height:28px;box-sizing:border-box;overflow:visible;border-radius:4px;border:1px solid var(--wf-n-down-text,#ffb74d);background:transparent;color:var(--wf-n-down-text,#ffb74d);display:inline-flex;align-items:center;justify-content:center;padding:0;margin-right:4px;cursor:pointer;touch-action:none;";
+          "flex:none;width:" + jogHeaderBtnPx() + "px;height:" + jogHeaderBtnPx() + "px;min-width:" + jogHeaderBtnPx() + "px;min-height:" + jogHeaderBtnPx() + "px;box-sizing:border-box;overflow:visible;border-radius:8px;border:1px solid var(--wf-n-down-text,#ffb74d);background:transparent;color:var(--wf-n-down-text,#ffb74d);display:inline-flex;align-items:center;justify-content:center;padding:0;margin:0 0 0 auto;cursor:pointer;touch-action:none;";
         jogFreeBtn.setAttribute("data-tip-pass", "1");
         jogFreeBtn.addEventListener("pointerdown", function (ev) {
           ev.stopPropagation();
@@ -158,7 +158,7 @@
           // with the essentials; current / crash / margin in "Details".
           // What is dangerous (crash disabled, notice, no fallback) is always in view.
           var t = document.createElement("div");
-          t.style.cssText = "display:flex;align-items:center;gap:6px;font-size:11px;font-weight:bold;color:#ef9a9a;";
+          t.style.cssText = "display:flex;align-items:center;gap:6px;font-size:12px;font-weight:bold;color:#ef9a9a;";
           var titleThe = document.createElement("span");
           titleThe.style.flex = "1";
           titleThe.textContent = d.mode === "outsideLimits" ? i18nT('free.beyond_the_limits_careful') : i18nT('free.no_homing_no_limits_careful');
@@ -173,7 +173,7 @@
           }
           var db = document.createElement("button");
           db.type = "button";
-          db.style.cssText = "background:none;border:none;color:#b0bec5;font-size:11px;cursor:pointer;padding:0 2px;";
+          db.style.cssText = "background:none;border:none;color:#b0bec5;font-size:12px;cursor:pointer;padding:0 2px;";
           db.textContent = jogFreeDetails ? i18nT('free.less') : i18nT('free.details');
           db.addEventListener("click", function (ev) {
             ev.stopPropagation();
@@ -272,11 +272,11 @@
         ov.id = "workshop-jog-free";
         ov.setAttribute("data-workshop-i18n", "1");
         ov.style.cssText =
-          "position:fixed;inset:0;z-index:2147483647;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;font-family:Roboto,Helvetica,Arial,sans-serif;";
+          "position:fixed;inset:0;z-index:" + JOG_VEIL_Z + ";background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;font-family:Roboto,Helvetica,Arial,sans-serif;";
         var box = document.createElement("div");
         box.style.cssText =
           "background:#263238;color:#eceff1;border:2px solid #ff5252;border-radius:10px;width:min(460px,calc(100vw - 32px));max-height:calc(100vh - 32px);display:flex;flex-direction:column;box-shadow:0 6px 24px rgba(0,0,0,0.6);";
-        ov.appendChild(box);
+        ov.appendChild(box); workshopVeilClear(ov); jogVeilUnderPanel(ov); // no veil covers a stop: DWC's bar, the control bar and the Jog's STOP / E-STOP stay free and pressable (15-veil.js)
         ov.addEventListener("pointerdown", function (ev) {
           if (ev.target === ov) cerrar();
         });
@@ -336,7 +336,7 @@
           });
           r.appendChild(i);
           fields.appendChild(r);
-          if (help) fields.appendChild(el("div", "font-size:11px;color:#b0bec5;margin:-2px 0 6px 0;", help));
+          if (help) fields.appendChild(el("div", "font-size:12px;color:#b0bec5;margin:-2px 0 6px 0;", help));
         }
         function dibujarCampos() {
           fields.textContent = "";
@@ -357,7 +357,7 @@
             l.appendChild(r);
             var tx = el("span", "");
             tx.appendChild(el("b", "", m[1]));
-            tx.appendChild(el("div", "font-size:11px;color:#b0bec5;", m[2]));
+            tx.appendChild(el("div", "font-size:12px;color:#b0bec5;", m[2]));
             l.appendChild(tx);
             fields.appendChild(l);
           });
@@ -448,7 +448,7 @@
             armedT = setTimeout(function () {
               armed = false;
               act.textContent = i18nT('free.turn_on');
-            }, 4000);
+            }, JOG_ARM_MS);
             return;
           }
           clearTimeout(armedT);

@@ -1,0 +1,22 @@
+{
+ "version": 1,
+ "plugin": "WorkshopJog",
+ "macros": [
+  {
+   "file": "system/language.g",
+   "audience": "internal"
+  },
+  {
+   "file": "work/jogFreeFailsafe.g",
+   "audience": "internal"
+  },
+  {
+   "file": "work/jogFreeSet.g",
+   "audience": "internal"
+  },
+  {
+   "file": "work/workzeroaxis.g",
+   "audience": "internal"
+  }
+ ]
+}

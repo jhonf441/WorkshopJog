@@ -10,7 +10,7 @@
 
       // Whether this screen needs the button for the jog to move.
       function jogHoldMode() {
-        return jogIsTouch();
+        return jogIsCoarse();
       }
 
       // Whether the button allows moving now.
@@ -23,7 +23,7 @@
         return jogEnabled && jogHoldOk();
       }
 
-      // A control that cannot move now never ends silent (owner report 2026-11-11: "I try to move the controls and they go back to their place"):
+      // A control that cannot move now never ends silent (user report 2026-11-11: "I try to move the controls and they go back to their place"):
       // the machine, the service, the session or the role say why in the status line (and the sign-in opens when nobody is signed in); on a touch
       // screen without the button held, the note says to hold it. Once every 1.5 s, so a finger that keeps touching does not repeat it.
       // Returns `result`, so a guard can be `return jogCannotMoveExplain(false);` on its own line.
@@ -102,14 +102,9 @@
 
       // The hold-to-enable button in the dock (touch screens only), between STOP (bottom left corner) and E-STOP.
       function jogHoldDockMount(stopRow) {
-        if (!jogIsTouch()) return;
+        if (!jogIsCoarse()) return;
         var btn = jogHoldButtonMake(i18nT("pendant.hold_to_enable"));
-        btn.style.cssText += ";flex:2 1 0;width:auto;font-size:12px;line-height:1.15;";
+        btn.style.cssText += ";width:auto;min-width:0;height:" + JOG_TOUCH_STOP_PX + "px;min-height:" + JOG_TOUCH_STOP_PX + "px;font-size:12px;line-height:1.15;padding:0 4px;white-space:normal;";
+        stopRow.style.gridTemplateColumns = "minmax(0,1fr) minmax(0,1.5fr) minmax(0,1fr)"; // STOP, the two-line hold label, E-STOP
         stopRow.insertBefore(btn, stopRow.lastChild);
-      }
-
-      // "Z here" in a touch screen goes first in the body (the dock keeps four 44 px buttons in a row); the argument order is (button, body).
-      function jogZHereToBody(btn, body) {
-        btn.style.cssText += ";width:100%;flex:none;";
-        body.insertBefore(btn, body.firstChild);
       }

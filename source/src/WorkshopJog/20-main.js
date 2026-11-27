@@ -11,6 +11,12 @@
         description:
           i18nT('main.opens_the_floating_jog_panel_when'),
         toggle: jogToggle,
+        // the bar signed the person in from the locked launcher: open the jog now when nothing locks it any more (note 10, 2026-11-23)
+        openAfterSignIn: function () {
+          if (!jogShouldOpenAfterLogin(true, isJogOpen(), jogPanelLock())) return false;
+          jogExpand();
+          return true;
+        },
         state: function () {
           var open = isJogOpen();
           var closing = !!(jogPanelEl && jogPanelEl.dataset.closing === "1");
@@ -71,7 +77,7 @@
       });
 
       // the <style> elements only the Jog uses leave the page when it stops (the shared ones go with the last plugin: workshopRemoveLeftovers)
-      var JOG_OWN_STYLES = ["workshop-jog-free-css", "workshop-jog-scroll-css", JOG_SIZE_STYLE_ID, JOG_TOUCH_STYLE_ID, JOG3_STYLE_ID];
+      var JOG_OWN_STYLES = ["workshop-jog-free-css", "workshop-jog-scroll-css", "workshop-jog-settings-css", JOG_SIZE_STYLE_ID, JOG_TOUCH_STYLE_ID, JOG3_STYLE_ID, JOG_RING_STYLE_ID];
       workshopOwnStyles(JOG_OWN_STYLES);
 
       workshopOnStop(function () {

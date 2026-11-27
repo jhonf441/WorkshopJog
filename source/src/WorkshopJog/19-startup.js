@@ -126,7 +126,7 @@
         var btn = document.createElement("button");
         btn.type = "button";
         btn.textContent = ready ? i18nT("startup_jog.first_review") : i18nT("startup_jog.first_button");
-        btn.style.cssText = "width:100%;min-height:44px;border-radius:6px;border:1px solid rgba(255,255,255,0.35);background:" + (ready ? "#455a64" : "#1976d2") + ";color:#fff;font-size:13px;font-weight:bold;cursor:pointer;";
+        btn.style.cssText = "width:auto;min-height:" + JOG_TOUCH_MIN_PX + "px;padding:0 14px;border-radius:6px;border:1px solid rgba(255,255,255,0.35);background:" + (ready ? "#455a64" : "#1976d2") + ";color:#fff;font-size:13px;font-weight:bold;cursor:pointer;";
         btn.addEventListener("click", onOpen);
         card.appendChild(btn);
         return card;

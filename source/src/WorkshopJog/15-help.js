@@ -25,7 +25,15 @@
         jogHelpView = null;
         if (jogBodyEl) jogBodyEl.style.display = "";
         var b = jogPanelEl && jogPanelEl.querySelector(".wf-help-btn");
-        if (b) b.setAttribute("aria-expanded", "false");
+        if (b) jogHelpPaint(b, false);
+      }
+
+      // open = filled blue with a white icon; closed = the outline of the other header buttons (criteria C10: never a grey icon on blue)
+      function jogHelpPaint(b, open) {
+        b.setAttribute("aria-expanded", open ? "true" : "false");
+        b.style.background = open ? "#1976d2" : "transparent";
+        b.style.borderColor = open ? "#1976d2" : "rgba(255,255,255,0.35)";
+        b.style.color = "#fff";
       }
 
       // The legend, drawn in the panel's own colors (light text on the dark panel).
@@ -39,7 +47,9 @@
         jogHelpRows(jogAjGet().style).forEach(function (r) {
           var row = document.createElement("div");
           var k = document.createElement("div");
-          k.style.cssText = "font-weight:700;color:" + jogAjGet().accent + ";filter:brightness(1.6);";
+          // the term in the panel's own text color (owner, 2026-11-23: the help must read well): the accent lightened by a filter was pale on the light
+          // theme (the light pass of _shared/03-theme.js darkens a text color, never a filter)
+          k.style.cssText = "font-weight:700;font-size:13px;color:#fff;";
           k.textContent = r[0];
           var d = document.createElement("div");
           d.style.cssText = "color:#c5cdd2;";
@@ -49,7 +59,7 @@
           v.appendChild(row);
         });
         var n = document.createElement("div");
-        n.style.cssText = "font-size:11px;color:#8e979e;border-top:1px solid rgba(255,255,255,0.15);padding-top:6px;";
+        n.style.cssText = "font-size:12px;color:#8e979e;border-top:1px solid rgba(255,255,255,0.15);padding-top:6px;";
         n.textContent = i18nT("help.safe");
         v.appendChild(n);
         return v;
@@ -72,7 +82,7 @@
           jogHelpView = jogHelpViewMake();
           jogBodyEl.style.display = "none";
           jogBodyEl.parentNode.insertBefore(jogHelpView, jogBodyEl.nextSibling);
-          b.setAttribute("aria-expanded", "true");
+          jogHelpPaint(b, true);
         });
         return b;
       }

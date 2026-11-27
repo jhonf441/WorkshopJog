@@ -76,6 +76,7 @@
             /* already released */
           }
           jogPosSave(jogPosFromRect(target.offsetLeft, target.offsetTop, target.offsetWidth, target.offsetHeight, window.innerWidth, window.innerHeight, MARGIN));
+          jogNoticeInsetSync(); // placed low or high: the notices follow (15-notice-inset.js)
           jogPosPlace();
         }
         handle.addEventListener("pointerup", end);

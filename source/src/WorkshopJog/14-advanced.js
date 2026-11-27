@@ -6,7 +6,7 @@
       // (registry order / mode filter, settings cleaning, send decision, log) are tested in tests/jog-advanced.test.js.
 
       var JOG_AV_LOG_MAX = 200;
-      var JOG_AV_ARMED_MS = 4000; // a moving code sent from a section needs a second tap within this time
+      var JOG_AV_ARMED_MS = 4000; // = WORKSHOP_ARM_MS (src/_shared/00-arm.js); tests/arm-ms.test.js keeps them equal // a moving code sent from a section needs a second tap within this time
       var jogAvLog = []; // [{t: ms, texto, nivel: "info" | "aviso" | "error"}], oldest first
       var jogAvDefs = []; // registered sections
       var jogAvChangeHook = null; // set by the tab: repaint when the registry changes
@@ -211,7 +211,7 @@
         var firstTime = true;
         host.style.cssText += ";flex-direction:column;gap:0;";
         var empty = document.createElement("div");
-        empty.style.cssText = "font-size:11px;color:#b0bec5;padding:8px 4px;";
+        empty.style.cssText = "font-size:12px;color:#b0bec5;padding:8px 4px;";
         empty.textContent = i18nT("jog.adv_no_sections");
         host.appendChild(empty);
 
@@ -228,7 +228,7 @@
           var hd = document.createElement("button");
           hd.type = "button";
           hd.style.cssText =
-            "display:flex;align-items:center;gap:6px;width:100%;background:none;border:none;color:#eceff1;font-size:11px;font-weight:bold;padding:6px 2px;min-height:32px;cursor:pointer;touch-action:none;-webkit-user-select:none;user-select:none;text-align:left;";
+            "display:flex;align-items:center;gap:6px;width:100%;background:none;border:none;color:#eceff1;font-size:12px;font-weight:bold;padding:6px 2px;min-height:44px;cursor:pointer;touch-action:none;-webkit-user-select:none;user-select:none;text-align:left;";
           if (def.icon) {
             var ic = document.createElement("span");
             ic.innerHTML = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px">' + def.icon + "</svg>";
@@ -318,7 +318,7 @@
         order: 900,
         mount: function (ctx) {
           var items = document.createElement("div");
-          items.style.cssText = "max-height:160px;overflow-y:auto;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:10px;line-height:1.4;color:#b0bec5;word-break:break-word;";
+          items.style.cssText = "max-height:160px;overflow-y:auto;font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:12px;line-height:1.4;color:#b0bec5;word-break:break-word;";
           ctx.container.appendChild(items);
           function render() {
             items.textContent = "";

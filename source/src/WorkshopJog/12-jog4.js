@@ -56,7 +56,7 @@
         box.appendChild(area);
         var cells = [];
         function hexAt(btn, col, row, text, fill) {
-          btn.style.cssText = "position:absolute;padding:0;min-width:0;min-height:0;border:none;background:transparent;color:inherit;font:inherit;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1.1;cursor:pointer;touch-action:none;overflow:visible;width:" + c + "px;height:" + h + "px;left:" + (col * step + (row ? step / 2 : 0)) + "px;top:" + row * rowDy + "px;";
+          btn.style.cssText = "position:absolute;padding:0;min-width:0;min-height:0;border:none;background:transparent;color:inherit;font:inherit;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1.1;cursor:pointer;touch-action:none;overflow:visible;width:" + c + "px;height:" + h + "px;left:" + (col * step + (row ? step / 2 : 0)) + "px;top:" + row * rowDy + "px;";
           btn.innerHTML = jogHiveSvg();
           var t = el("span", "position:relative;pointer-events:none;text-align:center;");
           t.className = "jp-t";
@@ -78,8 +78,13 @@
           var b = el("button");
           b.type = "button";
           b.title = hm[2] ? i18nT("jog.home_axis", { axis: hm[2] }) : i18nT("jog.home_all_axes_g28");
-          hexAt(b, i, 0, hm[0]);
-          jogDockHomeTap(b, hm[0], jogDockGoHome(hm[1]));
+          var iconOnly = !hm[2]; // Home (all): the house, not the word (it did not fit the hexagon)
+          hexAt(b, i, 0, iconOnly ? "" : hm[0]);
+          if (iconOnly) {
+            b.setAttribute("aria-label", b.title);
+            b.insertBefore(document.createRange().createContextualFragment(jogHomeIconHtml(20)), b.querySelector(".jp-t"));
+          }
+          jogDockHomeTap(b, iconOnly ? "" : hm[0], jogDockGoHome(hm[1]));
           homes.push(b);
         });
         var stop = jogStopButton("STOP", i18nT("pendant.stop_title"), "#e53935", "none", jogStopAll);
@@ -136,7 +141,7 @@
         }
         var card = el("div", "width:100%;max-width:100%;min-width:0;box-sizing:border-box;display:flex;flex-direction:column;gap:12px;padding:8px;border:1px solid rgba(255,255,255,0.18);border-radius:10px;color:#eceff1;overflow:hidden;");
         root.appendChild(card);
-        var note = el("div", "min-height:14px;font-size:11px;text-align:center;color:var(--wf-n-down-text,#ffb74d);");
+        var note = el("div", "min-height:14px;font-size:12px;text-align:center;color:var(--wf-n-down-text,#ffb74d);");
         var noteTimer = null;
         function say(t) {
           note.textContent = t;
@@ -164,9 +169,9 @@
           jogReclampPanel();
         });
         card.appendChild(band.el);
-        var speedLine = el("div", "font-size:11px;font-variant-numeric:tabular-nums;color:#b0bec5;text-align:center;"); // the speed of the move, always in view
+        var speedLine = el("div", "font-size:12px;font-variant-numeric:tabular-nums;color:#b0bec5;text-align:center;"); // the speed of the move, always in view
         card.appendChild(speedLine);
-        var reach = el("div", "min-height:14px;font-size:11px;text-align:center;color:var(--wf-n-down-text,#ffb74d);font-variant-numeric:tabular-nums;"); // how to turn the wheel, then how far it will still move
+        var reach = el("div", "min-height:14px;font-size:12px;text-align:center;color:var(--wf-n-down-text,#ffb74d);font-variant-numeric:tabular-nums;"); // how to turn the wheel, then how far it will still move
         var honey = jog4Honey(el, api, accent, say, function () {
           reach.textContent = jogWheelReachText(api);
         });
@@ -251,7 +256,7 @@
         bStep.title = i18nT("hive.step_title");
         function two(b, cap, val) {
           b.textContent = "";
-          b.appendChild(el("span", "display:block;font-size:10px;font-weight:600;opacity:0.8;", cap));
+          b.appendChild(el("span", "display:block;font-size:12px;font-weight:600;opacity:0.8;", cap));
           b.appendChild(el("span", "display:block;font-size:" + (val.length > 5 ? 12 : 14) + "px;font-weight:700;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;", val));
         }
         return {
@@ -357,7 +362,7 @@
         build();
         function text(b, cap, val) {
           b.t.textContent = "";
-          b.t.appendChild(el("span", "display:block;font-size:10px;font-weight:600;opacity:0.8;", cap));
+          b.t.appendChild(el("span", "display:block;font-size:12px;font-weight:600;opacity:0.8;", cap));
           if (val !== undefined) b.t.appendChild(el("span", "display:block;font-size:" + (val.length > 6 ? 9 : 11) + "px;font-weight:700;font-variant-numeric:tabular-nums;max-width:" + (JOG_HIVE_TOUCH - 8) + "px;overflow:hidden;", val));
         }
         return {

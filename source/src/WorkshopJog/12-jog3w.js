@@ -161,7 +161,7 @@
         knob.appendChild(pointer);
         box.appendChild(knob);
         var cap = document.createElement("div");
-        cap.style.cssText = "font-size:10px;font-weight:700;letter-spacing:0.8px;color:#9aa3aa;text-transform:uppercase;white-space:nowrap;";
+        cap.style.cssText = "font-size:12px;font-weight:700;letter-spacing:0.8px;color:#9aa3aa;text-transform:uppercase;white-space:nowrap;";
         wrap.appendChild(box);
         wrap.appendChild(cap);
         // Like a real rotary switch: it has two ends (it does not wrap round: before, going past the last step swung the knob back through the whole arc), it

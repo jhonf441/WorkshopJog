@@ -269,7 +269,8 @@
         return e;
       }
       var JOG_CE_BTN = "min-width:36px;padding:0 8px;font-size:12px;";
-      var JOG_CE_INP = "min-height:30px;width:64px;box-sizing:border-box;border-radius:6px;border:1px solid rgba(255,255,255,0.25);background:rgba(0,0,0,0.25);color:#eceff1;font-size:12px;padding:0 6px;";
+      var JOG_CE_INP = "min-height:44px;width:64px;box-sizing:border-box;border-radius:6px;border:1px solid rgba(255,255,255,0.25);background:rgba(0,0,0,0.25);color:#eceff1;font-size:12px;padding:0 6px;";
+      var JOG_CE_SEL = JOG_CE_INP + "padding:0 32px 0 6px;"; // a select: its text never runs under the family's drawn arrow (b21640c5)
       function jogCeBtn(text, fn) {
         var b = jogCeEl("button", JOG_CE_BTN, text);
         b.className = "wf-btn";
@@ -283,7 +284,7 @@
         b.title = ok ? "" : reason || "";
       }
       function jogCeTitle(text) {
-        return jogCeEl("div", "font-size:11px;font-weight:bold;color:#b0bec5;margin-top:4px;", text);
+        return jogCeEl("div", "font-size:12px;font-weight:bold;color:#b0bec5;margin-top:4px;", text);
       }
       function jogCeRow() {
         return jogCeEl("div", "display:flex;align-items:center;gap:6px;flex-wrap:wrap;width:100%;");
@@ -310,22 +311,22 @@
         var root = jogCeEl("div", "display:flex;flex-direction:column;gap:4px;width:100%;");
         root.appendChild(jogCeTitle(ctx.i18n("avAxis.axes_title")));
         var bar = jogCeRow();
-        var selStep = jogCeEl("select", JOG_CE_INP + "width:90px;");
-        var selSpeed = jogCeEl("select", JOG_CE_INP + "width:80px;");
+        var selStep = jogCeEl("select", JOG_CE_SEL + "width:90px;");
+        var selSpeed = jogCeEl("select", JOG_CE_SEL + "width:80px;");
         [10, 25, 50, 100].forEach(function (p) {
           var o = jogCeEl("option", "", p + " %");
           o.value = String(p);
           if (p === 25) o.selected = true;
           selSpeed.appendChild(o);
         });
-        bar.appendChild(jogCeEl("span", "font-size:11px;color:#b0bec5;", ctx.i18n("avAxis.step")));
+        bar.appendChild(jogCeEl("span", "font-size:12px;color:#b0bec5;", ctx.i18n("avAxis.step")));
         bar.appendChild(selStep);
-        bar.appendChild(jogCeEl("span", "font-size:11px;color:#b0bec5;", ctx.i18n("avAxis.speed")));
+        bar.appendChild(jogCeEl("span", "font-size:12px;color:#b0bec5;", ctx.i18n("avAxis.speed")));
         bar.appendChild(selSpeed);
         root.appendChild(bar);
         var items = jogCeEl("div", "display:flex;flex-direction:column;gap:4px;width:100%;");
         root.appendChild(items);
-        var note = jogCeEl("div", "font-size:11px;color:var(--wf-n-down-text,#ffb74d);");
+        var note = jogCeEl("div", "font-size:12px;color:var(--wf-n-down-text,#ffb74d);");
         root.appendChild(note);
         var signature = "", rows = {}, stepsSignature = "";
 
@@ -349,7 +350,7 @@
           items.textContent = "";
           rows = {};
           if (!axes.length) {
-            items.appendChild(jogCeEl("div", "font-size:11px;color:#b0bec5;", ctx.i18n("avAxis.no_axes")));
+            items.appendChild(jogCeEl("div", "font-size:12px;color:#b0bec5;", ctx.i18n("avAxis.no_axes")));
             return;
           }
           axes.forEach(function (e) {
@@ -404,7 +405,7 @@
         root.appendChild(jogCeTitle(ctx.i18n("avAxis.heaters_title")));
         var items = jogCeEl("div", "display:flex;flex-direction:column;gap:4px;width:100%;");
         root.appendChild(items);
-        var note = jogCeEl("div", "font-size:11px;color:var(--wf-n-down-text,#ffb74d);");
+        var note = jogCeEl("div", "font-size:12px;color:var(--wf-n-down-text,#ffb74d);");
         root.appendChild(note);
         root.appendChild(jogCeTitle(ctx.i18n("avAxis.extruder_title")));
         var fe = jogCeRow();
@@ -412,13 +413,13 @@
         inMm.type = "number"; inMm.min = "0"; inMm.max = String(JOG_CE_EXTRUDE_MAX); inMm.step = "1"; inMm.value = "5";
         var inSpeed = jogCeEl("input", JOG_CE_INP);
         inSpeed.type = "number"; inSpeed.min = "0"; inSpeed.step = "1"; inSpeed.value = String(JOG_CE_EXTRUDE_FEED_DEFAULT);
-        fe.appendChild(jogCeEl("span", "font-size:11px;color:#b0bec5;", ctx.i18n("avAxis.amount_mm")));
+        fe.appendChild(jogCeEl("span", "font-size:12px;color:#b0bec5;", ctx.i18n("avAxis.amount_mm")));
         fe.appendChild(inMm);
-        fe.appendChild(jogCeEl("span", "font-size:11px;color:#b0bec5;", ctx.i18n("avAxis.speed_mms")));
+        fe.appendChild(jogCeEl("span", "font-size:12px;color:#b0bec5;", ctx.i18n("avAxis.speed_mms")));
         fe.appendChild(inSpeed);
         root.appendChild(fe);
         var fb = jogCeRow();
-        var noteE = jogCeEl("div", "font-size:11px;color:var(--wf-n-down-text,#ffb74d);");
+        var noteE = jogCeEl("div", "font-size:12px;color:var(--wf-n-down-text,#ffb74d);");
         function extruir(dir) {
           var r = jogCeCodeExtrude(ctx.state().status, dir, inMm.value, inSpeed.value);
           if (!r.ok) { noteE.textContent = jogCeReason(ctx, r.reason, { min: r.min, temp: r.temp }); return; }
@@ -439,7 +440,7 @@
         function armCal(cals) {
           items.textContent = "";
           rowsC = {};
-          if (!cals.length) items.appendChild(jogCeEl("div", "font-size:11px;color:#b0bec5;", ctx.i18n("avAxis.no_heaters")));
+          if (!cals.length) items.appendChild(jogCeEl("div", "font-size:12px;color:#b0bec5;", ctx.i18n("avAxis.no_heaters")));
           cals.forEach(function (c) {
             var f = jogCeRow();
             var nom = c.kind === "tool" ? ctx.i18n("avAxis.heater_tool", { n: c.n }) : c.kind === "bed" ? ctx.i18n("avAxis.heater_bed", { n: c.n }) : ctx.i18n("avAxis.heater_chamber", { n: c.n });
@@ -464,13 +465,13 @@
         }
         function armarVent(vs) {
           vents.textContent = "";
-          if (!vs.length) vents.appendChild(jogCeEl("div", "font-size:11px;color:#b0bec5;", ctx.i18n("avAxis.no_fans")));
+          if (!vs.length) vents.appendChild(jogCeEl("div", "font-size:12px;color:#b0bec5;", ctx.i18n("avAxis.no_fans")));
           vs.forEach(function (v) {
             var f = jogCeRow();
             f.appendChild(jogCeEl("span", "min-width:70px;font-size:12px;color:#eceff1;", v.name || ctx.i18n("avAxis.fan_n", { n: v.n })));
             var sl = jogCeEl("input", "flex:1 1 80px;min-width:60px;");
             sl.type = "range"; sl.min = "0"; sl.max = "100"; sl.step = "5"; sl.value = v.value !== null ? String(Math.round(v.value * 100)) : "0";
-            var pc = jogCeEl("span", "font-size:11px;min-width:34px;color:#b0bec5;", sl.value + " %");
+            var pc = jogCeEl("span", "font-size:12px;min-width:34px;color:#b0bec5;", sl.value + " %");
             sl.addEventListener("input", function () { pc.textContent = sl.value + " %"; });
             sl.addEventListener("change", function () { ctx.send(jogCeCodeFan(v.n, Number(sl.value) / 100), { moves: false }); });
             f.appendChild(sl);
@@ -509,14 +510,14 @@
         var stateThe = jogCeEl("div", "font-size:12px;color:#eceff1;", "--");
         root.appendChild(stateThe);
         var f1 = jogCeRow();
-        var selSp = jogCeEl("select", JOG_CE_INP + "width:80px;");
+        var selSp = jogCeEl("select", JOG_CE_SEL + "width:80px;");
         var inRpm = jogCeEl("input", JOG_CE_INP + "width:80px;");
         inRpm.type = "number"; inRpm.min = "0"; inRpm.step = "100";
         f1.appendChild(selSp);
-        f1.appendChild(jogCeEl("span", "font-size:11px;color:#b0bec5;", "rpm"));
+        f1.appendChild(jogCeEl("span", "font-size:12px;color:#b0bec5;", "rpm"));
         f1.appendChild(inRpm);
         root.appendChild(f1);
-        var note = jogCeEl("div", "font-size:11px;color:var(--wf-n-down-text,#ffb74d);");
+        var note = jogCeEl("div", "font-size:12px;color:var(--wf-n-down-text,#ffb74d);");
         function chosen() {
           var l = jogCeSpindles(ctx.state().status);
           var i = Number(selSp.value);
@@ -548,7 +549,7 @@
         var herrEl = jogCeEl("div", "font-size:12px;color:#eceff1;", "--");
         root.appendChild(herrEl);
         var f3 = jogCeRow();
-        var selT = jogCeEl("select", JOG_CE_INP + "width:80px;");
+        var selT = jogCeEl("select", JOG_CE_SEL + "width:80px;");
         f3.appendChild(selT);
         f3.appendChild(jogCeBtn(ctx.i18n("avAxis.change_tool"), function () {
           var code = jogCeCodeTool(selT.value);
@@ -556,7 +557,7 @@
           ctx.send(code, { moves: true, confirm: code });
         }));
         root.appendChild(f3);
-        root.appendChild(jogCeEl("div", "font-size:10px;color:#b0bec5;", ctx.i18n("avAxis.tool_hint")));
+        root.appendChild(jogCeEl("div", "font-size:12px;color:#b0bec5;", ctx.i18n("avAxis.tool_hint")));
 
         var signatureS = "", signatureT = "";
         function sync() {
@@ -599,9 +600,9 @@
         row.appendChild(bP);
         row.appendChild(bL);
         root.appendChild(row);
-        var correctionThe = jogCeEl("div", "font-size:11px;color:#b0bec5;");
+        var correctionThe = jogCeEl("div", "font-size:12px;color:#b0bec5;");
         root.appendChild(correctionThe);
-        root.appendChild(jogCeEl("div", "font-size:10px;color:#b0bec5;", ctx.i18n("avAxis.no_fire")));
+        root.appendChild(jogCeEl("div", "font-size:12px;color:#b0bec5;", ctx.i18n("avAxis.no_fire")));
         function current() {
           return typeof jog2Get === "function" ? jog2Get("workshopJog2Points", "pointer") : "pointer";
         }

@@ -25,18 +25,18 @@
         // its own cell: a coloured letter and a big number of fixed width (it does not dance while moving). The speed goes to
         // the right and is dimmed when the head is still. One cell per datum: when the panel is narrow they wrap whole.
         var AXIS_COL = { X: "#ef9a9a", Y: "#a5d6a7", Z: "rgb(144,202,249)" };
-        var miniFrame = el("span", "flex:none;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:10px;background:" + C.prim + ";color:#fff;white-space:nowrap;");
+        var miniFrame = el("span", "flex:none;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:2px 7px;border-radius:10px;background:" + C.prim + ";color:#fff;white-space:nowrap;");
         mini.appendChild(miniFrame);
         var miniSp = {};
         var miniNum = {};
         ["X", "Y", "Z"].forEach(function (L) {
           miniSp[L] = el("span", "display:inline-flex;align-items:baseline;gap:4px;white-space:nowrap;");
-          miniSp[L].appendChild(el("span", "font-size:11px;font-weight:700;color:" + AXIS_COL[L] + ";", L));
+          miniSp[L].appendChild(el("span", "font-size:12px;font-weight:700;color:" + AXIS_COL[L] + ";", L));
           miniNum[L] = el("span", "display:inline-block;min-width:62px;text-align:right;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;", "--");
           miniSp[L].appendChild(miniNum[L]);
           mini.appendChild(miniSp[L]);
         });
-        miniSp.V = el("span", "display:inline-block;margin-left:auto;white-space:nowrap;font-size:11px;font-weight:600;");
+        miniSp.V = el("span", "display:inline-block;margin-left:auto;white-space:nowrap;font-size:12px;font-weight:600;");
         mini.appendChild(miniSp.V);
         if (typeof IntersectionObserver !== "undefined") {
           new IntersectionObserver(function (es) {
@@ -58,11 +58,11 @@
         var card = el("div", "width:100%;box-sizing:border-box;background:" + C.background + ";border-radius:8px;padding:8px;display:flex;flex-direction:column;gap:6px;");
         var top = el("div", "display:flex;align-items:center;gap:6px;flex-wrap:wrap;");
         card.appendChild(top);
-        top.appendChild(el("span", "font-size:11px;color:" + C.sec + ";", i18nT('position.position')));
+        top.appendChild(el("span", "font-size:12px;color:" + C.sec + ";", i18nT('position.position')));
         var seg = el("span", "margin-left:auto;display:flex;border:1px solid " + C.edge + ";border-radius:6px;overflow:hidden;");
         top.appendChild(seg);
-        var bZone = boton(i18nT('position.zone'), "border:none;border-radius:0;min-height:28px;", function () { frame = "zone"; jog2Set("workshopJog2Border", frame); paint(); });
-        var bMachine = boton(i18nT('position.machine'), "border:none;border-radius:0;min-height:28px;", function () { frame = "machine"; jog2Set("workshopJog2Border", frame); paint(); });
+        var bZone = boton(i18nT('position.zone'), "border:none;border-radius:0;min-height:44px;", function () { frame = "zone"; jog2Set("workshopJog2Border", frame); paint(); });
+        var bMachine = boton(i18nT('position.machine'), "border:none;border-radius:0;min-height:44px;", function () { frame = "machine"; jog2Set("workshopJog2Border", frame); paint(); });
         seg.appendChild(bZone);
         seg.appendChild(bMachine);
         // three boxes (the panel measures ~260 px: the numbers cannot go on one line)
@@ -70,8 +70,8 @@
         card.appendChild(nums);
         var numThe = {};
         ["X", "Y", "Z"].forEach(function (L) {
-          var c = el("div", "background:#1e272c;border-radius:6px;padding:3px 2px;text-align:center;min-width:0;overflow:hidden;");
-          c.appendChild(el("div", "color:" + C.sec + ";font-size:10px;font-weight:600;", L));
+          var c = el("div", "padding:3px 2px;text-align:center;min-width:0;overflow:hidden;"); // no dark box per axis: the panel is the card (tanda 1, 2026-11-23)
+          c.appendChild(el("div", "color:" + C.sec + ";font-size:12px;font-weight:600;", L));
           numThe[L] = el("div", "font-family:'IBM Plex Mono',ui-monospace,monospace;font-size:13px;font-weight:600;white-space:nowrap;", "--");
           c.appendChild(numThe[L]);
           // per-axis "go to zero" (like the DRO of the usual jog programs): moves
@@ -83,7 +83,7 @@
             if (jogBlockedExplain()) return;
             postCode('M98 P"0:/sys/workshop/macros/work/workzeroaxis.g" A' + idx).catch(function (e) { console.error("[WorkshopJog] ir a cero:", e); });
           };
-          var css = "min-height:24px;margin-top:3px;width:100%;box-sizing:border-box;font-size:10px;padding:0 2px;";
+          var css = "min-height:44px;margin-top:3px;width:100%;box-sizing:border-box;font-size:12px;padding:0 2px;";
           // fixed strings per axis so the translation layer can match them
           var etq = { X: i18nT('position.go_to_x0'), Y: i18nT('position.go_to_y0'), Z: i18nT('position.go_to_z0') }[L];
           var bIr = L === "Z" ? boton(etq, css, ir) : H.buttonDouble(etq, i18nT('jog2.go_2'), css, ir);
@@ -91,21 +91,21 @@
           c.appendChild(bIr);
           nums.appendChild(c);
         });
-        var apRow = el("div", "display:flex;align-items:center;gap:6px;font-size:11px;color:" + C.sec + ";");
+        var apRow = el("div", "display:flex;align-items:center;gap:6px;font-size:12px;color:" + C.sec + ";");
         card.appendChild(apRow);
         apRow.appendChild(document.createTextNode(i18nT('position.aims')));
-        var bPunt = boton(i18nT('position.pointer'), "min-height:28px;border-radius:14px;", function () { apunta = "pointer"; jog2Set("workshopJog2Points", apunta); paint(); });
-        var bThe = boton(i18nT('position.laser'), "min-height:28px;border-radius:14px;", function () { apunta = "laser"; jog2Set("workshopJog2Points", apunta); paint(); });
+        var bPunt = boton(i18nT('position.pointer'), "min-height:44px;border-radius:14px;", function () { apunta = "pointer"; jog2Set("workshopJog2Points", apunta); paint(); });
+        var bThe = boton(i18nT('position.laser'), "min-height:44px;border-radius:14px;", function () { apunta = "laser"; jog2Set("workshopJog2Points", apunta); paint(); });
         apRow.appendChild(bPunt);
         apRow.appendChild(bThe);
-        var zoneTxt = el("span", "margin-left:auto;font-size:11px;color:" + C.sec + ";");
+        var zoneTxt = el("span", "margin-left:auto;font-size:12px;color:" + C.sec + ";");
         var zoneRow = el("div", "display:flex;");
         zoneRow.appendChild(zoneTxt);
         card.appendChild(zoneRow);
         // what belonged to option 1: limits and real speed (move.currentMove)
         function line(title) {
           // if it does not fit on one line, the value drops down whole (with the large jog the panel is narrow)
-          var r = el("div", "display:flex;flex-wrap:wrap;column-gap:6px;font-size:10px;line-height:1.35;color:" + C.sec + ";min-width:0;");
+          var r = el("div", "display:flex;flex-wrap:wrap;column-gap:6px;font-size:12px;line-height:1.35;color:" + C.sec + ";min-width:0;");
           r.appendChild(el("span", "flex:none;", title));
           var v = el("span", "margin-left:auto;font-family:'IBM Plex Mono',ui-monospace,monospace;color:" + C.text + ";", "--");
           r.appendChild(v);
